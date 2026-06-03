@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PainCast — Weather Pain Forecast</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161d;
+    --card: #181c25;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e4dc;
+    --muted: #8a8a9a;
+    --accent: #c9a96e;
+    --accent2: #7e9fc9;
+    --low: #5bb88a;
+    --mod: #e8c66a;
+    --high: #e07a50;
+    --severe: #c94f4f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background atmosphere */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(126,159,201,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(201,169,110,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--text) 60%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  /* Location input */
+  .location-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .location-bar input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .location-bar input:focus {
+    border-color: rgba(201,169,110,0.4);
+  }
+
+  .location-bar input::placeholder { color: var(--muted); }
+
+  .btn {
+    background: var(--accent);
+    color: #1a1200;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: #d4b47c; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-geo {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    font-size: 1.1rem;
+  }
+
+  .btn-geo:hover { background: var(--surface); }
+
+  /* Summary card */
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .summary-card.visible { display: block; }
+
+  .summary-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .location-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  .today-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Pain level colours */
+  .level-1 { background: rgba(91,184,138,0.15); color: var(--low); border: 1px solid rgba(91,184,138,0.25); }
+  .level-1 .badge-dot { background: var(--low); }
+  .level-2 { background: rgba(232,198,106,0.15); color: var(--mod); border: 1px solid rgba(232,198,106,0.25); }
+  .level-2 .badge-dot { background: var(--mod); }
+  .level-3 { background: rgba(224,122,80,0.15); color: var(--high); border: 1px solid rgba(224,122,80,0.25); }
+  .level-3 .badge-dot { background: var(--high); }
+  .level-4 { background: rgba(201,79,79,0.15); color: var(--severe); border: 1px solid rgba(201,79,79,0.25); }
+  .level-4 .badge-dot { background: var(--severe); }
+
+  /* Metrics row */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 14px;
+  }
+
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .metric-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .metric-value {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .metric-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .metric-note {
+    font-size: 0.72rem;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Tip box */
+  .tip-box {
+    background: rgba(201,169,110,0.07);
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 20px;
+    font-size: 0.88rem;
+    color: #c9b98e;
+    line-height: 1.6;
+  }
+
+  .tip-box strong { color: var(--accent); }
+
+  /* 7-day forecast */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+    display: none;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .section-title.visible { display: block; }
+
+  .forecast-grid {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.5s 0.15s ease both;
+  }
+
+  .forecast-grid.visible { display: flex; }
+
+  .day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .day-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .day-card.level-1::before { background: var(--low); }
+  .day-card.level-2::before { background: var(--mod); }
+  .day-card.level-3::before { background: var(--high); }
+  .day-card.level-4::before { background: var(--severe); }
+
+  .day-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateX(2px);
+  }
+
+  .day-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .day-date {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .day-metrics {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .day-metric {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .day-metric span:first-child { font-size: 1rem; }
+  .day-metric .val { color: var(--text); font-weight: 500; }
+
+  .pain-chip {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Expanded detail */
+  .day-detail {
+    display: none;
+    background: var(--surface);
+    border-radius: 0 0 14px 14px;
+    margin-top: -8px;
+    padding: 18px 22px 20px;
+    border: 1px solid var(--border);
+    border-top: none;
+    font-size: 0.86rem;
+    color: var(--muted);
+    line-height: 1.7;
+    animation: fadeDown 0.3s ease both;
+  }
+
+  .day-detail.open { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .detail-item {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .detail-item .di-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .detail-item .di-value {
+    font-size: 1.05rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .detail-advice {
+    background: rgba(126,159,201,0.07);
+    border: 1px solid rgba(126,159,201,0.18);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #a0b8d4;
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+
+  /* Loading & error */
+  .state-box {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    display: none;
+  }
+
+  .state-box.visible { display: block; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  /* Pain scale legend */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: none;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .legend.visible { display: flex; }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Keyframes */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 600px) {
+    .logo { font-size: 2rem; }
+    .day-card { grid-template-columns: 90px 1fr; }
+    .pain-chip { display: none; }
+    .day-card::before { width: 4px; }
+    .day-metrics { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">☁ PainCast</div>
+    <div class="tagline">Weather-based pain & joint ache forecast — powered by Open-Meteo</div>
+  </header>
+
+  <div class="location-bar">
+    <input type="text" id="cityInput" placeholder="Enter a city name (e.g. Brussels, London, Paris)…" />
+    <button class="btn btn-geo" id="geoBtn" title="Use my location">📍</button>
+    <button class="btn" id="searchBtn">Forecast</button>
+  </div>
+
+  <div class="state-box" id="loadingBox">
+    <div class="spinner"></div>
+    <div>Fetching weather data…</div>
+  </div>
+
+  <div class="state-box" id="errorBox">
+    <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+    <div id="errorMsg">Something went wrong.</div>
+  </div>
+
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-top">
+      <div>
+        <div class="location-name" id="locName"></div>
+        <div style="color:var(--muted);font-size:0.82rem;margin-top:4px" id="locSub"></div>
+      </div>
+      <div class="today-badge" id="todayBadge">
+        <div class="badge-dot"></div>
+        <span id="todayLabel"></span>
+      </div>
+    </div>
+    <div class="metrics" id="todayMetrics"></div>
+    <div class="tip-box" id="todayTip"></div>
+  </div>
+
+  <div class="section-title" id="forecastTitle">7-Day Pain Outlook</div>
+  <div class="forecast-grid" id="forecastGrid"></div>
+
+  <div class="legend" id="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div> Minimal risk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mod)"></div> Moderate risk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div> High risk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--severe)"></div> Severe risk</div>
+  </div>
+</div>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
+function isToday(dateStr) {
+  const now = new Date();
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+}
+
+// ── Pain score algorithm ─────────────────────────────────────────────────────
+// Factors that worsen muscle/joint pain:
+//   1. Low atmospheric pressure (below ~1013 hPa, worse below 1005)
+//   2. High humidity (>70%, worse >85%)
+//   3. Rain or precipitation
+//   4. Large temperature swings (>10°C spread in a day)
+//   5. Rapid pressure drop (falling pressure is worse than stable low)
+
+function painScore(day) {
+  let score = 0;
+  const p = day.pressure;   // hPa
+  const h = day.humidity;   // %
+  const rain = day.rain;    // mm
+  const swing = day.swing;  // °C
+  const pDrop = day.pressureDrop; // hPa drop vs previous day
+
+  // Pressure (0–35 pts)
+  if (p < 995) score += 35;
+  else if (p < 1000) score += 28;
+  else if (p < 1005) score += 20;
+  else if (p < 1010) score += 12;
+  else if (p < 1015) score += 5;
+
+  // Humidity (0–25 pts)
+  if (h > 90) score += 25;
+  else if (h > 80) score += 18;
+  else if (h > 70) score += 10;
+  else if (h > 60) score += 4;
+
+  // Rain (0–20 pts)
+  if (rain > 20) score += 20;
+  else if (rain > 10) score += 15;
+  else if (rain > 5) score += 10;
+  else if (rain > 1) score += 5;
+  else if (rain > 0) score += 2;
+
+  // Temperature swing (0–10 pts)
+  if (swing > 16) score += 10;
+  else if (swing > 12) score += 7;
+  else if (swing > 8) score += 4;
+  else if (swing > 4) score += 2;
+
+  // Pressure drop (0–10 pts)  — falling pressure is a key trigger
+  if (pDrop > 8) score += 10;
+  else if (pDrop > 5) score += 7;
+  else if (pDrop > 3) score += 4;
+  else if (pDrop > 1) score += 2;
+
+  return Math.min(score, 100);
+}
+
+function levelFromScore(score) {
+  if (score >= 65) return 4;
+  if (score >= 40) return 3;
+  if (score >= 20) return 2;
+  return 1;
+}
+
+const LEVEL_LABELS = ['', 'Minimal', 'Moderate', 'High Risk', 'Severe'];
+const LEVEL_COLORS = ['', 'var(--low)', 'var(--mod)', 'var(--high)', 'var(--severe)'];
+
+function painAdvice(day, level) {
+  const tips = [];
+  if (day.pressure < 1005) tips.push("Low pressure is the main trigger today — consider planning lighter activity.");
+  if (day.humidity > 80) tips.push("High humidity can amplify joint stiffness; staying warm and dry helps.");
+  if (day.rain > 5) tips.push("Rain expected — dampness may worsen aching; dress in layers.");
+  if (day.swing > 10) tips.push("Large temperature swing today; gradual warm-up before movement is recommended.");
+  if (day.pressureDrop > 4) tips.push("Pressure is dropping — this rapid change is a known flare trigger.");
+  if (level <= 1) return "Conditions look favourable today. Good day for gentle exercise or outdoor walks.";
+  if (tips.length === 0) return "Mild weather factors present. Listen to your body and rest if needed.";
+  return tips.join(' ');
+}
+
+// ── Geocoding (Open-Meteo Geocoding API) ────────────────────────────────────
+
+async function geocode(city) {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
+  const r = await fetch(url);
+  const d = await r.json();
+  if (!d.results || d.results.length === 0) throw new Error(`City "${city}" not found. Try a different spelling.`);
+  const res = d.results[0];
+  return {
+    lat: res.latitude,
+    lon: res.longitude,
+    name: res.name,
+    country: res.country,
+    region: res.admin1 || ''
+  };
+}
+
+// ── Weather fetch ────────────────────────────────────────────────────────────
+
+async function fetchWeather(lat, lon) {
+  const vars = [
+    'temperature_2m_max',
+    'temperature_2m_min',
+    'precipitation_sum',
+    'rain_sum',
+    'relative_humidity_2m_max',
+    'relative_humidity_2m_mean',
+    'surface_pressure_mean',
+    'surface_pressure_min',
+    'windspeed_10m_max',
+    'weathercode'
+  ].join(',');
+
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${vars}&forecast_days=7&timezone=auto`;
+  const r = await fetch(url);
+  const d = await r.json();
+  if (d.error) throw new Error(d.reason || 'Weather API error');
+  return d;
+}
+
+// ── WMO weather code to icon ─────────────────────────────────────────────────
+function wmoIcon(code) {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '⛅';
+  if (code <= 3) return '☁️';
+  if (code <= 49) return '🌫️';
+  if (code <= 59) return '🌦️';
+  if (code <= 69) return '🌧️';
+  if (code <= 79) return '🌨️';
+  if (code <= 84) return '🌧️';
+  if (code <= 89) return '⛈️';
+  return '🌩️';
+}
+
+// ── Build days array ─────────────────────────────────────────────────────────
+
+function buildDays(d) {
+  const days = [];
+  const dates = d.daily.time;
+  const pressures = d.daily.surface_pressure_mean;
+
+  for (let i = 0; i < dates.length; i++) {
+    const swing = (d.daily.temperature_2m_max[i] ?? 0) - (d.daily.temperature_2m_min[i] ?? 0);
+    const pressure = d.daily.surface_pressure_mean[i] ?? 1013;
+    const prevPressure = i > 0 ? (d.daily.surface_pressure_mean[i - 1] ?? pressure) : pressure;
+    const pDrop = Math.max(0, prevPressure - pressure);
+
+    const day = {
+      date: dates[i],
+      tempMax: Math.round(d.daily.temperature_2m_max[i] ?? 0),
+      tempMin: Math.round(d.daily.temperature_2m_min[i] ?? 0),
+      pressure: Math.round(pressure),
+      pressureMin: Math.round(d.daily.surface_pressure_min[i] ?? pressure),
+      humidity: Math.round(d.daily.relative_humidity_2m_mean[i] ?? 50),
+      humidityMax: Math.round(d.daily.relative_humidity_2m_max[i] ?? 50),
+      rain: Math.round((d.daily.rain_sum[i] ?? 0) * 10) / 10,
+      precip: Math.round((d.daily.precipitation_sum[i] ?? 0) * 10) / 10,
+      wind: Math.round(d.daily.windspeed_10m_max[i] ?? 0),
+      swing: Math.round(swing),
+      pressureDrop: Math.round(pDrop * 10) / 10,
+      icon: wmoIcon(d.daily.weathercode[i] ?? 0),
+    };
+    day.score = painScore(day);
+    day.level = levelFromScore(day.score);
+    days.push(day);
+  }
+  return days;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+
+function show(el) { el.classList.add('visible'); }
+function hide(el) { el.classList.remove('visible'); }
+
+function renderSummary(location, day) {
+  document.getElementById('locName').textContent = location.name + (location.country ? ', ' + location.country : '');
+  document.getElementById('locSub').textContent = isToday(day.date) ? 'Today\'s outlook' : fmtDate(day.date);
+
+  const badge = document.getElementById('todayBadge');
+  badge.className = `today-badge level-${day.level}`;
+  document.getElementById('todayLabel').textContent = LEVEL_LABELS[day.level] + ' Pain Risk';
+
+  const scoreBar = `
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-bottom:6px">
+        <span>Pain Risk Score</span><span style="color:var(--text);font-weight:500">${day.score}/100</span>
+      </div>
+      <div style="background:var(--surface);border-radius:100px;height:6px;overflow:hidden">
+        <div style="width:${day.score}%;height:100%;background:${LEVEL_COLORS[day.level]};border-radius:100px;transition:width 1s ease"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('todayMetrics').innerHTML = `
+    <div class="metric">
+      <div class="metric-icon">🌡️</div>
+      <div class="metric-value">${day.tempMin}–${day.tempMax}°C</div>
+      <div class="metric-label">Temperature</div>
+      <div class="metric-note" style="color:${day.swing > 10 ? 'var(--high)' : 'var(--muted)'}">${day.swing}° swing</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🔽</div>
+      <div class="metric-value">${day.pressure} hPa</div>
+      <div class="metric-label">Pressure</div>
+      <div class="metric-note" style="color:${day.pressure < 1005 ? 'var(--high)' : day.pressure < 1013 ? 'var(--mod)' : 'var(--muted)'}">
+        ${day.pressure < 1005 ? 'Very low' : day.pressure < 1013 ? 'Below avg' : 'Normal'}
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">💧</div>
+      <div class="metric-value">${day.humidity}%</div>
+      <div class="metric-label">Humidity</div>
+      <div class="metric-note" style="color:${day.humidity > 80 ? 'var(--high)' : day.humidity > 65 ? 'var(--mod)' : 'var(--muted)'}">
+        ${day.humidity > 80 ? 'Very high' : day.humidity > 65 ? 'Elevated' : 'Comfortable'}
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🌧️</div>
+      <div class="metric-value">${day.rain} mm</div>
+      <div class="metric-label">Rain</div>
+      <div class="metric-note" style="color:${day.rain > 5 ? 'var(--high)' : day.rain > 0 ? 'var(--mod)' : 'var(--muted)'}">
+        ${day.rain > 10 ? 'Heavy' : day.rain > 5 ? 'Moderate' : day.rain > 0 ? 'Light' : 'None'}
+      </div>
+    </div>
+    ${day.pressureDrop > 2 ? `
+    <div class="metric">
+      <div class="metric-icon">📉</div>
+      <div class="metric-value">−${day.pressureDrop} hPa</div>
+      <div class="metric-label">Pressure Drop</div>
+      <div class="metric-note" style="color:${day.pressureDrop > 5 ? 'var(--severe)' : 'var(--high)'}">Falling fast</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('todayTip').innerHTML = `<strong>💡 Today's advice:</strong> ${painAdvice(day, day.level)}`;
+  document.getElementById('todayMetrics').innerHTML += scoreBar;
+
+  show(document.getElementById('summaryCard'));
+}
+
+function renderForecast(days) {
+  const grid = document.getElementById('forecastGrid');
+  grid.innerHTML = '';
+
+  days.forEach((day, i) => {
+    const wrapper = document.createElement('div');
+
+    const card = document.createElement('div');
+    card.className = `day-card level-${day.level}`;
+    card.innerHTML = `
+      <div>
+        <div class="day-name">${isToday(day.date) ? 'Today' : DAYS[new Date(day.date + 'T12:00:00').getDay()]}</div>
+        <div class="day-date">${new Date(day.date + 'T12:00:00').getDate()} ${MONTHS[new Date(day.date + 'T12:00:00').getMonth()]}</div>
+      </div>
+      <div class="day-metrics">
+        <div class="day-metric"><span>${day.icon}</span></div>
+        <div class="day-metric"><span>🌡️</span><span class="val">${day.tempMin}–${day.tempMax}°C</span></div>
+        <div class="day-metric"><span>🔽</span><span class="val">${day.pressure} hPa</span></div>
+        <div class="day-metric"><span>💧</span><span class="val">${day.humidity}%</span></div>
+        ${day.rain > 0 ? `<div class="day-metric"><span>🌧️</span><span class="val">${day.rain}mm</span></div>` : ''}
+      </div>
+      <div class="pain-chip level-${day.level}" style="background:${LEVEL_COLORS[day.level]}22;color:${LEVEL_COLORS[day.level]};border:1px solid ${LEVEL_COLORS[day.level]}44">
+        ${LEVEL_LABELS[day.level]}
+      </div>
+    `;
+
+    const detail = document.createElement('div');
+    detail.className = 'day-detail';
+    detail.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="di-label">Pain Risk Score</div>
+          <div class="di-value" style="color:${LEVEL_COLORS[day.level]}">${day.score}/100</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Min Pressure</div>
+          <div class="di-value">${day.pressureMin} hPa</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Max Humidity</div>
+          <div class="di-value">${day.humidityMax}%</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Temp Swing</div>
+          <div class="di-value">${day.swing}°C</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Pressure Drop</div>
+          <div class="di-value">${day.pressureDrop > 0 ? '−' + day.pressureDrop + ' hPa' : 'Stable'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Wind</div>
+          <div class="di-value">${day.wind} km/h</div>
+        </div>
+      </div>
+      <div class="detail-advice">💬 ${painAdvice(day, day.level)}</div>
+    `;
+
+    card.addEventListener('click', () => {
+      detail.classList.toggle('open');
+    });
+
+    wrapper.appendChild(card);
+    wrapper.appendChild(detail);
+    grid.appendChild(wrapper);
+  });
+
+  show(document.getElementById('forecastTitle'));
+  show(document.getElementById('forecastGrid'));
+  show(document.getElementById('legend'));
+}
+
+// ── Main flow ────────────────────────────────────────────────────────────────
+
+function setLoading(on) {
+  const box = document.getElementById('loadingBox');
+  on ? show(box) : hide(box);
+}
+
+function setError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  show(document.getElementById('errorBox'));
+}
+
+function clearResults() {
+  hide(document.getElementById('errorBox'));
+  hide(document.getElementById('summaryCard'));
+  hide(document.getElementById('forecastTitle'));
+  hide(document.getElementById('forecastGrid'));
+  hide(document.getElementById('legend'));
+}
+
+async function runForecast(location) {
+  clearResults();
+  setLoading(true);
+  try {
+    const weather = await fetchWeather(location.lat, location.lon);
+    const days = buildDays(weather);
+    setLoading(false);
+    renderSummary(location, days[0]);
+    renderForecast(days);
+  } catch (e) {
+    setLoading(false);
+    setError(e.message || 'Failed to load weather data.');
+  }
+}
+
+async function searchCity() {
+  const city = document.getElementById('cityInput').value.trim();
+  if (!city) return;
+  clearResults();
+  setLoading(true);
+  try {
+    const loc = await geocode(city);
+    await runForecast(loc);
+  } catch (e) {
+    setLoading(false);
+    setError(e.message);
+  }
+}
+
+document.getElementById('searchBtn').addEventListener('click', searchCity);
+document.getElementById('cityInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchCity();
+});
+
+document.getElementById('geoBtn').addEventListener('click', () => {
+  if (!navigator.geolocation) { setError('Geolocation not supported by your browser.'); return; }
+  clearResults();
+  setLoading(true);
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      // Reverse geocode with Open-Meteo
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=&latitude=${lat}&longitude=${lon}&count=1`;
+      // Fall back to coordinates label
+      const location = { lat, lon, name: `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`, country: '', region: '' };
+      await runForecast(location);
+    } catch(e) {
+      setLoading(false);
+      setError(e.message);
+    }
+  }, () => {
+    setLoading(false);
+    setError('Could not get your location. Try searching by city name.');
+  });
+});
+
+// Auto-load for Wortegem, Belgium since that's the user's location
+(async () => {
+  try {
+    const loc = await geocode('Wortegem');
+    document.getElementById('cityInput').value = 'Wortegem, Belgium';
+    await runForecast(loc);
+  } catch(e) { /* silently skip auto-load */ }
+})();
+</script>
+</body>
+</html>
