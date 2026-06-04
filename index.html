@@ -367,7 +367,7 @@ const SHEET_URL='https://script.google.com/macros/s/AKfycbyn9QqeuiOBQ3PVEiz525VP
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════════════════════════════
-function fmtDate(s){const d=new Date(s+'T12:00:00');return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;}
+function fmtDate(s){if(!s)return'?';const str=String(s).trim();const datePart=str.includes('T')?str.split('T')[0]:str;const d=new Date(datePart+'T12:00:00');if(isNaN(d))return str;return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
 function fmtDateShort(s){const d=new Date(s+'T12:00:00');return `${d.getDate()} ${MONTHS[d.getMonth()]}`;}
 function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
 function isToday(s){return s===todayStr();}
@@ -887,8 +887,6 @@ async function renderHistory(){
     const entries=await sheetsGet();
     dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
     if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
-    // DEBUG — remove after confirming field names
-    if(entries.length>0){console.log('First entry keys:',Object.keys(entries[0]));console.log('First entry raw:',JSON.stringify(entries[0]));}
     entries.forEach(e=>{
       // normalise: sheet returns PascalCase headers
       const date=e.Date||e.date||'';
