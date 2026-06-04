@@ -10,7 +10,7 @@
   --bg:#0d0f14; --surface:#13161d; --card:#181c25; --border:rgba(255,255,255,0.07);
   --text:#e8e4dc; --muted:#8a8a9a; --accent:#c9a96e; --accent2:#7e9fc9;
   --low:#5bb88a; --mod:#e8c66a; --high:#e07a50; --severe:#c94f4f;
-  --migraine:#9b72cf;
+  --migraine:#9b72cf; --past:#4a7fa8;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
@@ -19,220 +19,247 @@ body::before{content:'';position:fixed;inset:0;background:
   radial-gradient(ellipse 40% 60% at 80% 80%,rgba(201,169,110,0.05) 0%,transparent 60%);
   pointer-events:none;z-index:0;}
 
-/* ── Layout ── */
-.container{max-width:900px;margin:0 auto;padding:36px 20px 80px;position:relative;z-index:1;}
+.container{max-width:920px;margin:0 auto;padding:36px 20px 80px;position:relative;z-index:1;}
 
-/* ── Header ── */
-header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
+/* Header */
+header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .logo{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;
   background:linear-gradient(135deg,var(--accent) 0%,var(--text) 60%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tagline{color:var(--muted);font-size:.85rem;margin-top:5px;font-weight:300;}
+.tagline{color:var(--muted);font-size:.82rem;margin-top:5px;font-weight:300;}
 
-/* ── Tabs ── */
+/* Tabs */
 .tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:4px;margin-bottom:28px;animation:fadeUp .6s .1s ease both;}
-.tab{flex:1;padding:10px 8px;border:none;background:transparent;color:var(--muted);
-  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;border-radius:10px;
+  border-radius:14px;padding:4px;margin-bottom:24px;animation:fadeUp .6s .1s ease both;}
+.tab{flex:1;padding:10px 6px;border:none;background:transparent;color:var(--muted);
+  font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;border-radius:10px;
   cursor:pointer;transition:all .2s;text-align:center;}
 .tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
 .tab:hover:not(.active){color:var(--text);}
 
-/* ── Location bar ── */
-.location-bar{display:flex;gap:8px;margin-bottom:28px;animation:fadeUp .6s .1s ease both;}
+/* Location bar */
+.location-bar{display:flex;gap:8px;margin-bottom:24px;animation:fadeUp .6s .1s ease both;}
 .location-bar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
+  padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
 .location-bar input:focus{border-color:rgba(201,169,110,.4);}
 .location-bar input::placeholder{color:var(--muted);}
-.btn{background:var(--accent);color:#1a1200;border:none;border-radius:12px;padding:13px 20px;
-  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn{background:var(--accent);color:#1a1200;border:none;border-radius:12px;padding:12px 18px;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn:hover{background:#d4b47c;transform:translateY(-1px);}
-.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-size:1.05rem;padding:13px 14px;}
+.btn:active{transform:translateY(0);}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-size:1.05rem;padding:12px 13px;}
 .btn-ghost:hover{background:var(--surface);}
 .btn-sm{padding:8px 14px;font-size:.8rem;border-radius:9px;}
-.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:8px 14px;font-size:.8rem;border-radius:9px;}
-.btn-outline:hover{background:rgba(201,169,110,.1);}
+.btn-danger{background:rgba(201,79,79,.2);color:#e89090;border:1px solid rgba(201,79,79,.3);}
+.btn-danger:hover{background:rgba(201,79,79,.35);}
 
-/* ── State boxes ── */
-.state-box{text-align:center;padding:60px 20px;color:var(--muted);display:none;}
+/* State */
+.state-box{text-align:center;padding:56px 20px;color:var(--muted);display:none;}
 .state-box.visible{display:block;}
-.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
 
-/* ── Summary card ── */
-.summary-card{background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:26px 28px;margin-bottom:24px;display:none;animation:fadeUp .5s ease both;}
+/* Summary card */
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:24px 26px;margin-bottom:20px;display:none;animation:fadeUp .5s ease both;}
 .summary-card.visible{display:block;}
-.summary-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
-.location-name{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:400;font-style:italic;}
-.badges{display:flex;gap:8px;flex-wrap:wrap;}
-.today-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:100px;
-  font-size:.78rem;font-weight:500;letter-spacing:.4px;text-transform:uppercase;}
+.summary-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+.location-name{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:400;font-style:italic;}
+.badges{display:flex;gap:7px;flex-wrap:wrap;}
+.today-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:100px;
+  font-size:.76rem;font-weight:500;letter-spacing:.4px;text-transform:uppercase;}
 .badge-dot{width:7px;height:7px;border-radius:50%;}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;}
-.metric{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center;}
-.metric-icon{font-size:1.3rem;margin-bottom:5px;}
-.metric-value{font-size:1.2rem;font-weight:500;}
-.metric-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-.metric-note{font-size:.7rem;margin-top:3px;font-weight:500;}
-.tip-box{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.2);border-radius:12px;
-  padding:13px 16px;margin-top:18px;font-size:.85rem;color:#c9b98e;line-height:1.6;}
-.tip-box strong{color:var(--accent);}
-.migraine-tip{background:rgba(155,114,207,.08);border:1px solid rgba(155,114,207,.25);color:#c4a8f0;margin-top:10px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:10px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center;}
+.metric-icon{font-size:1.25rem;margin-bottom:4px;}
+.metric-value{font-size:1.15rem;font-weight:500;}
+.metric-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.metric-note{font-size:.68rem;margin-top:2px;font-weight:500;}
+.tip-box{border-radius:11px;padding:12px 15px;margin-top:14px;font-size:.83rem;line-height:1.6;}
+.pain-tip{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.2);color:#c9b98e;}
+.pain-tip strong{color:var(--accent);}
+.migraine-tip{background:rgba(155,114,207,.08);border:1px solid rgba(155,114,207,.25);color:#c4a8f0;}
 .migraine-tip strong{color:var(--migraine);}
-
-/* ── Score bar ── */
-.score-bar-wrap{margin-top:14px;}
-.score-bar-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:5px;}
-.score-bar-track{background:var(--surface);border-radius:100px;height:5px;overflow:hidden;}
+.score-bar-wrap{margin-top:12px;grid-column:1/-1;}
+.score-bar-labels{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-bottom:4px;}
+.score-bar-track{background:var(--surface);border-radius:100px;height:4px;overflow:hidden;margin-bottom:8px;}
 .score-bar-fill{height:100%;border-radius:100px;transition:width 1.2s ease;}
 
-/* ── Section title ── */
-.section-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;
-  color:var(--muted);margin-bottom:12px;display:none;animation:fadeUp .5s .1s ease both;}
-.section-title.visible{display:block;}
+/* Section label */
+.section-label{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;color:var(--muted);
+  margin:20px 0 10px;display:none;animation:fadeUp .4s ease both;}
+.section-label.visible{display:block;}
+.section-label .sl-badge{display:inline-block;padding:2px 9px;border-radius:100px;font-size:.68rem;
+  font-family:'DM Sans',sans-serif;font-weight:500;vertical-align:middle;margin-left:8px;}
+.past-badge{background:rgba(74,127,168,.2);color:var(--past);border:1px solid rgba(74,127,168,.3);}
+.future-badge{background:rgba(201,169,110,.12);color:var(--accent);border:1px solid rgba(201,169,110,.25);}
 
-/* ── Hourly strips ── */
-.hourly-strips{display:none;flex-direction:column;gap:0;margin-bottom:24px;
-  border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp .5s ease both;}
-.hourly-strips.visible{display:flex;}
-.period-row{display:grid;grid-template-columns:100px 1fr auto;align-items:center;gap:14px;
-  padding:16px 20px;border-bottom:1px solid var(--border);background:var(--card);transition:background .2s;}
-.period-row:last-child{border-bottom:none;}
-.period-row:hover{background:var(--surface);}
-.period-label{font-size:.85rem;font-weight:500;}
-.period-time{font-size:.72rem;color:var(--muted);margin-top:2px;}
-.period-metrics{display:flex;gap:14px;flex-wrap:wrap;}
-.pm{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted);}
-.pm .v{color:var(--text);font-weight:500;}
-.period-chip{padding:5px 12px;border-radius:100px;font-size:.74rem;font-weight:500;white-space:nowrap;}
+/* Day accordion — shared by past and future */
+.days-list{display:none;flex-direction:column;gap:0;border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;animation:fadeUp .4s ease both;margin-bottom:4px;}
+.days-list.visible{display:flex;}
 
-/* ── 7-day forecast ── */
-.forecast-grid{display:none;flex-direction:column;gap:0;border:1px solid var(--border);
-  border-radius:18px;overflow:hidden;animation:fadeUp .5s .15s ease both;}
-.forecast-grid.visible{display:flex;}
-.day-card{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:14px;
-  padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);
-  cursor:pointer;transition:all .2s;position:relative;}
-.day-card:last-of-type{border-bottom:none;}
-.day-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.day-card.level-1::before{background:var(--low);}
-.day-card.level-2::before{background:var(--mod);}
-.day-card.level-3::before{background:var(--high);}
-.day-card.level-4::before{background:var(--severe);}
-.day-card:hover{background:var(--surface);}
-.day-card.open{background:var(--surface);}
-.day-name{font-weight:500;font-size:.92rem;}
-.day-date{font-size:.75rem;color:var(--muted);margin-top:2px;}
-.day-metrics-row{display:flex;gap:14px;flex-wrap:wrap;}
-.dm{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted);}
+.day-row{background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background .18s;position:relative;}
+.day-row:last-child{border-bottom:none;}
+.day-row:hover{background:var(--surface);}
+.day-row.open-row{background:var(--surface);}
+
+/* Left accent bar */
+.day-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.day-row.level-1::before{background:var(--low);}
+.day-row.level-2::before{background:var(--mod);}
+.day-row.level-3::before{background:var(--high);}
+.day-row.level-4::before{background:var(--severe);}
+.day-row.past-row::before{background:var(--past);}
+
+.day-header{display:grid;grid-template-columns:120px 1fr auto;align-items:center;gap:12px;padding:14px 18px;}
+.day-name{font-weight:500;font-size:.9rem;}
+.day-date-sub{font-size:.73rem;color:var(--muted);margin-top:1px;}
+.day-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.dm{display:flex;align-items:center;gap:3px;font-size:.78rem;color:var(--muted);}
 .dm .v{color:var(--text);font-weight:500;}
-.pain-chip{padding:6px 13px;border-radius:100px;font-size:.76rem;font-weight:500;white-space:nowrap;}
-.chevron{font-size:.7rem;color:var(--muted);margin-left:4px;transition:transform .25s;}
-.day-card.open .chevron{transform:rotate(180deg);}
+.pain-chip{padding:5px 11px;border-radius:100px;font-size:.73rem;font-weight:500;white-space:nowrap;}
+.chevron{font-size:.65rem;color:var(--muted);margin-left:3px;transition:transform .22s;display:inline-block;}
+.day-row.open-row .chevron{transform:rotate(180deg);}
 
-/* ── Day detail ── */
-.day-detail{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px 20px;animation:fadeDown .25s ease both;}
-.day-detail.open{display:block;}
-.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
-.detail-item{background:var(--card);border-radius:10px;padding:12px 13px;}
-.di-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px;}
-.di-value{font-size:1rem;color:var(--text);font-weight:500;}
-.di-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
-.detail-advice{background:rgba(126,159,201,.07);border:1px solid rgba(126,159,201,.18);
-  border-radius:10px;padding:11px 13px;color:#a0b8d4;font-size:.82rem;line-height:1.6;margin-bottom:8px;}
-.detail-migraine{background:rgba(155,114,207,.07);border:1px solid rgba(155,114,207,.2);
-  border-radius:10px;padding:11px 13px;color:#c4a8f0;font-size:.82rem;line-height:1.6;}
+/* Expanded day content */
+.day-body{display:none;padding:0 18px 16px;animation:fadeDown .22s ease both;}
+.day-body.open{display:block;}
 
-/* ── Legend ── */
-.legend{display:none;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:28px;
-  padding-top:20px;border-top:1px solid var(--border);font-size:.76rem;color:var(--muted);}
+/* Period strips inside a day */
+.period-strips{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.period-strip{display:grid;grid-template-columns:100px 1fr auto;align-items:center;
+  gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);background:var(--bg);}
+.period-strip:last-child{border-bottom:none;}
+.period-label-sm{font-size:.82rem;font-weight:500;}
+.period-time-sm{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.period-mets{display:flex;gap:10px;flex-wrap:wrap;}
+.pmet{display:flex;align-items:center;gap:3px;font-size:.77rem;color:var(--muted);}
+.pmet .v{color:var(--text);font-weight:500;}
+.pchip{padding:4px 10px;border-radius:100px;font-size:.71rem;font-weight:500;white-space:nowrap;}
+
+/* Detail grid */
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-bottom:10px;}
+.detail-item{background:var(--card);border-radius:9px;padding:11px 12px;}
+.di-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px;}
+.di-value{font-size:.98rem;color:var(--text);font-weight:500;}
+.di-sub{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.advice-box{border-radius:9px;padding:10px 12px;font-size:.81rem;line-height:1.6;margin-bottom:7px;}
+.ab-pain{background:rgba(126,159,201,.07);border:1px solid rgba(126,159,201,.18);color:#a0b8d4;}
+.ab-migraine{background:rgba(155,114,207,.07);border:1px solid rgba(155,114,207,.2);color:#c4a8f0;}
+.ab-past{background:rgba(74,127,168,.07);border:1px solid rgba(74,127,168,.2);color:#8ab8d4;font-size:.78rem;}
+
+/* Legend */
+.legend{display:none;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px;
+  padding-top:18px;border-top:1px solid var(--border);font-size:.74rem;color:var(--muted);}
 .legend.visible{display:flex;}
 .legend-item{display:flex;align-items:center;gap:5px;}
-.legend-dot{width:8px;height:8px;border-radius:50%;}
+.legend-dot{width:7px;height:7px;border-radius:50%;}
 
-/* ── DIARY ── */
+/* ══════════════ DIARY ══════════════ */
 #diaryTab{display:none;}
 #diaryTab.active{display:block;}
-.diary-entry-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:24px;animation:fadeUp .4s ease both;}
-.diary-entry-form h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400;margin-bottom:16px;color:var(--text);}
-.diary-date-row{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-.diary-date-row label{font-size:.8rem;color:var(--muted);}
-.diary-date-row input[type=date]{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;}
-.diary-date-row input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6);}
 
-.rating-section{margin-bottom:14px;}
-.rating-label{font-size:.8rem;color:var(--muted);margin-bottom:8px;}
-.rating-row{display:flex;gap:8px;flex-wrap:wrap;}
-.rating-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);
-  color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
-.rating-btn:hover{border-color:var(--accent);color:var(--text);}
-.rating-btn.sel-pain{background:rgba(201,79,79,.25);border-color:var(--severe);color:#e89090;}
-.rating-btn.sel-fatigue{background:rgba(232,198,106,.2);border-color:var(--mod);color:#e8d070;}
-.rating-btn.sel-migraine{background:rgba(155,114,207,.2);border-color:var(--migraine);color:#c4a8f0;}
+.sheets-setup{background:var(--card);border:1px solid rgba(201,169,110,.25);border-radius:16px;
+  padding:20px 22px;margin-bottom:20px;animation:fadeUp .4s ease both;}
+.sheets-setup h3{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;color:var(--accent);}
+.sheets-setup p{font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.sheets-url-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.sheets-url-row input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);
+  border-radius:9px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
+.sheets-url-row input:focus{border-color:rgba(201,169,110,.4);}
+.sheets-url-row input::placeholder{color:var(--muted);}
+.connected-bar{background:rgba(91,184,138,.1);border:1px solid rgba(91,184,138,.25);border-radius:10px;
+  padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--low);margin-bottom:14px;}
 
-.diary-notes{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;
-  resize:vertical;min-height:70px;outline:none;margin-bottom:14px;transition:border-color .2s;}
-.diary-notes:focus{border-color:rgba(201,169,110,.4);}
-.diary-notes::placeholder{color:var(--muted);}
-
-.diary-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
-.diary-tag{padding:6px 12px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
-  color:var(--muted);font-size:.76rem;cursor:pointer;transition:all .2s;}
-.diary-tag:hover{border-color:rgba(201,169,110,.4);color:var(--text);}
-.diary-tag.selected{background:rgba(201,169,110,.15);border-color:rgba(201,169,110,.4);color:var(--accent);}
-
-.diary-save-row{display:flex;justify-content:flex-end;}
-
-/* Entry list */
-.diary-list{display:flex;flex-direction:column;gap:10px;}
-.diary-entry-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;}
-.dec-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
-.dec-date{font-family:'Playfair Display',serif;font-size:.95rem;font-style:italic;color:var(--text);}
-.dec-scores{display:flex;gap:8px;}
-.score-pill{padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:500;}
-.sp-pain{background:rgba(201,79,79,.2);color:#e89090;}
-.sp-fatigue{background:rgba(232,198,106,.15);color:#e8d070;}
-.sp-migraine{background:rgba(155,114,207,.2);color:#c4a8f0;}
-.dec-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
-.dec-tag{padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.05);font-size:.7rem;color:var(--muted);}
-.dec-notes{font-size:.82rem;color:var(--muted);line-height:1.5;}
-.dec-delete{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;opacity:.5;transition:opacity .2s;}
-.dec-delete:hover{opacity:1;color:var(--severe);}
-
-/* Trends */
-.trends-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;margin-bottom:20px;animation:fadeUp .4s ease both;}
-.trends-card h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:14px;color:var(--text);}
-.trend-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.83rem;}
-.trend-item:last-child{border-bottom:none;}
-.trend-icon{font-size:1.2rem;width:28px;text-align:center;}
-.trend-text{flex:1;color:var(--muted);line-height:1.5;}
-.trend-text strong{color:var(--text);}
-.no-entries{text-align:center;color:var(--muted);padding:40px 0;font-size:.88rem;}
-
-/* Mini chart */
-.mini-chart{height:80px;position:relative;margin:12px 0;}
-.mini-chart canvas{width:100%!important;height:80px!important;}
-
-/* Tabs inside diary */
-.diary-sub-tabs{display:flex;gap:4px;margin-bottom:20px;}
-.dst{flex:1;padding:9px 8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);
+.diary-sub-tabs{display:flex;gap:4px;margin-bottom:18px;}
+.dst{flex:1;padding:9px 6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);
   font-family:'DM Sans',sans-serif;font-size:.8rem;border-radius:9px;cursor:pointer;transition:all .2s;text-align:center;}
 .dst.active{background:var(--card);color:var(--text);border-color:rgba(255,255,255,.12);}
 
+/* Log form */
+.diary-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;animation:fadeUp .4s ease both;}
+.diary-form h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;margin-bottom:14px;}
+.form-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.form-row label{font-size:.78rem;color:var(--muted);min-width:60px;}
+.form-row input[type=date]{background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
+.form-row input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6);}
+.rating-section{margin-bottom:12px;}
+.rating-label{font-size:.78rem;color:var(--muted);margin-bottom:7px;}
+.rating-row{display:flex;gap:6px;flex-wrap:wrap;}
+.rbt{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);font-size:.82rem;font-weight:500;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;}
+.rbt:hover{border-color:var(--accent);color:var(--text);}
+.rbt.sel-pain{background:rgba(201,79,79,.25);border-color:var(--severe);color:#e89090;}
+.rbt.sel-fatigue{background:rgba(232,198,106,.2);border-color:var(--mod);color:#e8d070;}
+.rbt.sel-migraine{background:rgba(155,114,207,.2);border-color:var(--migraine);color:#c4a8f0;}
+.diary-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.diary-tag{padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);font-size:.74rem;cursor:pointer;transition:all .18s;}
+.diary-tag:hover{border-color:rgba(201,169,110,.4);color:var(--text);}
+.diary-tag.selected{background:rgba(201,169,110,.15);border-color:rgba(201,169,110,.4);color:var(--accent);}
+.diary-notes{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;
+  resize:vertical;min-height:65px;outline:none;margin-bottom:12px;transition:border-color .2s;}
+.diary-notes:focus{border-color:rgba(201,169,110,.4);}
+.diary-notes::placeholder{color:var(--muted);}
+.form-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+.save-status{font-size:.78rem;color:var(--muted);}
+
+/* History & trends */
+.diary-list{display:flex;flex-direction:column;gap:8px;}
+.dec{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 16px;position:relative;}
+.dec-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.dec-date{font-family:'Playfair Display',serif;font-size:.93rem;font-style:italic;}
+.dec-scores{display:flex;gap:6px;flex-wrap:wrap;}
+.score-pill{padding:3px 9px;border-radius:100px;font-size:.7rem;font-weight:500;}
+.sp-pain{background:rgba(201,79,79,.2);color:#e89090;}
+.sp-fatigue{background:rgba(232,198,106,.15);color:#e8d070;}
+.sp-migraine{background:rgba(155,114,207,.2);color:#c4a8f0;}
+.dec-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.dec-tag{padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.05);font-size:.68rem;color:var(--muted);}
+.dec-notes{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.dec-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);
+  cursor:pointer;font-size:.75rem;opacity:.45;transition:opacity .18s;}
+.dec-del:hover{opacity:1;color:var(--severe);}
+.dec-weather{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px;padding-top:7px;
+  border-top:1px solid var(--border);}
+.dw{font-size:.74rem;color:var(--muted);}
+.dw span{color:var(--text);}
+
+.trends-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:16px;}
+.trends-card h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:12px;}
+.trend-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.81rem;}
+.trend-item:last-child{border-bottom:none;}
+.trend-icon{font-size:1.1rem;width:26px;text-align:center;flex-shrink:0;}
+.trend-text{flex:1;color:var(--muted);line-height:1.5;}
+.trend-text strong{color:var(--text);}
+.no-entries{text-align:center;color:var(--muted);padding:36px 0;font-size:.85rem;}
+.mini-chart{height:72px;position:relative;margin:10px 0;}
+.mini-chart canvas{width:100%!important;height:72px!important;}
+
+/* Sheets sync indicator */
+.sync-row{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted);margin-bottom:14px;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
+.sync-dot.ok{background:var(--low);}
+.sync-dot.err{background:var(--severe);}
+.sync-dot.loading{background:var(--mod);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* Keyframes */
-@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-13px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Mobile */
 @media(max-width:600px){
-  .logo{font-size:2rem;}
-  .day-card{grid-template-columns:90px 1fr;}
+  .logo{font-size:1.9rem;}
+  .day-header{grid-template-columns:90px 1fr;}
   .pain-chip{display:none;}
-  .tabs{font-size:.75rem;}
-  .period-row{grid-template-columns:90px 1fr;}
+  .tabs .tab{font-size:.75rem;padding:9px 4px;}
+  .period-strip{grid-template-columns:80px 1fr;}
 }
 </style>
 </head>
@@ -240,16 +267,15 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
 <div class="container">
   <header>
     <div class="logo">☁ PainCast</div>
-    <div class="tagline">Weather-based pain, joint & migraine forecast + personal diary</div>
+    <div class="tagline">Weather-based pain, joint & migraine forecast — past, present & future</div>
   </header>
 
-  <!-- Main tabs -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('forecast')">🌤 Forecast</button>
     <button class="tab" onclick="switchTab('diary')">📓 Diary</button>
   </div>
 
-  <!-- ═══════════════════════════════ FORECAST TAB ═══════════════════════════ -->
+  <!-- ═══════ FORECAST TAB ═══════ -->
   <div id="forecastTab">
     <div class="location-bar">
       <input type="text" id="cityInput" placeholder="City name…" />
@@ -258,44 +284,77 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
     </div>
 
     <div class="state-box" id="loadingBox"><div class="spinner"></div><div>Fetching weather…</div></div>
-    <div class="state-box" id="errorBox"><div style="font-size:2rem;margin-bottom:10px">⚠️</div><div id="errorMsg"></div></div>
+    <div class="state-box" id="errorBox"><div style="font-size:1.8rem;margin-bottom:8px">⚠️</div><div id="errorMsg"></div></div>
 
     <!-- Today summary -->
     <div class="summary-card" id="summaryCard">
       <div class="summary-top">
         <div>
           <div class="location-name" id="locName"></div>
-          <div style="color:var(--muted);font-size:.78rem;margin-top:3px" id="locSub"></div>
+          <div style="color:var(--muted);font-size:.76rem;margin-top:2px" id="locSub">Today's overview</div>
         </div>
         <div class="badges">
           <div class="today-badge" id="todayBadge"><div class="badge-dot"></div><span id="todayLabel"></span></div>
-          <div class="today-badge" id="migraineBadge" style="display:none"><div class="badge-dot" style="background:var(--migraine)"></div><span id="migraineLabel"></span></div>
+          <div class="today-badge" id="migraineBadge" style="display:none;background:rgba(155,114,207,.15);color:var(--migraine);border:1px solid rgba(155,114,207,.3)"><div class="badge-dot" style="background:var(--migraine)"></div><span id="migraineLabel"></span></div>
         </div>
       </div>
       <div class="metrics" id="todayMetrics"></div>
-      <div class="tip-box" id="todayTip"></div>
+      <div class="tip-box pain-tip" id="todayTip"></div>
       <div class="tip-box migraine-tip" id="migraineTip" style="display:none"></div>
     </div>
 
-    <!-- Hourly / period breakdown -->
-    <div class="section-title" id="periodTitle">Today — Morning · Afternoon · Evening</div>
-    <div class="hourly-strips" id="periodStrips"></div>
+    <!-- Past 3 days -->
+    <div class="section-label" id="pastLabel">Past 3 days <span class="sl-badge past-badge">Actual weather</span></div>
+    <div class="days-list" id="pastList"></div>
 
-    <!-- 7-day -->
-    <div class="section-title" id="forecastTitle" style="margin-top:24px">7-Day Pain Outlook</div>
-    <div class="forecast-grid" id="forecastGrid"></div>
+    <!-- 7-day forecast -->
+    <div class="section-label" id="futureLabel">7-Day Pain Outlook <span class="sl-badge future-badge">Forecast</span></div>
+    <div class="days-list" id="futureList"></div>
 
     <div class="legend" id="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div>Minimal risk</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--mod)"></div>Moderate risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div>Minimal</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--mod)"></div>Moderate</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div>High risk</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--severe)"></div>Severe risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--severe)"></div>Severe</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--migraine)"></div>Migraine risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--past)"></div>Past day</div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════ DIARY TAB ═════════════════════════════ -->
+  <!-- ═══════ DIARY TAB ═══════ -->
   <div id="diaryTab">
+
+    <!-- Sheets setup -->
+    <div id="sheetsSetup" class="sheets-setup">
+      <h3>🔗 Connect Google Sheets (one-time setup)</h3>
+      <p>PainCast uses a Google Sheet as a free database so your diary syncs across all devices. Follow the setup guide below, then paste your Web App URL here.</p>
+      <details style="margin-bottom:10px">
+        <summary style="cursor:pointer;font-size:.83rem;color:var(--accent);font-weight:500">📋 Setup instructions (click to expand)</summary>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:10px;padding:12px;background:var(--surface);border-radius:9px">
+          <strong style="color:var(--text)">Step 1:</strong> Go to <a href="https://sheets.google.com" target="_blank" style="color:var(--accent)">sheets.google.com</a> and create a new spreadsheet.<br>
+          <strong style="color:var(--text)">Step 2:</strong> Name it <em>PainCast Diary</em>. In row 1, add these headers exactly:<br>
+          <code style="background:var(--bg);padding:3px 7px;border-radius:5px;color:#9fd6a0;display:block;margin:6px 0">Date | Pain | Fatigue | Migraine | Tags | Notes | PressureAvg | PressureMin | Humidity | Rain | TempMin | TempMax | Wind | PainScore | MigraineScore</code>
+          <strong style="color:var(--text)">Step 3:</strong> In the Sheet, go to <strong>Extensions → Apps Script</strong>.<br>
+          <strong style="color:var(--text)">Step 4:</strong> Delete all code and paste the script from the <code>apps-script.gs</code> file (download button below).<br>
+          <strong style="color:var(--text)">Step 5:</strong> Click <strong>Deploy → New deployment</strong>. Type: Web App. Execute as: Me. Who has access: <strong>Anyone</strong>. Click Deploy.<br>
+          <strong style="color:var(--text)">Step 6:</strong> Copy the Web App URL and paste it below.
+        </div>
+      </details>
+      <a href="#" id="downloadScript" style="font-size:.78rem;color:var(--accent2)">⬇ Download apps-script.gs</a>
+      <div class="sheets-url-row">
+        <input type="text" id="sheetsUrl" placeholder="https://script.google.com/macros/s/…/exec" />
+        <button class="btn btn-sm" onclick="saveSheetUrl()">Connect</button>
+      </div>
+    </div>
+
+    <div id="sheetsConnected" style="display:none">
+      <div class="connected-bar">
+        <div class="sync-dot ok"></div>
+        <span>Google Sheets connected — diary syncs across all devices</span>
+        <button onclick="disconnectSheet()" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem">Disconnect</button>
+      </div>
+    </div>
+
     <div class="diary-sub-tabs">
       <button class="dst active" onclick="switchDiaryTab('log')">✏️ Log Day</button>
       <button class="dst" onclick="switchDiaryTab('history')">📋 History</button>
@@ -304,15 +363,14 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
 
     <!-- Log -->
     <div id="diaryLog">
-      <div class="diary-entry-form">
+      <div class="diary-form">
         <h3>How are you feeling today?</h3>
-        <div class="diary-date-row">
+        <div class="form-row">
           <label>Date</label>
           <input type="date" id="diaryDate" />
         </div>
-
         <div class="rating-section">
-          <div class="rating-label">💢 Pain level (1 = none, 10 = severe)</div>
+          <div class="rating-label">💢 Joint &amp; muscle pain level (1 = none → 10 = severe)</div>
           <div class="rating-row" id="painRating"></div>
         </div>
         <div class="rating-section">
@@ -320,15 +378,14 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
           <div class="rating-row" id="fatigueRating"></div>
         </div>
         <div class="rating-section">
-          <div class="rating-label">🌀 Migraine? (0 = none, 10 = severe)</div>
+          <div class="rating-label">🌀 Migraine severity (0 = none → 10 = severe)</div>
           <div class="rating-row" id="migraineRating"></div>
         </div>
-
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">Symptoms / triggers noticed:</div>
+        <div style="font-size:.77rem;color:var(--muted);margin-bottom:7px">Symptoms / triggers noticed:</div>
         <div class="diary-tags" id="tagButtons"></div>
-
         <textarea class="diary-notes" id="diaryNotes" placeholder="Any notes for today… (optional)"></textarea>
-        <div class="diary-save-row">
+        <div class="form-footer">
+          <span class="save-status" id="saveStatus"></span>
           <button class="btn btn-sm" onclick="saveEntry()">Save Entry</button>
         </div>
       </div>
@@ -336,11 +393,13 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
 
     <!-- History -->
     <div id="diaryHistory" style="display:none">
+      <div class="sync-row"><div class="sync-dot" id="histSyncDot"></div><span id="histSyncMsg">Loading…</span></div>
       <div id="entryList" class="diary-list"></div>
     </div>
 
     <!-- Trends -->
     <div id="diaryTrends" style="display:none">
+      <div class="sync-row"><div class="sync-dot" id="trendSyncDot"></div><span id="trendSyncMsg">Loading…</span></div>
       <div id="trendsContent"></div>
     </div>
   </div>
@@ -348,124 +407,80 @@ header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
 
 <script>
 // ════════════════════════════════════════════════════════════════════
-// CONSTANTS & HELPERS
+//  CONSTANTS
 // ════════════════════════════════════════════════════════════════════
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const LEVEL_LABELS=['','Minimal','Moderate','High Risk','Severe'];
 const LEVEL_COLORS=['','var(--low)','var(--mod)','var(--high)','var(--severe)'];
-
 const SYMPTOM_TAGS=['Joint stiffness','Muscle aches','Back pain','Knee pain','Shoulder pain',
   'Neck pain','Fatigue','Brain fog','Sensitivity to light','Nausea','Throbbing headache',
-  'Mood dip','Poor sleep','Exercise helped','Rest needed'];
+  'Mood dip','Poor sleep','Exercise helped','Rest needed','Neck tension'];
+const SHEETS_KEY='paincast_sheets_url';
 
+// ════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════════
 function fmtDate(s){const d=new Date(s+'T12:00:00');return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;}
 function fmtDateShort(s){const d=new Date(s+'T12:00:00');return `${d.getDate()} ${MONTHS[d.getMonth()]}`;}
 function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
 function isToday(s){return s===todayStr();}
 function show(el){el.classList.add('visible');}
 function hide(el){el.classList.remove('visible');}
+function pressureLabel(p){if(p<995)return'Very low';if(p<1005)return'Low';if(p<1013)return'Below avg';if(p<1020)return'Normal';return'High';}
+function pressureColor(p){if(p<1005)return'var(--high)';if(p<1013)return'var(--mod)';return'var(--muted)';}
+function wmoIcon(c){if(c===0)return'☀️';if(c<=2)return'⛅';if(c<=3)return'☁️';if(c<=49)return'🌫️';if(c<=59)return'🌦️';if(c<=69)return'🌧️';if(c<=79)return'🌨️';if(c<=84)return'🌧️';if(c<=89)return'⛈️';return'🌩️';}
 
 // ════════════════════════════════════════════════════════════════════
-// PAIN / MIGRAINE SCORE
+//  SCORING
 // ════════════════════════════════════════════════════════════════════
-function painScore(day){
+function painScore(d){
   let s=0;
-  const p=day.pressure,h=day.humidity,rain=day.rain,swing=day.swing,pDrop=day.pressureDrop;
-  if(p<995)s+=35;else if(p<1000)s+=28;else if(p<1005)s+=20;else if(p<1010)s+=12;else if(p<1015)s+=5;
-  if(h>90)s+=25;else if(h>80)s+=18;else if(h>70)s+=10;else if(h>60)s+=4;
-  if(rain>20)s+=20;else if(rain>10)s+=15;else if(rain>5)s+=10;else if(rain>1)s+=5;else if(rain>0)s+=2;
-  if(swing>16)s+=10;else if(swing>12)s+=7;else if(swing>8)s+=4;else if(swing>4)s+=2;
-  if(pDrop>8)s+=10;else if(pDrop>5)s+=7;else if(pDrop>3)s+=4;else if(pDrop>1)s+=2;
+  if(d.pressure<995)s+=35;else if(d.pressure<1000)s+=28;else if(d.pressure<1005)s+=20;else if(d.pressure<1010)s+=12;else if(d.pressure<1015)s+=5;
+  if(d.humidity>90)s+=25;else if(d.humidity>80)s+=18;else if(d.humidity>70)s+=10;else if(d.humidity>60)s+=4;
+  if(d.rain>20)s+=20;else if(d.rain>10)s+=15;else if(d.rain>5)s+=10;else if(d.rain>1)s+=5;else if(d.rain>0)s+=2;
+  if(d.swing>16)s+=10;else if(d.swing>12)s+=7;else if(d.swing>8)s+=4;else if(d.swing>4)s+=2;
+  const pChange=d.pressureDrop||0;
+  if(pChange>8)s+=10;else if(pChange>5)s+=7;else if(pChange>3)s+=4;else if(pChange>1)s+=2;
   return Math.min(s,100);
 }
-
-// Migraine triggers:
-// 1. Rapid pressure change (drop OR rise – both can trigger)
-// 2. Bright light / UV index (proxy: cloudless + high UV)
-// 3. High temperature (>28°C)
-// 4. Strong wind (>40 km/h – chinook-type triggers)
-// 5. Storm approach (thunderstorm code + low pressure)
-// 6. Humidity extremes (very high OR very low <30%)
-function migraineScore(day){
+function migraineScore(d){
   let s=0;
-  const p=day.pressure,h=day.humidity;
-  const pChange=Math.abs(day.pressureDrop); // both directions
-  const pRise=day.pressureRise||0;
-  const totalPChange=pChange+pRise;
-
-  // Pressure change (0-35) — any rapid change is a migraine trigger
-  if(totalPChange>10)s+=35;else if(totalPChange>7)s+=27;else if(totalPChange>5)s+=18;
-  else if(totalPChange>3)s+=10;else if(totalPChange>1)s+=4;
-
-  // Absolute low pressure (0-20)
-  if(p<998)s+=20;else if(p<1005)s+=13;else if(p<1010)s+=7;else if(p<1015)s+=3;
-
-  // High temperature (0-15)
-  if(day.tempMax>30)s+=15;else if(day.tempMax>27)s+=10;else if(day.tempMax>24)s+=5;
-
-  // Wind (0-15) — Foehn / chinook winds are known migraine triggers
-  if(day.wind>60)s+=15;else if(day.wind>40)s+=10;else if(day.wind>25)s+=5;
-
-  // Thunderstorm (wmo 95-99) (0-10)
-  if(day.wmo>=95)s+=10;else if(day.wmo>=80)s+=5;
-
-  // Humidity extremes (0-5)
-  if(h>88||h<30)s+=5;else if(h>80)s+=2;
-
+  const pChange=Math.abs(d.pressureDrop||0)+Math.abs(d.pressureRise||0);
+  if(pChange>10)s+=35;else if(pChange>7)s+=27;else if(pChange>5)s+=18;else if(pChange>3)s+=10;else if(pChange>1)s+=4;
+  if(d.pressure<998)s+=20;else if(d.pressure<1005)s+=13;else if(d.pressure<1010)s+=7;else if(d.pressure<1015)s+=3;
+  if(d.tempMax>30)s+=15;else if(d.tempMax>27)s+=10;else if(d.tempMax>24)s+=5;
+  if(d.wind>60)s+=15;else if(d.wind>40)s+=10;else if(d.wind>25)s+=5;
+  if(d.wmo>=95)s+=10;else if(d.wmo>=80)s+=5;
+  if(d.humidity>88||d.humidity<30)s+=5;else if(d.humidity>80)s+=2;
   return Math.min(s,100);
 }
+function levelFromScore(s){if(s>=65)return 4;if(s>=40)return 3;if(s>=20)return 2;return 1;}
+function migraineLevelLabel(s){if(s>=65)return'High Migraine Risk';if(s>=40)return'Moderate Migraine Risk';if(s>=20)return'Low Migraine Risk';return null;}
 
-function levelFromScore(s){
-  if(s>=65)return 4;if(s>=40)return 3;if(s>=20)return 2;return 1;
-}
-
-function migraineLevelLabel(s){
-  if(s>=65)return 'High Migraine Risk';
-  if(s>=40)return 'Moderate Migraine Risk';
-  if(s>=20)return 'Low Migraine Risk';
-  return null;
-}
-
-function pressureLabel(p){
-  if(p<995)return 'Very low';if(p<1005)return 'Low';if(p<1013)return 'Below avg';
-  if(p<1020)return 'Normal';return 'High';
-}
-
-function pressureColor(p){
-  if(p<1005)return 'var(--high)';if(p<1013)return 'var(--mod)';return 'var(--muted)';
-}
-
-function wmoIcon(c){
-  if(c===0)return '☀️';if(c<=2)return '⛅';if(c<=3)return '☁️';
-  if(c<=49)return '🌫️';if(c<=59)return '🌦️';if(c<=69)return '🌧️';
-  if(c<=79)return '🌨️';if(c<=84)return '🌧️';if(c<=89)return '⛈️';return '🌩️';
-}
-
-function painAdvice(day,level){
+function painAdvice(d,level){
   const tips=[];
-  if(day.pressure<1005)tips.push(`Pressure is ${pressureLabel(day.pressure).toLowerCase()} at ${day.pressure} hPa — joint tissue expansion is likely.`);
-  if(day.humidity>80)tips.push('Very high humidity may amplify stiffness; keeping warm and dry helps.');
-  if(day.rain>5)tips.push('Significant rain expected — dress in layers and protect affected joints.');
-  if(day.swing>10)tips.push(`Temperature swings ${day.swing}°C today — warm up gently before any activity.`);
-  if(day.pressureDrop>4)tips.push(`Pressure dropping ${day.pressureDrop} hPa from yesterday — this rapid fall is a key flare trigger.`);
-  if(level<=1)return '✅ Conditions look favourable. A good day for gentle exercise or outdoor walks.';
-  return tips.length?tips.join(' '):'Mild weather factors present. Listen to your body and rest if needed.';
+  if(d.pressure<1005)tips.push(`Low pressure (${d.pressure} hPa) — joint tissue expansion likely.`);
+  if(d.humidity>80)tips.push('Very high humidity may amplify stiffness; stay warm and dry.');
+  if(d.rain>5)tips.push('Significant rain — dress in layers, protect affected joints.');
+  if(d.swing>10)tips.push(`Large temp swing (${d.swing}°C) — warm up gently before any activity.`);
+  if((d.pressureDrop||0)>4)tips.push(`Pressure fell ${d.pressureDrop} hPa (${d.prevPressure}→${d.pressure}) — rapid drop is a key flare trigger.`);
+  if(level<=1)return'✅ Conditions look favourable today.';
+  return tips.length?tips.join(' '):'Mild factors present. Listen to your body.';
 }
-
-function migraineAdvice(day,ms){
+function migraineAdvice(d){
   const tips=[];
-  const pChange=Math.abs(day.pressureDrop)+(day.pressureRise||0);
-  if(pChange>5)tips.push(`Significant pressure change of ${pChange.toFixed(1)} hPa detected — a known migraine trigger. Consider prophylactic measures.`);
-  if(day.tempMax>27)tips.push(`High temperature (${day.tempMax}°C) — stay hydrated and avoid prolonged sun exposure.`);
-  if(day.wind>40)tips.push('Strong winds can trigger migraines in sensitive individuals; minimise outdoor exposure.');
-  if(day.wmo>=95)tips.push('Thunderstorms approaching — the electromagnetic changes are a known trigger.');
-  if(day.humidity<30)tips.push('Very dry air today — dehydration risk is higher; increase water intake.');
-  return tips.length?tips.join(' '):'Moderate migraine weather factors. Stay rested and monitor triggers.';
+  const pChange=Math.abs(d.pressureDrop||0)+(d.pressureRise||0);
+  if(pChange>5)tips.push(`Significant pressure change (${pChange.toFixed(1)} hPa) — consider prophylactic measures.`);
+  if(d.tempMax>27)tips.push(`High temperature (${d.tempMax}°C) — stay hydrated.`);
+  if(d.wind>40)tips.push('Strong winds — minimise outdoor exposure.');
+  if(d.wmo>=95)tips.push('Thunderstorms — electromagnetic changes are a known trigger.');
+  if(d.humidity<30)tips.push('Very dry air — increase water intake.');
+  return tips.length?tips.join(' '):'Moderate migraine factors. Stay rested and monitor triggers.';
 }
 
 // ════════════════════════════════════════════════════════════════════
-// API CALLS
+//  API — GEOCODE + WEATHER (past_days=3 for history)
 // ════════════════════════════════════════════════════════════════════
 async function geocode(city){
   const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
@@ -481,14 +496,11 @@ async function fetchWeather(lat,lon){
     'relative_humidity_2m_max','relative_humidity_2m_mean','surface_pressure_mean',
     'surface_pressure_min','windspeed_10m_max','weathercode'
   ].join(',');
-
-  // Hourly for period breakdown (today)
   const hourly=[
-    'temperature_2m','relative_humidity_2m','surface_pressure','precipitation',
-    'windspeed_10m','weathercode'
+    'temperature_2m','relative_humidity_2m','surface_pressure','precipitation','windspeed_10m','weathercode'
   ].join(',');
-
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&hourly=${hourly}&forecast_days=7&timezone=auto`;
+  // past_days=3 gives us 3 past + today + 7 future = 11 days total
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&hourly=${hourly}&forecast_days=7&past_days=3&timezone=auto`;
   const r=await fetch(url);
   const d=await r.json();
   if(d.error)throw new Error(d.reason||'Weather API error');
@@ -496,345 +508,302 @@ async function fetchWeather(lat,lon){
 }
 
 // ════════════════════════════════════════════════════════════════════
-// BUILD DATA STRUCTURES
+//  BUILD DAY OBJECTS
 // ════════════════════════════════════════════════════════════════════
-function buildDays(d){
-  const days=[];
-  const dates=d.daily.time;
-  const pressures=d.daily.surface_pressure_mean;
-
-  for(let i=0;i<dates.length;i++){
-    const swing=(d.daily.temperature_2m_max[i]??0)-(d.daily.temperature_2m_min[i]??0);
-    const pressure=d.daily.surface_pressure_mean[i]??1013;
+function buildDays(data){
+  const dates=data.daily.time;
+  const pressures=data.daily.surface_pressure_mean;
+  return dates.map((date,i)=>{
+    const swing=(data.daily.temperature_2m_max[i]??0)-(data.daily.temperature_2m_min[i]??0);
+    const pressure=data.daily.surface_pressure_mean[i]??1013;
     const prevP=i>0?(pressures[i-1]??pressure):pressure;
-    const nextP=i<dates.length-1?(pressures[i+1]??pressure):pressure;
     const pDrop=Math.max(0,prevP-pressure);
-    const pRise=Math.max(0,pressure-prevP); // rising pressure also matters for migraine
-
+    const pRise=Math.max(0,pressure-prevP);
     const day={
-      date:dates[i],
-      tempMax:Math.round(d.daily.temperature_2m_max[i]??0),
-      tempMin:Math.round(d.daily.temperature_2m_min[i]??0),
+      date,
+      tempMax:Math.round(data.daily.temperature_2m_max[i]??0),
+      tempMin:Math.round(data.daily.temperature_2m_min[i]??0),
       pressure:Math.round(pressure),
-      pressureMin:Math.round(d.daily.surface_pressure_min[i]??pressure),
+      pressureMin:Math.round(data.daily.surface_pressure_min[i]??pressure),
       prevPressure:Math.round(prevP),
-      humidity:Math.round(d.daily.relative_humidity_2m_mean[i]??50),
-      humidityMax:Math.round(d.daily.relative_humidity_2m_max[i]??50),
-      rain:Math.round((d.daily.rain_sum[i]??0)*10)/10,
-      wind:Math.round(d.daily.windspeed_10m_max[i]??0),
+      humidity:Math.round(data.daily.relative_humidity_2m_mean[i]??50),
+      humidityMax:Math.round(data.daily.relative_humidity_2m_max[i]??50),
+      rain:Math.round((data.daily.rain_sum[i]??0)*10)/10,
+      wind:Math.round(data.daily.windspeed_10m_max[i]??0),
       swing:Math.round(swing),
       pressureDrop:Math.round(pDrop*10)/10,
       pressureRise:Math.round(pRise*10)/10,
-      wmo:d.daily.weathercode[i]??0,
-      icon:wmoIcon(d.daily.weathercode[i]??0),
+      wmo:data.daily.weathercode[i]??0,
+      icon:wmoIcon(data.daily.weathercode[i]??0),
     };
     day.score=painScore(day);
     day.level=levelFromScore(day.score);
     day.migraineScore=migraineScore(day);
-    days.push(day);
-  }
-  return days;
+    return day;
+  });
 }
 
-function buildPeriods(d){
-  // Group today's hourly into Morning (6-12), Afternoon (12-18), Evening (18-24)
-  const todayPrefix=d.hourly.time[0].slice(0,10);
+// Build morning/afternoon/evening periods for any given date
+function buildPeriodsForDate(data,dateStr){
   const periods=[
     {label:'Morning',emoji:'🌅',hours:[6,7,8,9,10,11]},
     {label:'Afternoon',emoji:'☀️',hours:[12,13,14,15,16,17]},
     {label:'Evening',emoji:'🌙',hours:[18,19,20,21,22,23]},
   ];
-
   return periods.map(period=>{
     const indices=period.hours
-      .map(h=>d.hourly.time.findIndex(t=>t===`${todayPrefix}T${String(h).padStart(2,'0')}:00`))
+      .map(h=>data.hourly.time.findIndex(t=>t===`${dateStr}T${String(h).padStart(2,'0')}:00`))
       .filter(i=>i>=0);
-
     if(!indices.length)return null;
-
-    const avg=key=>Math.round(indices.reduce((s,i)=>s+(d.hourly[key][i]??0),0)/indices.length);
-    const min=key=>Math.round(Math.min(...indices.map(i=>d.hourly[key][i]??99)));
-
+    const avg=key=>Math.round(indices.reduce((s,i)=>s+(data.hourly[key][i]??0),0)/indices.length);
     const pressure=avg('surface_pressure');
-    const prevPressure=indices[0]>0?(d.hourly.surface_pressure[indices[0]-1]??pressure):pressure;
-    const pDrop=Math.max(0,prevPressure-pressure);
-    const pRise=Math.max(0,pressure-prevPressure);
-
-    const day={
-      pressure,prevPressure:Math.round(prevPressure),
+    const prevIdx=indices[0]-1;
+    const prevP=prevIdx>=0?(data.hourly.surface_pressure[prevIdx]??pressure):pressure;
+    const pDrop=Math.max(0,prevP-pressure);
+    const pRise=Math.max(0,pressure-prevP);
+    const pd={
+      pressure,prevPressure:Math.round(prevP),
       humidity:avg('relative_humidity_2m'),
-      rain:Math.round(indices.reduce((s,i)=>s+(d.hourly.precipitation[i]??0),0)*10)/10,
+      rain:Math.round(indices.reduce((s,i)=>s+(data.hourly.precipitation[i]??0),0)*10)/10,
       wind:avg('windspeed_10m'),
-      swing:0, // no swing within a period
+      swing:0,
       pressureDrop:Math.round(pDrop*10)/10,
       pressureRise:Math.round(pRise*10)/10,
       tempMax:avg('temperature_2m'),
       tempMin:avg('temperature_2m'),
-      wmo:d.hourly.weathercode[indices[Math.floor(indices.length/2)]]??0,
+      wmo:data.hourly.weathercode[indices[Math.floor(indices.length/2)]]??0,
     };
-    day.score=painScore(day);
-    day.level=levelFromScore(day.score);
-    day.migraineScore=migraineScore(day);
-
-    return{...period,...day,
-      timeRange:`${period.hours[0]}:00–${period.hours[period.hours.length-1]+1}:00`,
-      icon:wmoIcon(day.wmo),
-    };
+    pd.score=painScore(pd);
+    pd.level=levelFromScore(pd.score);
+    pd.migraineScore=migraineScore(pd);
+    return{...period,...pd,timeRange:`${period.hours[0]}:00–${period.hours[period.hours.length-1]+1}:00`,icon:wmoIcon(pd.wmo)};
   }).filter(Boolean);
 }
 
 // ════════════════════════════════════════════════════════════════════
-// RENDER FORECAST
+//  RENDER HELPERS
+// ════════════════════════════════════════════════════════════════════
+function pDropDisplay(day){
+  if(day.pressureDrop>1)return`${day.prevPressure}→${day.pressure} hPa <span style="color:var(--high)">↓−${day.pressureDrop}</span>`;
+  if(day.pressureRise>1)return`${day.prevPressure}→${day.pressure} hPa <span style="color:var(--mod)">↑+${day.pressureRise}</span>`;
+  return`${day.pressure} hPa`;
+}
+
+function renderPeriodStrips(periods){
+  if(!periods.length)return'';
+  const rows=periods.map(p=>{
+    const pStr=p.pressureDrop>1?`${p.prevPressure}→${p.pressure} (↓${p.pressureDrop})`
+               :p.pressureRise>1?`${p.prevPressure}→${p.pressure} (↑${p.pressureRise})`
+               :`${p.pressure} hPa`;
+    return`<div class="period-strip">
+      <div><div class="period-label-sm">${p.emoji} ${p.label}</div><div class="period-time-sm">${p.timeRange}</div></div>
+      <div class="period-mets">
+        <div class="pmet">${p.icon}</div>
+        <div class="pmet">🌡️ <span class="v">${p.tempMax}°C</span></div>
+        <div class="pmet">🔽 <span class="v" style="color:${pressureColor(p.pressure)}">${pStr}</span></div>
+        <div class="pmet">💧 <span class="v">${p.humidity}%</span></div>
+        ${p.rain>0?`<div class="pmet">🌧️ <span class="v">${p.rain}mm</span></div>`:''}
+        ${p.migraineScore>=20?`<div class="pmet">🌀 <span class="v" style="color:var(--migraine)">${p.migraineScore}</span></div>`:''}
+      </div>
+      <div class="pchip level-${p.level}" style="background:${LEVEL_COLORS[p.level]}22;color:${LEVEL_COLORS[p.level]};border:1px solid ${LEVEL_COLORS[p.level]}44">${LEVEL_LABELS[p.level]}</div>
+    </div>`;
+  }).join('');
+  return`<div class="period-strips">${rows}</div>`;
+}
+
+function renderDayBody(day,periods,isPast){
+  const pChangeNote=day.pressureDrop>1
+    ?`Dropped from <strong>${day.prevPressure} hPa</strong> to <strong>${day.pressure} hPa</strong> — a fall of <strong>${day.pressureDrop} hPa</strong>. ${day.pressureDrop>5?'Rapid drop — strong joint & migraine trigger.':'Moderate drop.'}`
+    :day.pressureRise>1
+    ?`Rose from <strong>${day.prevPressure} hPa</strong> to <strong>${day.pressure} hPa</strong> — a rise of <strong>${day.pressureRise} hPa</strong>. ${day.pressureRise>5?'Rising pressure can also trigger migraines.':''}`
+    :`Stable around <strong>${day.pressure} hPa</strong> — ${pressureLabel(day.pressure).toLowerCase()}.`;
+
+  return`
+    ${periods.length?renderPeriodStrips(periods):''}
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="di-label">Pain Score</div>
+        <div class="di-value" style="color:${LEVEL_COLORS[day.level]}">${day.score}/100</div>
+        <div class="di-sub">${LEVEL_LABELS[day.level]}</div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Migraine Score</div>
+        <div class="di-value" style="color:var(--migraine)">${day.migraineScore}/100</div>
+        <div class="di-sub">${migraineLevelLabel(day.migraineScore)||'Low risk'}</div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Pressure avg → min</div>
+        <div class="di-value">${day.pressure} → ${day.pressureMin} hPa</div>
+        <div class="di-sub" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Pressure vs prev day</div>
+        <div class="di-value">${day.prevPressure} → ${day.pressure} hPa</div>
+        <div class="di-sub" style="color:${day.pressureDrop>3||day.pressureRise>5?'var(--high)':'var(--muted)'}">
+          ${day.pressureDrop>1?'↓ −'+day.pressureDrop+' hPa':day.pressureRise>1?'↑ +'+day.pressureRise+' hPa':'Stable'}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Humidity (avg/max)</div>
+        <div class="di-value">${day.humidity}% / ${day.humidityMax}%</div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Temp swing</div>
+        <div class="di-value">${day.swing}°C</div>
+        <div class="di-sub">${day.tempMin}°C → ${day.tempMax}°C</div>
+      </div>
+      <div class="detail-item">
+        <div class="di-label">Rain / Wind</div>
+        <div class="di-value">${day.rain}mm / ${day.wind}km/h</div>
+      </div>
+    </div>
+    ${isPast?`<div class="advice-box ab-past">📅 <strong>Past day:</strong> ${pChangeNote} ${painAdvice(day,day.level)}</div>`
+    :`<div class="advice-box ab-pain">🔽 <strong>Pressure:</strong> ${pChangeNote}</div>
+      <div class="advice-box ab-pain">💢 <strong>Joint/muscle:</strong> ${painAdvice(day,day.level)}</div>`}
+    ${day.migraineScore>=20&&!isPast?`<div class="advice-box ab-migraine">🌀 <strong>Migraine:</strong> ${migraineAdvice(day)}</div>`:''}
+  `;
+}
+
+// Generic: render a list of days into a container with accordion behaviour
+function renderDaysList(containerId,days,data,isPast){
+  const container=document.getElementById(containerId);
+  container.innerHTML='';
+  let openRow=null,openBody=null;
+
+  days.forEach(day=>{
+    const periods=buildPeriodsForDate(data,day.date);
+    const wrapper=document.createElement('div');
+
+    const rowCls=isPast?`day-row past-row`:`day-row level-${day.level}`;
+    const chipColor=isPast?'var(--past)':LEVEL_COLORS[day.level];
+    const chipBg=isPast?'rgba(74,127,168,.18)':LEVEL_COLORS[day.level]+'22';
+    const chipBorder=isPast?'1px solid rgba(74,127,168,.35)':`1px solid ${LEVEL_COLORS[day.level]}44`;
+    const chipLabel=isPast?'Past':LEVEL_LABELS[day.level];
+
+    const header=document.createElement('div');
+    header.className=rowCls;
+
+    const pDisplay=pDropDisplay(day);
+    header.innerHTML=`
+      <div class="day-header">
+        <div>
+          <div class="day-name">${isToday(day.date)?'Today':DAYS[new Date(day.date+'T12:00:00').getDay()]}</div>
+          <div class="day-date-sub">${fmtDate(day.date)}</div>
+        </div>
+        <div class="day-chips">
+          <div class="dm">${day.icon}</div>
+          <div class="dm">🌡️ <span class="v">${day.tempMin}–${day.tempMax}°C</span></div>
+          <div class="dm">🔽 <span class="v">${pDisplay}</span></div>
+          <div class="dm">💧 <span class="v">${day.humidity}%</span></div>
+          ${day.rain>0?`<div class="dm">🌧️ <span class="v">${day.rain}mm</span></div>`:''}
+          ${!isPast&&day.migraineScore>=40?`<div class="dm">🌀 <span class="v" style="color:var(--migraine)">Migraine</span></div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="pain-chip" style="background:${chipBg};color:${chipColor};border:${chipBorder}">${chipLabel}</div>
+          <span class="chevron">▼</span>
+        </div>
+      </div>`;
+
+    const body=document.createElement('div');
+    body.className='day-body';
+    body.innerHTML=renderDayBody(day,periods,isPast);
+
+    header.addEventListener('click',()=>{
+      const isOpen=body.classList.contains('open');
+      if(openBody&&openBody!==body){openBody.classList.remove('open');openRow.classList.remove('open-row');}
+      body.classList.toggle('open',!isOpen);
+      header.classList.toggle('open-row',!isOpen);
+      openRow=!isOpen?header:null;
+      openBody=!isOpen?body:null;
+    });
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(body);
+    container.appendChild(wrapper);
+  });
+
+  container.classList.add('visible');
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  RENDER SUMMARY (today)
 // ════════════════════════════════════════════════════════════════════
 function renderSummary(location,day){
   document.getElementById('locName').textContent=location.name+(location.country?', '+location.country:'');
-  document.getElementById('locSub').textContent=isToday(day.date)?'Today\'s overview':fmtDate(day.date);
-
   const badge=document.getElementById('todayBadge');
   badge.className=`today-badge level-${day.level}`;
   document.getElementById('todayLabel').textContent=LEVEL_LABELS[day.level]+' Pain Risk';
-
-  // Migraine badge
   const ml=migraineLevelLabel(day.migraineScore);
   const mb=document.getElementById('migraineBadge');
-  if(ml&&day.migraineScore>=20){
-    mb.style.display='inline-flex';
-    document.getElementById('migraineLabel').textContent=ml;
-  } else mb.style.display='none';
-
-  // Pressure detail string
-  const pDropStr=day.pressureDrop>1?` (dropped from ${day.prevPressure} → ${day.pressure} hPa)`:'';
-  const pRiseStr=day.pressureRise>1?` (rose from ${day.prevPressure} → ${day.pressure} hPa)`:'';
+  if(ml&&day.migraineScore>=20){mb.style.display='inline-flex';document.getElementById('migraineLabel').textContent=ml;}
+  else mb.style.display='none';
 
   document.getElementById('todayMetrics').innerHTML=`
-    <div class="metric">
-      <div class="metric-icon">🌡️</div>
-      <div class="metric-value">${day.tempMin}–${day.tempMax}°C</div>
-      <div class="metric-label">Temperature</div>
-      <div class="metric-note" style="color:${day.swing>10?'var(--high)':'var(--muted)'}">${day.swing}° swing</div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">🔽</div>
-      <div class="metric-value">${day.pressure} hPa</div>
-      <div class="metric-label">Pressure (avg)</div>
-      <div class="metric-note" style="color:${pressureColor(day.pressure)}">${pressureLabel(day.pressure)}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">⬇️</div>
-      <div class="metric-value">${day.pressureMin} hPa</div>
-      <div class="metric-label">Pressure (min)</div>
-      <div class="metric-note" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">💧</div>
-      <div class="metric-value">${day.humidity}%</div>
-      <div class="metric-label">Humidity</div>
-      <div class="metric-note" style="color:${day.humidity>80?'var(--high)':day.humidity>65?'var(--mod)':'var(--muted)'}">${day.humidity>80?'Very high':day.humidity>65?'Elevated':'Comfortable'}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">🌧️</div>
-      <div class="metric-value">${day.rain} mm</div>
-      <div class="metric-label">Rain</div>
-      <div class="metric-note" style="color:${day.rain>5?'var(--high)':day.rain>0?'var(--mod)':'var(--muted)'}">${day.rain>10?'Heavy':day.rain>5?'Moderate':day.rain>0?'Light':'None'}</div>
-    </div>
-    ${day.pressureDrop>1||day.pressureRise>1?`
-    <div class="metric">
+    <div class="metric"><div class="metric-icon">🌡️</div><div class="metric-value">${day.tempMin}–${day.tempMax}°C</div>
+      <div class="metric-label">Temperature</div><div class="metric-note" style="color:${day.swing>10?'var(--high)':'var(--muted)'}">${day.swing}° swing</div></div>
+    <div class="metric"><div class="metric-icon">🔽</div><div class="metric-value">${day.pressure} hPa</div>
+      <div class="metric-label">Pressure avg</div><div class="metric-note" style="color:${pressureColor(day.pressure)}">${pressureLabel(day.pressure)}</div></div>
+    <div class="metric"><div class="metric-icon">⬇️</div><div class="metric-value">${day.pressureMin} hPa</div>
+      <div class="metric-label">Pressure min</div><div class="metric-note" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div></div>
+    <div class="metric"><div class="metric-icon">💧</div><div class="metric-value">${day.humidity}%</div>
+      <div class="metric-label">Humidity</div><div class="metric-note" style="color:${day.humidity>80?'var(--high)':day.humidity>65?'var(--mod)':'var(--muted)'}">${day.humidity>80?'Very high':day.humidity>65?'Elevated':'Comfortable'}</div></div>
+    <div class="metric"><div class="metric-icon">🌧️</div><div class="metric-value">${day.rain} mm</div>
+      <div class="metric-label">Rain</div><div class="metric-note" style="color:${day.rain>5?'var(--high)':day.rain>0?'var(--mod)':'var(--muted)'}">${day.rain>10?'Heavy':day.rain>5?'Moderate':day.rain>0?'Light':'None'}</div></div>
+    ${day.pressureDrop>1||day.pressureRise>1?`<div class="metric">
       <div class="metric-icon">${day.pressureDrop>day.pressureRise?'📉':'📈'}</div>
       <div class="metric-value">${day.pressureDrop>day.pressureRise?'−'+day.pressureDrop:'+'+day.pressureRise} hPa</div>
       <div class="metric-label">vs yesterday</div>
-      <div class="metric-note" style="color:${(day.pressureDrop>day.pressureRise?day.pressureDrop:day.pressureRise)>5?'var(--severe)':'var(--high)'}">${day.pressureDrop>day.pressureRise?'Falling':'Rising'}</div>
-    </div>`:''}
-    <div class="metric">
-      <div class="metric-icon">💨</div>
-      <div class="metric-value">${day.wind} km/h</div>
-      <div class="metric-label">Wind</div>
-      <div class="metric-note" style="color:${day.wind>40?'var(--high)':'var(--muted)'}">${day.wind>60?'Strong':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div>
-    </div>
-  `;
-
-  // Score bar
-  document.getElementById('todayMetrics').innerHTML+=`
+      <div class="metric-note" style="color:${Math.max(day.pressureDrop,day.pressureRise)>5?'var(--severe)':'var(--high)'}">${day.pressureDrop>day.pressureRise?'Falling':'Rising'}</div></div>`:''}
+    <div class="metric"><div class="metric-icon">💨</div><div class="metric-value">${day.wind} km/h</div>
+      <div class="metric-label">Wind</div><div class="metric-note" style="color:${day.wind>40?'var(--high)':'var(--muted)'}">${day.wind>60?'Strong':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div></div>
     <div class="score-bar-wrap" style="grid-column:1/-1">
-      <div class="score-bar-labels"><span>Pain Risk Score</span><span style="color:var(--text);font-weight:500">${day.score}/100</span></div>
+      <div class="score-bar-labels"><span>Joint &amp; muscle pain risk</span><span style="color:var(--text);font-weight:500">${day.score}/100</span></div>
       <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.score}%;background:${LEVEL_COLORS[day.level]}"></div></div>
-      <div class="score-bar-labels" style="margin-top:8px"><span>Migraine Risk Score</span><span style="color:var(--text);font-weight:500">${day.migraineScore}/100</span></div>
+      <div class="score-bar-labels" style="margin-top:6px"><span>Migraine risk</span><span style="color:var(--text);font-weight:500">${day.migraineScore}/100</span></div>
       <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.migraineScore}%;background:var(--migraine)"></div></div>
     </div>`;
 
-  document.getElementById('todayTip').innerHTML=`<strong>💡 Pain advice:</strong> ${painAdvice(day,day.level)}`;
-
+  document.getElementById('todayTip').innerHTML=`<strong>💡 Joint &amp; muscle:</strong> ${painAdvice(day,day.level)}`;
   const mt=document.getElementById('migraineTip');
-  if(day.migraineScore>=20){
-    mt.style.display='block';
-    mt.innerHTML=`<strong>🌀 Migraine advice:</strong> ${migraineAdvice(day,day.migraineScore)}`;
-  } else mt.style.display='none';
-
+  if(day.migraineScore>=20){mt.style.display='block';mt.innerHTML=`<strong>🌀 Migraine:</strong> ${migraineAdvice(day)}`;}
+  else mt.style.display='none';
   show(document.getElementById('summaryCard'));
 }
 
-function renderPeriods(periods){
-  const strip=document.getElementById('periodStrips');
-  strip.innerHTML='';
-  periods.forEach(p=>{
-    const pDropStr=p.pressureDrop>1?` (${p.prevPressure}→${p.pressure} hPa, −${p.pressureDrop})`:'';
-    const pRiseStr=p.pressureRise>1?` (${p.prevPressure}→${p.pressure} hPa, +${p.pressureRise})`:'';
-    const pStr=pDropStr||pRiseStr||`${p.pressure} hPa`;
-
-    const row=document.createElement('div');
-    row.className='period-row';
-    row.innerHTML=`
-      <div>
-        <div class="period-label">${p.emoji} ${p.label}</div>
-        <div class="period-time">${p.timeRange}</div>
-      </div>
-      <div class="period-metrics">
-        <div class="pm"><span>${p.icon}</span></div>
-        <div class="pm">🌡️ <span class="v">${p.tempMax}°C</span></div>
-        <div class="pm">🔽 <span class="v" style="color:${pressureColor(p.pressure)}">${pStr}</span></div>
-        <div class="pm">💧 <span class="v">${p.humidity}%</span></div>
-        ${p.rain>0?`<div class="pm">🌧️ <span class="v">${p.rain}mm</span></div>`:''}
-        ${p.migraineScore>=20?`<div class="pm">🌀 <span class="v" style="color:var(--migraine)">M:${p.migraineScore}</span></div>`:''}
-      </div>
-      <div class="period-chip level-${p.level}" style="background:${LEVEL_COLORS[p.level]}22;color:${LEVEL_COLORS[p.level]};border:1px solid ${LEVEL_COLORS[p.level]}44">${LEVEL_LABELS[p.level]}</div>
-    `;
-    strip.appendChild(row);
-  });
-  document.getElementById('periodTitle').classList.add('visible');
-  strip.classList.add('visible');
-}
-
-function renderForecast(days){
-  const grid=document.getElementById('forecastGrid');
-  grid.innerHTML='';
-  let openCard=null,openDetail=null;
-
-  days.forEach((day,i)=>{
-    const wrapper=document.createElement('div');
-
-    const card=document.createElement('div');
-    card.className=`day-card level-${day.level}`;
-
-    const pDropStr=day.pressureDrop>1?`${day.prevPressure}→${day.pressure} hPa (−${day.pressureDrop})`:`${day.pressure} hPa`;
-    const pRiseStr=day.pressureRise>1?`${day.prevPressure}→${day.pressure} hPa (+${day.pressureRise})`:'';
-    const pDisplay=day.pressureDrop>1?pDropStr:(day.pressureRise>1?pRiseStr:`${day.pressure} hPa`);
-    const pColor=day.pressureDrop>1||day.pressure<1013?pressureColor(day.pressure):'var(--muted)';
-
-    card.innerHTML=`
-      <div>
-        <div class="day-name">${isToday(day.date)?'Today':DAYS[new Date(day.date+'T12:00:00').getDay()]}</div>
-        <div class="day-date">${fmtDateShort(day.date)}</div>
-      </div>
-      <div class="day-metrics-row">
-        <div class="dm">${day.icon}</div>
-        <div class="dm">🌡️ <span class="v">${day.tempMin}–${day.tempMax}°C</span></div>
-        <div class="dm">🔽 <span class="v" style="color:${pColor}">${pDisplay}</span></div>
-        <div class="dm">💧 <span class="v">${day.humidity}%</span></div>
-        ${day.rain>0?`<div class="dm">🌧️ <span class="v">${day.rain}mm</span></div>`:''}
-        ${day.migraineScore>=40?`<div class="dm">🌀 <span class="v" style="color:var(--migraine)">Migraine</span></div>`:''}
-      </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <div class="pain-chip level-${day.level}" style="background:${LEVEL_COLORS[day.level]}22;color:${LEVEL_COLORS[day.level]};border:1px solid ${LEVEL_COLORS[day.level]}44">${LEVEL_LABELS[day.level]}</div>
-        <span class="chevron">▼</span>
-      </div>`;
-
-    const detail=document.createElement('div');
-    detail.className='day-detail';
-
-    const pChangeNote=day.pressureDrop>1
-      ?`Dropped from <strong>${day.prevPressure} hPa</strong> (yesterday) to <strong>${day.pressure} hPa</strong> today — a fall of <strong>${day.pressureDrop} hPa</strong>. ${day.pressureDrop>5?'This rapid fall is a strong joint and migraine trigger.':'Moderate drop; may affect sensitive joints.'}`
-      :day.pressureRise>1
-      ?`Rose from <strong>${day.prevPressure} hPa</strong> (yesterday) to <strong>${day.pressure} hPa</strong> today — a rise of <strong>${day.pressureRise} hPa</strong>. ${day.pressureRise>5?'Rising pressure can also trigger migraines in some people.':''}`
-      :`Pressure stable around <strong>${day.pressure} hPa</strong> — ${pressureLabel(day.pressure).toLowerCase()}.`;
-
-    detail.innerHTML=`
-      <div class="detail-grid">
-        <div class="detail-item">
-          <div class="di-label">Pain Score</div>
-          <div class="di-value" style="color:${LEVEL_COLORS[day.level]}">${day.score}/100</div>
-          <div class="di-sub">${LEVEL_LABELS[day.level]}</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Migraine Score</div>
-          <div class="di-value" style="color:var(--migraine)">${day.migraineScore}/100</div>
-          <div class="di-sub">${migraineLevelLabel(day.migraineScore)||'Low risk'}</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Pressure (avg → min)</div>
-          <div class="di-value">${day.pressure} → ${day.pressureMin} hPa</div>
-          <div class="di-sub" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Pressure vs prev day</div>
-          <div class="di-value">${day.prevPressure} → ${day.pressure} hPa</div>
-          <div class="di-sub" style="color:${day.pressureDrop>3||day.pressureRise>5?'var(--high)':'var(--muted)'}">
-            ${day.pressureDrop>1?'↓ −'+day.pressureDrop+' hPa':day.pressureRise>1?'↑ +'+day.pressureRise+' hPa':'Stable'}
-          </div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Max Humidity</div>
-          <div class="di-value">${day.humidityMax}%</div>
-          <div class="di-sub">(avg ${day.humidity}%)</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Temp swing</div>
-          <div class="di-value">${day.swing}°C</div>
-          <div class="di-sub">${day.tempMin}°C → ${day.tempMax}°C</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Wind</div>
-          <div class="di-value">${day.wind} km/h</div>
-          <div class="di-sub">${day.wind>60?'Strong — migraine risk':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div>
-        </div>
-      </div>
-      <div class="detail-advice" style="margin-bottom:8px">
-        <strong>🔽 Pressure detail:</strong> ${pChangeNote}
-      </div>
-      <div class="detail-advice">💢 <strong>Joint/muscle:</strong> ${painAdvice(day,day.level)}</div>
-      ${day.migraineScore>=20?`<div class="detail-migraine" style="margin-top:8px">🌀 <strong>Migraine:</strong> ${migraineAdvice(day,day.migraineScore)}</div>`:''}
-    `;
-
-    card.addEventListener('click',()=>{
-      const isOpen=detail.classList.contains('open');
-      // Close all others
-      if(openDetail&&openDetail!==detail){openDetail.classList.remove('open');openCard.classList.remove('open');}
-      detail.classList.toggle('open',!isOpen);
-      card.classList.toggle('open',!isOpen);
-      if(!isOpen){openCard=card;openDetail=detail;}
-      else{openCard=null;openDetail=null;}
-    });
-
-    wrapper.appendChild(card);
-    wrapper.appendChild(detail);
-    grid.appendChild(wrapper);
-  });
-
-  document.getElementById('forecastTitle').classList.add('visible');
-  grid.classList.add('visible');
-  show(document.getElementById('legend'));
-}
-
 // ════════════════════════════════════════════════════════════════════
-// MAIN FETCH & DISPLAY
+//  MAIN FLOW
 // ════════════════════════════════════════════════════════════════════
+let currentLocation=null;
+
 function setLoading(on){const b=document.getElementById('loadingBox');on?show(b):hide(b);}
 function setError(msg){document.getElementById('errorMsg').textContent=msg;show(document.getElementById('errorBox'));}
 function clearResults(){
   ['errorBox','summaryCard','legend'].forEach(id=>hide(document.getElementById(id)));
-  ['periodTitle','forecastTitle'].forEach(id=>document.getElementById(id).classList.remove('visible'));
-  document.getElementById('periodStrips').classList.remove('visible');
-  document.getElementById('forecastGrid').classList.remove('visible');
+  ['pastLabel','futureLabel'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  ['pastList','futureList'].forEach(id=>document.getElementById(id).classList.remove('visible'));
 }
 
 async function runForecast(location){
+  currentLocation=location;
   clearResults();setLoading(true);
   try{
     const w=await fetchWeather(location.lat,location.lon);
-    const days=buildDays(w);
-    const periods=buildPeriods(w);
+    const allDays=buildDays(w);
+    const today=todayStr();
+    const past=allDays.filter(d=>d.date<today).slice(-3);
+    const todayDay=allDays.find(d=>isToday(d.date));
+    const future=allDays.filter(d=>d.date>today);
     setLoading(false);
-    renderSummary(location,days[0]);
-    if(periods.length)renderPeriods(periods);
-    renderForecast(days);
+    if(todayDay)renderSummary(location,todayDay);
+    if(past.length){
+      renderDaysList('pastList',[...past].reverse(),w,true); // newest first
+      document.getElementById('pastLabel').classList.add('visible');
+    }
+    if(future.length){
+      renderDaysList('futureList',future,w,false);
+      document.getElementById('futureLabel').classList.add('visible');
+    }
+    show(document.getElementById('legend'));
   }catch(e){setLoading(false);setError(e.message||'Failed to load weather.');}
 }
 
@@ -853,217 +822,332 @@ document.getElementById('geoBtn').addEventListener('click',()=>{
   clearResults();setLoading(true);
   navigator.geolocation.getCurrentPosition(async pos=>{
     const{latitude:lat,longitude:lon}=pos.coords;
-    const loc={lat,lon,name:`${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,country:'',region:''};
-    await runForecast(loc);
+    await runForecast({lat,lon,name:`${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,country:'',region:''});
   },()=>{setLoading(false);setError('Could not get location. Try searching by city name.');});
 });
 
 // ════════════════════════════════════════════════════════════════════
-// DIARY
+//  GOOGLE SHEETS INTEGRATION
 // ════════════════════════════════════════════════════════════════════
-const DIARY_KEY='paincast_diary_v1';
+function getSheetUrl(){return localStorage.getItem(SHEETS_KEY)||'';}
 
-function loadEntries(){
-  try{return JSON.parse(localStorage.getItem(DIARY_KEY)||'[]');}catch{return[];}
+function saveSheetUrl(){
+  const url=document.getElementById('sheetsUrl').value.trim();
+  if(!url.startsWith('https://script.google.com')){alert('Please paste a valid Google Apps Script Web App URL.');return;}
+  localStorage.setItem(SHEETS_KEY,url);
+  updateSheetUI();
 }
-function saveEntries(entries){localStorage.setItem(DIARY_KEY,JSON.stringify(entries));}
 
-// Rating buttons
+function disconnectSheet(){
+  localStorage.removeItem(SHEETS_KEY);
+  document.getElementById('sheetsUrl').value='';
+  updateSheetUI();
+}
+
+function updateSheetUI(){
+  const url=getSheetUrl();
+  document.getElementById('sheetsSetup').style.display=url?'none':'block';
+  document.getElementById('sheetsConnected').style.display=url?'block':'none';
+}
+
+async function sheetsGet(){
+  const url=getSheetUrl();
+  if(!url)return[];
+  const r=await fetch(url+'?action=get');
+  const d=await r.json();
+  return d.entries||[];
+}
+
+async function sheetsAdd(entry){
+  const url=getSheetUrl();
+  if(!url)throw new Error('No Google Sheet connected.');
+  const r=await fetch(url,{method:'POST',body:JSON.stringify({action:'add',entry})});
+  return r.json();
+}
+
+async function sheetsDelete(date){
+  const url=getSheetUrl();
+  if(!url)return;
+  await fetch(url,{method:'POST',body:JSON.stringify({action:'delete',date})});
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  DIARY UI
+// ════════════════════════════════════════════════════════════════════
 let diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
 
-function buildRatingBtns(containerId,key,cls){
-  const c=document.getElementById(containerId);
-  const max=key==='migraine'?10:10;
-  const start=key==='migraine'?0:1;
-  c.innerHTML='';
+function buildRatingBtns(cid,key,start,max){
+  const c=document.getElementById(cid);c.innerHTML='';
   for(let v=start;v<=max;v++){
-    const b=document.createElement('button');
-    b.className='rating-btn';b.textContent=v;
-    b.onclick=()=>{
-      diaryState[key]=v;
-      c.querySelectorAll('.rating-btn').forEach(x=>x.className='rating-btn');
-      b.classList.add(`sel-${key}`);
-    };
+    const b=document.createElement('button');b.className='rbt';b.textContent=v;
+    b.onclick=()=>{diaryState[key]=v;c.querySelectorAll('.rbt').forEach(x=>x.className='rbt');b.classList.add(`sel-${key}`);};
     c.appendChild(b);
   }
 }
 
 function buildTagBtns(){
-  const c=document.getElementById('tagButtons');
-  c.innerHTML='';
+  const c=document.getElementById('tagButtons');c.innerHTML='';
   SYMPTOM_TAGS.forEach(t=>{
-    const b=document.createElement('button');
-    b.className='diary-tag';b.textContent=t;
-    b.onclick=()=>{
-      b.classList.toggle('selected');
+    const b=document.createElement('button');b.className='diary-tag';b.textContent=t;
+    b.onclick=()=>{b.classList.toggle('selected');
       if(b.classList.contains('selected')){if(!diaryState.tags.includes(t))diaryState.tags.push(t);}
-      else diaryState.tags=diaryState.tags.filter(x=>x!==t);
-    };
+      else diaryState.tags=diaryState.tags.filter(x=>x!==t);};
     c.appendChild(b);
   });
 }
 
 function initDiary(){
   document.getElementById('diaryDate').value=todayStr();
-  buildRatingBtns('painRating','pain','sel-pain');
-  buildRatingBtns('fatigueRating','fatigue','sel-fatigue');
-  buildRatingBtns('migraineRating','migraine','sel-migraine');
+  buildRatingBtns('painRating','pain',1,10);
+  buildRatingBtns('fatigueRating','fatigue',1,10);
+  buildRatingBtns('migraineRating','migraine',0,10);
   buildTagBtns();
   diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
 }
 
-function saveEntry(){
+async function saveEntry(){
   const date=document.getElementById('diaryDate').value;
   const notes=document.getElementById('diaryNotes').value.trim();
   if(!date){alert('Please select a date.');return;}
+  const status=document.getElementById('saveStatus');
+  status.textContent='Saving…';
 
-  const entries=loadEntries();
-  // Remove existing entry for same date
-  const filtered=entries.filter(e=>e.date!==date);
-  filtered.unshift({date,pain:diaryState.pain,fatigue:diaryState.fatigue,
-    migraine:diaryState.migraine,tags:[...diaryState.tags],notes,ts:Date.now()});
-  filtered.sort((a,b)=>b.date.localeCompare(a.date));
-  saveEntries(filtered);
+  // Collect current weather for the date if available
+  let wxData={};
+  if(currentLocation){
+    try{
+      const w=await fetchWeather(currentLocation.lat,currentLocation.lon);
+      const allDays=buildDays(w);
+      const match=allDays.find(d=>d.date===date);
+      if(match)wxData={pressure:match.pressure,pressureMin:match.pressureMin,humidity:match.humidity,
+        rain:match.rain,tempMin:match.tempMin,tempMax:match.tempMax,wind:match.wind,
+        painScore:match.score,migraineScore:match.migraineScore};
+    }catch(e){}
+  }
 
-  // Reset
-  initDiary();
+  const entry={date,pain:diaryState.pain,fatigue:diaryState.fatigue,migraine:diaryState.migraine,
+    tags:diaryState.tags.join(';'),notes,...wxData};
+
+  try{
+    await sheetsAdd(entry);
+    status.textContent='✅ Saved to Google Sheets!';
+  }catch(e){
+    status.textContent='⚠️ '+e.message;
+  }
+  setTimeout(()=>status.textContent='',3000);
   document.getElementById('diaryNotes').value='';
-  alert('Entry saved! ✅');
+  initDiary();
 }
 
-function renderHistory(){
-  const entries=loadEntries();
-  const c=document.getElementById('entryList');
-  if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet. Start logging how you feel each day!</div>';return;}
-  c.innerHTML='';
-  entries.forEach((e,i)=>{
-    const card=document.createElement('div');
-    card.className='diary-entry-card';
-    card.innerHTML=`
-      <div class="dec-header">
-        <div class="dec-date">${fmtDate(e.date)}</div>
-        <div class="dec-scores">
-          ${e.pain>0?`<span class="score-pill sp-pain">💢 Pain: ${e.pain}/10</span>`:''}
-          ${e.fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${e.fatigue}/10</span>`:''}
-          ${e.migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${e.migraine}/10</span>`:''}
+async function renderHistory(){
+  const dot=document.getElementById('histSyncDot');
+  const msg=document.getElementById('histSyncMsg');
+  dot.className='sync-dot loading';msg.textContent='Loading from Google Sheets…';
+  const c=document.getElementById('entryList');c.innerHTML='';
+  try{
+    const entries=await sheetsGet();
+    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
+    if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
+    entries.forEach(e=>{
+      const card=document.createElement('div');card.className='dec';
+      card.innerHTML=`
+        <div class="dec-header">
+          <div class="dec-date">${fmtDate(e.date)}</div>
+          <div class="dec-scores">
+            ${e.pain>0?`<span class="score-pill sp-pain">💢 Pain: ${e.pain}/10</span>`:''}
+            ${e.fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${e.fatigue}/10</span>`:''}
+            ${e.migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${e.migraine}/10</span>`:''}
+          </div>
         </div>
-      </div>
-      ${e.tags&&e.tags.length?`<div class="dec-tags">${e.tags.map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
-      ${e.notes?`<div class="dec-notes">${e.notes}</div>`:''}
-      <button class="dec-delete" onclick="deleteEntry(${i})">🗑 Delete</button>
-    `;
-    c.appendChild(card);
-  });
+        ${e.tags?`<div class="dec-tags">${e.tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
+        ${e.notes?`<div class="dec-notes">${e.notes}</div>`:''}
+        ${e.pressure?`<div class="dec-weather">
+          <span class="dw">🔽 <span>${e.pressure} hPa</span></span>
+          <span class="dw">💧 <span>${e.humidity}%</span></span>
+          <span class="dw">🌧️ <span>${e.rain}mm</span></span>
+          <span class="dw">🌡️ <span>${e.tempMin}–${e.tempMax}°C</span></span>
+          ${e.painScore?`<span class="dw">Pain score: <span>${e.painScore}/100</span></span>`:''}
+        </div>`:''}
+        <button class="dec-del" onclick="deleteEntry('${e.date}',this)">🗑 Delete</button>`;
+      c.appendChild(card);
+    });
+  }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
 }
 
-function deleteEntry(idx){
+async function deleteEntry(date,btn){
   if(!confirm('Delete this entry?'))return;
-  const entries=loadEntries();entries.splice(idx,1);saveEntries(entries);renderHistory();
+  btn.textContent='Deleting…';
+  await sheetsDelete(date);
+  btn.closest('.dec').remove();
 }
 
-function renderTrends(){
-  const entries=loadEntries();
-  const c=document.getElementById('trendsContent');
-  if(entries.length<3){c.innerHTML='<div class="no-entries">Log at least 3 days to see trends appear here.</div>';return;}
+async function renderTrends(){
+  const dot=document.getElementById('trendSyncDot');
+  const msg=document.getElementById('trendSyncMsg');
+  dot.className='sync-dot loading';msg.textContent='Loading…';
+  const c=document.getElementById('trendsContent');c.innerHTML='';
+  try{
+    const entries=await sheetsGet();
+    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries analysed`;
+    if(entries.length<3){c.innerHTML='<div class="no-entries">Log at least 3 days to see trends.</div>';return;}
 
-  const recent=entries.slice(0,14); // last 14 entries
-  const avgPain=(arr)=>arr.filter(e=>e.pain>0).reduce((s,e)=>s+e.pain,0)/Math.max(arr.filter(e=>e.pain>0).length,1);
-  const avgMig=(arr)=>arr.filter(e=>e.migraine>0).reduce((s,e)=>s+e.migraine,0)/Math.max(arr.filter(e=>e.migraine>0).length,1);
+    const recent=entries.slice(0,14);
+    const ap=(recent.filter(e=>e.pain>0).reduce((s,e)=>s+Number(e.pain),0)/Math.max(recent.filter(e=>e.pain>0).length,1)).toFixed(1);
+    const migraineDays=recent.filter(e=>Number(e.migraine)>=5).length;
+    const highPainDays=recent.filter(e=>Number(e.pain)>=7).length;
 
-  const ap=avgPain(recent).toFixed(1);
-  const am=avgMig(recent).toFixed(1);
-  const migraineDays=recent.filter(e=>e.migraine>=5).length;
-  const highPainDays=recent.filter(e=>e.pain>=7).length;
+    const tagFreq={};
+    recent.forEach(e=>(e.tags||'').split(';').filter(Boolean).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
+    const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,4);
 
-  // Tag frequency
-  const tagFreq={};
-  recent.forEach(e=>(e.tags||[]).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
-  const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const dowPain={};const dowCount={};
+    entries.forEach(e=>{if(e.pain>0){const dow=new Date(e.date+'T12:00:00').getDay();dowPain[dow]=(dowPain[dow]||0)+Number(e.pain);dowCount[dow]=(dowCount[dow]||0)+1;}});
+    const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]})).sort((a,b)=>b.avg-a.avg);
+    const worstDay=dowAvg[0];
 
-  // Day-of-week patterns
-  const dowPain={};const dowCount={};
-  entries.forEach(e=>{
-    if(e.pain>0){
-      const dow=new Date(e.date+'T12:00:00').getDay();
-      dowPain[dow]=(dowPain[dow]||0)+e.pain;
-      dowCount[dow]=(dowCount[dow]||0)+1;
+    // Weather correlation: high pain days vs pressure
+    const wxEntries=recent.filter(e=>e.pressure&&e.pain>0);
+    let corrNote='';
+    if(wxEntries.length>=3){
+      const highPainLowPressure=wxEntries.filter(e=>Number(e.pain)>=6&&Number(e.pressure)<1010).length;
+      if(highPainLowPressure>=2)corrNote=`On <strong>${highPainLowPressure} days</strong> with pain ≥6, pressure was below 1010 hPa — a clear weather correlation.`;
+      const highPainHighHumidity=wxEntries.filter(e=>Number(e.pain)>=6&&Number(e.humidity)>75).length;
+      if(highPainHighHumidity>=2&&!corrNote)corrNote=`On <strong>${highPainHighHumidity} days</strong> with high pain, humidity was above 75% — possible correlation.`;
     }
-  });
-  const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]}))
-    .sort((a,b)=>b.avg-a.avg);
-  const worstDay=dowAvg[0];
 
-  // Mini sparkline data
-  const sparkData=[...recent].reverse().map(e=>e.pain||0);
+    const trends=[];
+    if(ap>5)trends.push({icon:'📈',text:`Average joint &amp; muscle pain is <strong>${ap}/10</strong> — consistently elevated. Consider discussing with your doctor.`});
+    else trends.push({icon:'📊',text:`Average joint &amp; muscle pain is <strong>${ap}/10</strong> — ${Number(ap)<3?'well-managed':'moderate'}.`});
+    if(migraineDays>2)trends.push({icon:'🌀',text:`<strong>${migraineDays}</strong> days with significant migraines (≥5) in recent entries.`});
+    if(corrNote)trends.push({icon:'☁️',text:corrNote});
+    if(topTags.length)trends.push({icon:'🏷️',text:`Most frequent symptoms: <strong>${topTags.map(([t,n])=>`${t} (${n}×)`).join(', ')}</strong>.`});
+    if(worstDay&&dowCount[worstDay.day]>=2)trends.push({icon:'📅',text:`<strong>${DAYS[worstDay.day]}</strong> tends to have the highest pain on average (${worstDay.avg.toFixed(1)}/10).`});
+    if(highPainDays>3)trends.push({icon:'⚠️',text:`<strong>${highPainDays} days</strong> with pain ≥7 in recent entries.`});
 
-  const trends=[];
-  if(ap>5)trends.push({icon:'📈',text:`Average pain over recent entries is <strong>${ap}/10</strong> — consistently elevated. Consider discussing with your doctor.`});
-  else trends.push({icon:'📊',text:`Average pain is <strong>${ap}/10</strong> across recent entries — ${ap<3?'relatively well-managed':'moderate'}.`});
+    const sparkData=[...recent].reverse().map(e=>Number(e.pain)||0);
 
-  if(migraineDays>2)trends.push({icon:'🌀',text:`<strong>${migraineDays} days</strong> with significant migraines recorded recently. Track weather pressure changes on those days.`});
+    c.innerHTML=`
+      <div class="trends-card">
+        <h3>📈 Insights (last ${recent.length} entries)</h3>
+        ${trends.map(t=>`<div class="trend-item"><div class="trend-icon">${t.icon}</div><div class="trend-text">${t.text}</div></div>`).join('')}
+      </div>
+      <div class="trends-card">
+        <h3>Joint pain history (oldest → newest)</h3>
+        <div class="mini-chart"><canvas id="sparkCanvas"></canvas></div>
+        <div style="font-size:.72rem;color:var(--muted);text-align:right;margin-top:3px">Scale 0–10</div>
+      </div>`;
 
-  if(topTags.length)trends.push({icon:'🏷️',text:`Most frequent symptoms: <strong>${topTags.map(([t,c])=>`${t} (${c}×)`).join(', ')}</strong>.`});
-
-  if(worstDay&&dowCount[worstDay.day]>=2)trends.push({icon:'📅',text:`<strong>${DAYS[worstDay.day]}</strong> tends to be your highest pain day on average (${worstDay.avg.toFixed(1)}/10). Plan lighter activity then.`});
-
-  if(highPainDays>3)trends.push({icon:'⚠️',text:`<strong>${highPainDays} days</strong> with pain ≥7 recorded. Note if these coincide with bad weather days in the forecast.`});
-
-  c.innerHTML=`
-    <div class="trends-card">
-      <h3>📈 Recent Trends (last ${recent.length} entries)</h3>
-      ${trends.map(t=>`<div class="trend-item"><div class="trend-icon">${t.icon}</div><div class="trend-text">${t.text}</div></div>`).join('')}
-    </div>
-    <div class="trends-card">
-      <h3>Pain history (last ${sparkData.length} days, oldest → newest)</h3>
-      <div class="mini-chart"><canvas id="sparkCanvas"></canvas></div>
-      <div style="font-size:.75rem;color:var(--muted);text-align:right;margin-top:4px">Scale: 0–10</div>
-    </div>
-  `;
-
-  // Draw sparkline
-  requestAnimationFrame(()=>{
-    const canvas=document.getElementById('sparkCanvas');
-    if(!canvas)return;
-    const w=canvas.parentElement.offsetWidth;
-    canvas.width=w*2;canvas.height=160;canvas.style.width=w+'px';canvas.style.height='80px';
-    const ctx=canvas.getContext('2d');
-    const dpr=2;
-    if(!sparkData.length)return;
-    const maxV=10,pad=16*dpr;
-    const cw=canvas.width,ch=canvas.height;
-    const xStep=(cw-pad*2)/(Math.max(sparkData.length-1,1));
-
-    // Gradient fill
-    const grad=ctx.createLinearGradient(0,0,0,ch);
-    grad.addColorStop(0,'rgba(201,79,79,.3)');grad.addColorStop(1,'rgba(201,79,79,0)');
-    ctx.beginPath();
-    sparkData.forEach((v,i)=>{
-      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    requestAnimationFrame(()=>{
+      const canvas=document.getElementById('sparkCanvas');
+      if(!canvas||!sparkData.length)return;
+      const w=canvas.parentElement.offsetWidth;
+      canvas.width=w*2;canvas.height=144;canvas.style.width=w+'px';canvas.style.height='72px';
+      const ctx=canvas.getContext('2d');
+      const maxV=10,pad=14*2,cw=canvas.width,ch=canvas.height;
+      const xStep=(cw-pad*2)/(Math.max(sparkData.length-1,1));
+      const grad=ctx.createLinearGradient(0,0,0,ch);
+      grad.addColorStop(0,'rgba(201,79,79,.35)');grad.addColorStop(1,'rgba(201,79,79,0)');
+      ctx.beginPath();
+      sparkData.forEach((v,i)=>{const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+      ctx.lineTo(pad+(sparkData.length-1)*xStep,ch-pad);ctx.lineTo(pad,ch-pad);ctx.closePath();
+      ctx.fillStyle=grad;ctx.fill();
+      ctx.beginPath();ctx.strokeStyle='#c94f4f';ctx.lineWidth=3;ctx.lineJoin='round';
+      sparkData.forEach((v,i)=>{const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+      ctx.stroke();
+      sparkData.forEach((v,i)=>{
+        const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
+        ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+        ctx.fillStyle=v>=7?'#c94f4f':v>=4?'#e8c66a':'#5bb88a';ctx.fill();
+      });
     });
-    ctx.lineTo(pad+(sparkData.length-1)*xStep,ch-pad);
-    ctx.lineTo(pad,ch-pad);ctx.closePath();
-    ctx.fillStyle=grad;ctx.fill();
-
-    // Line
-    ctx.beginPath();ctx.strokeStyle='#c94f4f';ctx.lineWidth=2*dpr;ctx.lineJoin='round';
-    sparkData.forEach((v,i)=>{
-      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-
-    // Dots
-    sparkData.forEach((v,i)=>{
-      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
-      ctx.beginPath();ctx.arc(x,y,3*dpr,0,Math.PI*2);
-      ctx.fillStyle=v>=7?'#c94f4f':v>=4?'#e8c66a':'#5bb88a';ctx.fill();
-    });
-  });
+  }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
 }
 
 // ════════════════════════════════════════════════════════════════════
-// TAB SWITCHING
+//  APPS SCRIPT DOWNLOAD
+// ════════════════════════════════════════════════════════════════════
+document.getElementById('downloadScript').addEventListener('click',e=>{
+  e.preventDefault();
+  const script=`// PainCast — Google Apps Script backend
+// Paste this into Extensions > Apps Script in your Google Sheet
+
+const SHEET_NAME = 'Diary';
+
+function doGet(e) {
+  const action = e.parameter.action;
+  if (action === 'get') return getEntries();
+  return jsonResponse({ error: 'Unknown action' });
+}
+
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  if (data.action === 'add') return addEntry(data.entry);
+  if (data.action === 'delete') return deleteEntry(data.date);
+  return jsonResponse({ error: 'Unknown action' });
+}
+
+function getSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(SHEET_NAME) || ss.getActiveSheet();
+}
+
+function getEntries() {
+  const sheet = getSheet();
+  const rows = sheet.getDataRange().getValues();
+  if (rows.length < 2) return jsonResponse({ entries: [] });
+  const headers = rows[0];
+  const entries = rows.slice(1)
+    .filter(r => r[0]) // skip empty rows
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = r[i] ?? ''; });
+      return obj;
+    })
+    .sort((a, b) => String(b.Date || b.date).localeCompare(String(a.Date || a.date)));
+  return jsonResponse({ entries });
+}
+
+function addEntry(entry) {
+  const sheet = getSheet();
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+  // Check if date already exists — update row if so
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(entry.date || entry.Date)) {
+      const row = headers.map(h => entry[h] ?? entry[h.toLowerCase()] ?? '');
+      sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
+      return jsonResponse({ status: 'updated' });
+    }
+  }
+  // Otherwise append
+  const row = headers.map(h => entry[h] ?? entry[h.toLowerCase()] ?? '');
+  sheet.appendRow(row);
+  return jsonResponse({ status: 'added' });
+}
+
+function deleteEntry(date) {
+  const sheet = getSheet();
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(date)) {
+      sheet.deleteRow(i + 1);
+      return jsonResponse({ status: 'deleted' });
+    }
+  }
+  return jsonResponse({ status: 'not found' });
+}
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+  const blob=new Blob([script],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='apps-script.gs';a.click();
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  TAB SWITCHING
 // ════════════════════════════════════════════════════════════════════
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['forecast','diary'][i]===tab));
@@ -1071,7 +1155,7 @@ function switchTab(tab){
   const dt=document.getElementById('diaryTab');
   dt.style.display=tab==='diary'?'block':'none';
   dt.classList.toggle('active',tab==='diary');
-  if(tab==='diary'){initDiary();renderHistory();}
+  if(tab==='diary'){updateSheetUI();initDiary();}
 }
 
 function switchDiaryTab(sub){
@@ -1084,14 +1168,12 @@ function switchDiaryTab(sub){
 }
 
 // ════════════════════════════════════════════════════════════════════
-// BOOT
+//  BOOT
 // ════════════════════════════════════════════════════════════════════
+updateSheetUI();
 (async()=>{
-  try{
-    const loc=await geocode('Beveren, Belgium');
-    document.getElementById('cityInput').value='Beveren, Belgium';
-    await runForecast(loc);
-  }catch(e){/* silent */}
+  try{const loc=await geocode('Beveren, Belgium');document.getElementById('cityInput').value='Beveren, Belgium';await runForecast(loc);}
+  catch(e){}
 })();
 </script>
 </body>
