@@ -843,14 +843,29 @@ async function saveEntry(){
       const w=await fetchWeather(currentLocation.lat,currentLocation.lon);
       const allDays=buildDays(w);
       const match=allDays.find(d=>d.date===date);
-      if(match)wxData={pressure:match.pressure,pressureMin:match.pressureMin,humidity:match.humidity,
-        rain:match.rain,tempMin:match.tempMin,tempMax:match.tempMax,wind:match.wind,
-        painScore:match.score,migraineScore:match.migraineScore};
+      if(match)wxData={
+        PressureAvg:match.pressure,
+        PressureMin:match.pressureMin,
+        Humidity:match.humidity,
+        Rain:match.rain,
+        TempMin:match.tempMin,
+        TempMax:match.tempMax,
+        Wind:match.wind,
+        PainScore:match.score,
+        MigraineScore:match.migraineScore
+      };
     }catch(e){}
   }
 
-  const entry={date,pain:diaryState.pain,fatigue:diaryState.fatigue,migraine:diaryState.migraine,
-    tags:diaryState.tags.join(';'),notes,...wxData};
+  const entry={
+    Date:date,
+    Pain:diaryState.pain,
+    Fatigue:diaryState.fatigue,
+    Migraine:diaryState.migraine,
+    Tags:diaryState.tags.join(';'),
+    Notes:notes,
+    ...wxData
+  };
 
   try{
     await sheetsAdd(entry);
@@ -873,26 +888,40 @@ async function renderHistory(){
     dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
     if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
     entries.forEach(e=>{
+      // normalise: sheet returns PascalCase headers
+      const date=e.Date||e.date||'';
+      const pain=Number(e.Pain||e.pain||0);
+      const fatigue=Number(e.Fatigue||e.fatigue||0);
+      const migraine=Number(e.Migraine||e.migraine||0);
+      const tags=e.Tags||e.tags||'';
+      const notes=e.Notes||e.notes||'';
+      const pressure=e.PressureAvg||e.pressure||'';
+      const humidity=e.Humidity||e.humidity||'';
+      const rain=e.Rain||e.rain||'';
+      const tempMin=e.TempMin||e.tempMin||'';
+      const tempMax=e.TempMax||e.tempMax||'';
+      const painScore=e.PainScore||e.painScore||'';
+      if(!date)return;
       const card=document.createElement('div');card.className='dec';
       card.innerHTML=`
         <div class="dec-header">
-          <div class="dec-date">${fmtDate(e.date)}</div>
+          <div class="dec-date">${fmtDate(date)}</div>
           <div class="dec-scores">
-            ${e.pain>0?`<span class="score-pill sp-pain">💢 Pain: ${e.pain}/10</span>`:''}
-            ${e.fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${e.fatigue}/10</span>`:''}
-            ${e.migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${e.migraine}/10</span>`:''}
+            ${pain>0?`<span class="score-pill sp-pain">💢 Pain: ${pain}/10</span>`:''}
+            ${fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${fatigue}/10</span>`:''}
+            ${migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${migraine}/10</span>`:''}
           </div>
         </div>
-        ${e.tags?`<div class="dec-tags">${e.tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
-        ${e.notes?`<div class="dec-notes">${e.notes}</div>`:''}
-        ${e.pressure?`<div class="dec-weather">
-          <span class="dw">🔽 <span>${e.pressure} hPa</span></span>
-          <span class="dw">💧 <span>${e.humidity}%</span></span>
-          <span class="dw">🌧️ <span>${e.rain}mm</span></span>
-          <span class="dw">🌡️ <span>${e.tempMin}–${e.tempMax}°C</span></span>
-          ${e.painScore?`<span class="dw">Pain score: <span>${e.painScore}/100</span></span>`:''}
+        ${tags?`<div class="dec-tags">${tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
+        ${notes?`<div class="dec-notes">${notes}</div>`:''}
+        ${pressure?`<div class="dec-weather">
+          <span class="dw">🔽 <span>${pressure} hPa</span></span>
+          <span class="dw">💧 <span>${humidity}%</span></span>
+          <span class="dw">🌧️ <span>${rain}mm</span></span>
+          <span class="dw">🌡️ <span>${tempMin}–${tempMax}°C</span></span>
+          ${painScore?`<span class="dw">Pain score: <span>${painScore}/100</span></span>`:''}
         </div>`:''}
-        <button class="dec-del" onclick="deleteEntry('${e.date}',this)">🗑 Delete</button>`;
+        <button class="dec-del" onclick="deleteEntry('${date}',this)">🗑 Delete</button>`;
       c.appendChild(card);
     });
   }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
@@ -915,26 +944,37 @@ async function renderTrends(){
     dot.className='sync-dot ok';msg.textContent=`${entries.length} entries analysed`;
     if(entries.length<3){c.innerHTML='<div class="no-entries">Log at least 3 days to see trends.</div>';return;}
 
-    const recent=entries.slice(0,14);
-    const ap=(recent.filter(e=>e.pain>0).reduce((s,e)=>s+Number(e.pain),0)/Math.max(recent.filter(e=>e.pain>0).length,1)).toFixed(1);
-    const migraineDays=recent.filter(e=>Number(e.migraine)>=5).length;
-    const highPainDays=recent.filter(e=>Number(e.pain)>=7).length;
+    // normalise entries to consistent lowercase keys
+    const norm=entries.map(e=>({
+      date:e.Date||e.date||'',
+      pain:Number(e.Pain||e.pain||0),
+      fatigue:Number(e.Fatigue||e.fatigue||0),
+      migraine:Number(e.Migraine||e.migraine||0),
+      tags:e.Tags||e.tags||'',
+      pressure:Number(e.PressureAvg||e.pressure||0),
+      humidity:Number(e.Humidity||e.humidity||0),
+    })).filter(e=>e.date);
+
+    const recent=norm.slice(0,14);
+    const ap=(recent.filter(e=>e.pain>0).reduce((s,e)=>s+e.pain,0)/Math.max(recent.filter(e=>e.pain>0).length,1)).toFixed(1);
+    const migraineDays=recent.filter(e=>e.migraine>=5).length;
+    const highPainDays=recent.filter(e=>e.pain>=7).length;
 
     const tagFreq={};
     recent.forEach(e=>(e.tags||'').split(';').filter(Boolean).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
     const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,4);
 
     const dowPain={};const dowCount={};
-    entries.forEach(e=>{if(e.pain>0){const dow=new Date(e.date+'T12:00:00').getDay();dowPain[dow]=(dowPain[dow]||0)+Number(e.pain);dowCount[dow]=(dowCount[dow]||0)+1;}});
+    norm.forEach(e=>{if(e.pain>0){const dow=new Date(e.date+'T12:00:00').getDay();dowPain[dow]=(dowPain[dow]||0)+e.pain;dowCount[dow]=(dowCount[dow]||0)+1;}});
     const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]})).sort((a,b)=>b.avg-a.avg);
     const worstDay=dowAvg[0];
 
     const wxEntries=recent.filter(e=>e.pressure&&e.pain>0);
     let corrNote='';
     if(wxEntries.length>=3){
-      const highPainLowPressure=wxEntries.filter(e=>Number(e.pain)>=6&&Number(e.pressure)<1010).length;
+      const highPainLowPressure=wxEntries.filter(e=>e.pain>=6&&e.pressure<1010).length;
       if(highPainLowPressure>=2)corrNote=`On <strong>${highPainLowPressure} days</strong> with pain ≥6, pressure was below 1010 hPa — a clear weather correlation.`;
-      const highPainHighHumidity=wxEntries.filter(e=>Number(e.pain)>=6&&Number(e.humidity)>75).length;
+      const highPainHighHumidity=wxEntries.filter(e=>e.pain>=6&&e.humidity>75).length;
       if(highPainHighHumidity>=2&&!corrNote)corrNote=`On <strong>${highPainHighHumidity} days</strong> with high pain, humidity was above 75% — possible correlation.`;
     }
 
@@ -947,7 +987,7 @@ async function renderTrends(){
     if(worstDay&&dowCount[worstDay.day]>=2)trends.push({icon:'📅',text:`<strong>${DAYS[worstDay.day]}</strong> tends to have the highest pain on average (${worstDay.avg.toFixed(1)}/10).`});
     if(highPainDays>3)trends.push({icon:'⚠️',text:`<strong>${highPainDays} days</strong> with pain ≥7 in recent entries.`});
 
-    const sparkData=[...recent].reverse().map(e=>Number(e.pain)||0);
+    const sparkData=[...recent].reverse().map(e=>e.pain||0);
 
     c.innerHTML=`
       <div class="trends-card">
