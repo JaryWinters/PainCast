@@ -6,813 +6,801 @@
 <title>PainCast — Weather Pain Forecast</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0f14;
-    --surface: #13161d;
-    --card: #181c25;
-    --border: rgba(255,255,255,0.07);
-    --text: #e8e4dc;
-    --muted: #8a8a9a;
-    --accent: #c9a96e;
-    --accent2: #7e9fc9;
-    --low: #5bb88a;
-    --mod: #e8c66a;
-    --high: #e07a50;
-    --severe: #c94f4f;
-  }
+:root {
+  --bg:#0d0f14; --surface:#13161d; --card:#181c25; --border:rgba(255,255,255,0.07);
+  --text:#e8e4dc; --muted:#8a8a9a; --accent:#c9a96e; --accent2:#7e9fc9;
+  --low:#5bb88a; --mod:#e8c66a; --high:#e07a50; --severe:#c94f4f;
+  --migraine:#9b72cf;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 20% 10%,rgba(126,159,201,0.06) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 60% at 80% 80%,rgba(201,169,110,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── Layout ── */
+.container{max-width:900px;margin:0 auto;padding:36px 20px 80px;position:relative;z-index:1;}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ── Header ── */
+header{text-align:center;margin-bottom:36px;animation:fadeDown .8s ease both;}
+.logo{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--text) 60%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{color:var(--muted);font-size:.85rem;margin-top:5px;font-weight:300;}
 
-  /* Background atmosphere */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(126,159,201,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(201,169,110,0.05) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:4px;margin-bottom:28px;animation:fadeUp .6s .1s ease both;}
+.tab{flex:1;padding:10px 8px;border:none;background:transparent;color:var(--muted);
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;border-radius:10px;
+  cursor:pointer;transition:all .2s;text-align:center;}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.tab:hover:not(.active){color:var(--text);}
 
-  .container {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-    position: relative;
-    z-index: 1;
-  }
+/* ── Location bar ── */
+.location-bar{display:flex;gap:8px;margin-bottom:28px;animation:fadeUp .6s .1s ease both;}
+.location-bar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
+.location-bar input:focus{border-color:rgba(201,169,110,.4);}
+.location-bar input::placeholder{color:var(--muted);}
+.btn{background:var(--accent);color:#1a1200;border:none;border-radius:12px;padding:13px 20px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn:hover{background:#d4b47c;transform:translateY(-1px);}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-size:1.05rem;padding:13px 14px;}
+.btn-ghost:hover{background:var(--surface);}
+.btn-sm{padding:8px 14px;font-size:.8rem;border-radius:9px;}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:8px 14px;font-size:.8rem;border-radius:9px;}
+.btn-outline:hover{background:rgba(201,169,110,.1);}
 
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    animation: fadeDown 0.8s ease both;
-  }
+/* ── State boxes ── */
+.state-box{text-align:center;padding:60px 20px;color:var(--muted);display:none;}
+.state-box.visible{display:block;}
+.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
 
-  .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.6rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--text) 60%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* ── Summary card ── */
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:26px 28px;margin-bottom:24px;display:none;animation:fadeUp .5s ease both;}
+.summary-card.visible{display:block;}
+.summary-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+.location-name{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:400;font-style:italic;}
+.badges{display:flex;gap:8px;flex-wrap:wrap;}
+.today-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:100px;
+  font-size:.78rem;font-weight:500;letter-spacing:.4px;text-transform:uppercase;}
+.badge-dot{width:7px;height:7px;border-radius:50%;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center;}
+.metric-icon{font-size:1.3rem;margin-bottom:5px;}
+.metric-value{font-size:1.2rem;font-weight:500;}
+.metric-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.metric-note{font-size:.7rem;margin-top:3px;font-weight:500;}
+.tip-box{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.2);border-radius:12px;
+  padding:13px 16px;margin-top:18px;font-size:.85rem;color:#c9b98e;line-height:1.6;}
+.tip-box strong{color:var(--accent);}
+.migraine-tip{background:rgba(155,114,207,.08);border:1px solid rgba(155,114,207,.25);color:#c4a8f0;margin-top:10px;}
+.migraine-tip strong{color:var(--migraine);}
 
-  .tagline {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin-top: 6px;
-    font-weight: 300;
-    letter-spacing: 0.3px;
-  }
+/* ── Score bar ── */
+.score-bar-wrap{margin-top:14px;}
+.score-bar-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:5px;}
+.score-bar-track{background:var(--surface);border-radius:100px;height:5px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:100px;transition:width 1.2s ease;}
 
-  /* Location input */
-  .location-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 36px;
-    animation: fadeUp 0.8s 0.1s ease both;
-  }
+/* ── Section title ── */
+.section-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;
+  color:var(--muted);margin-bottom:12px;display:none;animation:fadeUp .5s .1s ease both;}
+.section-title.visible{display:block;}
 
-  .location-bar input {
-    flex: 1;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
+/* ── Hourly strips ── */
+.hourly-strips{display:none;flex-direction:column;gap:0;margin-bottom:24px;
+  border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp .5s ease both;}
+.hourly-strips.visible{display:flex;}
+.period-row{display:grid;grid-template-columns:100px 1fr auto;align-items:center;gap:14px;
+  padding:16px 20px;border-bottom:1px solid var(--border);background:var(--card);transition:background .2s;}
+.period-row:last-child{border-bottom:none;}
+.period-row:hover{background:var(--surface);}
+.period-label{font-size:.85rem;font-weight:500;}
+.period-time{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.period-metrics{display:flex;gap:14px;flex-wrap:wrap;}
+.pm{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted);}
+.pm .v{color:var(--text);font-weight:500;}
+.period-chip{padding:5px 12px;border-radius:100px;font-size:.74rem;font-weight:500;white-space:nowrap;}
 
-  .location-bar input:focus {
-    border-color: rgba(201,169,110,0.4);
-  }
+/* ── 7-day forecast ── */
+.forecast-grid{display:none;flex-direction:column;gap:0;border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;animation:fadeUp .5s .15s ease both;}
+.forecast-grid.visible{display:flex;}
+.day-card{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:14px;
+  padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);
+  cursor:pointer;transition:all .2s;position:relative;}
+.day-card:last-of-type{border-bottom:none;}
+.day-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.day-card.level-1::before{background:var(--low);}
+.day-card.level-2::before{background:var(--mod);}
+.day-card.level-3::before{background:var(--high);}
+.day-card.level-4::before{background:var(--severe);}
+.day-card:hover{background:var(--surface);}
+.day-card.open{background:var(--surface);}
+.day-name{font-weight:500;font-size:.92rem;}
+.day-date{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.day-metrics-row{display:flex;gap:14px;flex-wrap:wrap;}
+.dm{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted);}
+.dm .v{color:var(--text);font-weight:500;}
+.pain-chip{padding:6px 13px;border-radius:100px;font-size:.76rem;font-weight:500;white-space:nowrap;}
+.chevron{font-size:.7rem;color:var(--muted);margin-left:4px;transition:transform .25s;}
+.day-card.open .chevron{transform:rotate(180deg);}
 
-  .location-bar input::placeholder { color: var(--muted); }
+/* ── Day detail ── */
+.day-detail{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px 20px;animation:fadeDown .25s ease both;}
+.day-detail.open{display:block;}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+.detail-item{background:var(--card);border-radius:10px;padding:12px 13px;}
+.di-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px;}
+.di-value{font-size:1rem;color:var(--text);font-weight:500;}
+.di-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.detail-advice{background:rgba(126,159,201,.07);border:1px solid rgba(126,159,201,.18);
+  border-radius:10px;padding:11px 13px;color:#a0b8d4;font-size:.82rem;line-height:1.6;margin-bottom:8px;}
+.detail-migraine{background:rgba(155,114,207,.07);border:1px solid rgba(155,114,207,.2);
+  border-radius:10px;padding:11px 13px;color:#c4a8f0;font-size:.82rem;line-height:1.6;}
 
-  .btn {
-    background: var(--accent);
-    color: #1a1200;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 22px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
+/* ── Legend ── */
+.legend{display:none;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:28px;
+  padding-top:20px;border-top:1px solid var(--border);font-size:.76rem;color:var(--muted);}
+.legend.visible{display:flex;}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
 
-  .btn:hover { background: #d4b47c; transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
+/* ── DIARY ── */
+#diaryTab{display:none;}
+#diaryTab.active{display:block;}
+.diary-entry-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:24px;animation:fadeUp .4s ease both;}
+.diary-entry-form h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400;margin-bottom:16px;color:var(--text);}
+.diary-date-row{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.diary-date-row label{font-size:.8rem;color:var(--muted);}
+.diary-date-row input[type=date]{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;}
+.diary-date-row input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6);}
 
-  .btn-geo {
-    background: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border);
-    padding: 14px 16px;
-    font-size: 1.1rem;
-  }
+.rating-section{margin-bottom:14px;}
+.rating-label{font-size:.8rem;color:var(--muted);margin-bottom:8px;}
+.rating-row{display:flex;gap:8px;flex-wrap:wrap;}
+.rating-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.rating-btn:hover{border-color:var(--accent);color:var(--text);}
+.rating-btn.sel-pain{background:rgba(201,79,79,.25);border-color:var(--severe);color:#e89090;}
+.rating-btn.sel-fatigue{background:rgba(232,198,106,.2);border-color:var(--mod);color:#e8d070;}
+.rating-btn.sel-migraine{background:rgba(155,114,207,.2);border-color:var(--migraine);color:#c4a8f0;}
 
-  .btn-geo:hover { background: var(--surface); }
+.diary-notes{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;
+  resize:vertical;min-height:70px;outline:none;margin-bottom:14px;transition:border-color .2s;}
+.diary-notes:focus{border-color:rgba(201,169,110,.4);}
+.diary-notes::placeholder{color:var(--muted);}
 
-  /* Summary card */
-  .summary-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px 32px;
-    margin-bottom: 28px;
-    display: none;
-    animation: fadeUp 0.5s ease both;
-  }
+.diary-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.diary-tag{padding:6px 12px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);font-size:.76rem;cursor:pointer;transition:all .2s;}
+.diary-tag:hover{border-color:rgba(201,169,110,.4);color:var(--text);}
+.diary-tag.selected{background:rgba(201,169,110,.15);border-color:rgba(201,169,110,.4);color:var(--accent);}
 
-  .summary-card.visible { display: block; }
+.diary-save-row{display:flex;justify-content:flex-end;}
 
-  .summary-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
+/* Entry list */
+.diary-list{display:flex;flex-direction:column;gap:10px;}
+.diary-entry-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;}
+.dec-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+.dec-date{font-family:'Playfair Display',serif;font-size:.95rem;font-style:italic;color:var(--text);}
+.dec-scores{display:flex;gap:8px;}
+.score-pill{padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:500;}
+.sp-pain{background:rgba(201,79,79,.2);color:#e89090;}
+.sp-fatigue{background:rgba(232,198,106,.15);color:#e8d070;}
+.sp-migraine{background:rgba(155,114,207,.2);color:#c4a8f0;}
+.dec-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.dec-tag{padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.05);font-size:.7rem;color:var(--muted);}
+.dec-notes{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.dec-delete{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;opacity:.5;transition:opacity .2s;}
+.dec-delete:hover{opacity:1;color:var(--severe);}
 
-  .location-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    font-weight: 400;
-    font-style: italic;
-    color: var(--text);
-  }
+/* Trends */
+.trends-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;margin-bottom:20px;animation:fadeUp .4s ease both;}
+.trends-card h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:14px;color:var(--text);}
+.trend-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.83rem;}
+.trend-item:last-child{border-bottom:none;}
+.trend-icon{font-size:1.2rem;width:28px;text-align:center;}
+.trend-text{flex:1;color:var(--muted);line-height:1.5;}
+.trend-text strong{color:var(--text);}
+.no-entries{text-align:center;color:var(--muted);padding:40px 0;font-size:.88rem;}
 
-  .today-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 100px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
+/* Mini chart */
+.mini-chart{height:80px;position:relative;margin:12px 0;}
+.mini-chart canvas{width:100%!important;height:80px!important;}
 
-  .badge-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-  }
+/* Tabs inside diary */
+.diary-sub-tabs{display:flex;gap:4px;margin-bottom:20px;}
+.dst{flex:1;padding:9px 8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);
+  font-family:'DM Sans',sans-serif;font-size:.8rem;border-radius:9px;cursor:pointer;transition:all .2s;text-align:center;}
+.dst.active{background:var(--card);color:var(--text);border-color:rgba(255,255,255,.12);}
 
-  /* Pain level colours */
-  .level-1 { background: rgba(91,184,138,0.15); color: var(--low); border: 1px solid rgba(91,184,138,0.25); }
-  .level-1 .badge-dot { background: var(--low); }
-  .level-2 { background: rgba(232,198,106,0.15); color: var(--mod); border: 1px solid rgba(232,198,106,0.25); }
-  .level-2 .badge-dot { background: var(--mod); }
-  .level-3 { background: rgba(224,122,80,0.15); color: var(--high); border: 1px solid rgba(224,122,80,0.25); }
-  .level-3 .badge-dot { background: var(--high); }
-  .level-4 { background: rgba(201,79,79,0.15); color: var(--severe); border: 1px solid rgba(201,79,79,0.25); }
-  .level-4 .badge-dot { background: var(--severe); }
+/* Keyframes */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* Metrics row */
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 14px;
-  }
-
-  .metric {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    text-align: center;
-  }
-
-  .metric-icon { font-size: 1.4rem; margin-bottom: 6px; }
-  .metric-value {
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .metric-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-  }
-
-  .metric-note {
-    font-size: 0.72rem;
-    margin-top: 4px;
-    font-weight: 500;
-  }
-
-  /* Tip box */
-  .tip-box {
-    background: rgba(201,169,110,0.07);
-    border: 1px solid rgba(201,169,110,0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-top: 20px;
-    font-size: 0.88rem;
-    color: #c9b98e;
-    line-height: 1.6;
-  }
-
-  .tip-box strong { color: var(--accent); }
-
-  /* 7-day forecast */
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--muted);
-    margin-bottom: 14px;
-    letter-spacing: 0.3px;
-    display: none;
-    animation: fadeUp 0.5s 0.1s ease both;
-  }
-
-  .section-title.visible { display: block; }
-
-  .forecast-grid {
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    animation: fadeUp 0.5s 0.15s ease both;
-  }
-
-  .forecast-grid.visible { display: flex; }
-
-  .day-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 18px 22px;
-    display: grid;
-    grid-template-columns: 110px 1fr auto;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .day-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    border-radius: 3px 0 0 3px;
-  }
-
-  .day-card.level-1::before { background: var(--low); }
-  .day-card.level-2::before { background: var(--mod); }
-  .day-card.level-3::before { background: var(--high); }
-  .day-card.level-4::before { background: var(--severe); }
-
-  .day-card:hover {
-    border-color: rgba(255,255,255,0.12);
-    transform: translateX(2px);
-  }
-
-  .day-name {
-    font-weight: 500;
-    font-size: 0.95rem;
-  }
-
-  .day-date {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .day-metrics {
-    display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
-  }
-
-  .day-metric {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.83rem;
-    color: var(--muted);
-  }
-
-  .day-metric span:first-child { font-size: 1rem; }
-  .day-metric .val { color: var(--text); font-weight: 500; }
-
-  .pain-chip {
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 0.78rem;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  /* Expanded detail */
-  .day-detail {
-    display: none;
-    background: var(--surface);
-    border-radius: 0 0 14px 14px;
-    margin-top: -8px;
-    padding: 18px 22px 20px;
-    border: 1px solid var(--border);
-    border-top: none;
-    font-size: 0.86rem;
-    color: var(--muted);
-    line-height: 1.7;
-    animation: fadeDown 0.3s ease both;
-  }
-
-  .day-detail.open { display: block; }
-
-  .detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .detail-item {
-    background: var(--card);
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
-
-  .detail-item .di-label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-
-  .detail-item .di-value {
-    font-size: 1.05rem;
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .detail-advice {
-    background: rgba(126,159,201,0.07);
-    border: 1px solid rgba(126,159,201,0.18);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: #a0b8d4;
-    font-size: 0.84rem;
-    line-height: 1.6;
-  }
-
-  /* Loading & error */
-  .state-box {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    display: none;
-  }
-
-  .state-box.visible { display: block; }
-
-  .spinner {
-    width: 36px; height: 36px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-  }
-
-  /* Pain scale legend */
-  .legend {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    font-size: 0.78rem;
-    color: var(--muted);
-    display: none;
-    animation: fadeUp 0.5s 0.2s ease both;
-  }
-
-  .legend.visible { display: flex; }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .legend-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-  }
-
-  /* Keyframes */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  @media (max-width: 600px) {
-    .logo { font-size: 2rem; }
-    .day-card { grid-template-columns: 90px 1fr; }
-    .pain-chip { display: none; }
-    .day-card::before { width: 4px; }
-    .day-metrics { gap: 10px; }
-  }
+/* Mobile */
+@media(max-width:600px){
+  .logo{font-size:2rem;}
+  .day-card{grid-template-columns:90px 1fr;}
+  .pain-chip{display:none;}
+  .tabs{font-size:.75rem;}
+  .period-row{grid-template-columns:90px 1fr;}
+}
 </style>
 </head>
 <body>
 <div class="container">
   <header>
     <div class="logo">☁ PainCast</div>
-    <div class="tagline">Weather-based pain & joint ache forecast — powered by Open-Meteo</div>
+    <div class="tagline">Weather-based pain, joint & migraine forecast + personal diary</div>
   </header>
 
-  <div class="location-bar">
-    <input type="text" id="cityInput" placeholder="Enter a city name (e.g. Brussels, London, Paris)…" />
-    <button class="btn btn-geo" id="geoBtn" title="Use my location">📍</button>
-    <button class="btn" id="searchBtn">Forecast</button>
+  <!-- Main tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('forecast')">🌤 Forecast</button>
+    <button class="tab" onclick="switchTab('diary')">📓 Diary</button>
   </div>
 
-  <div class="state-box" id="loadingBox">
-    <div class="spinner"></div>
-    <div>Fetching weather data…</div>
-  </div>
+  <!-- ═══════════════════════════════ FORECAST TAB ═══════════════════════════ -->
+  <div id="forecastTab">
+    <div class="location-bar">
+      <input type="text" id="cityInput" placeholder="City name…" />
+      <button class="btn btn-ghost" id="geoBtn" title="Use my location">📍</button>
+      <button class="btn" id="searchBtn">Forecast</button>
+    </div>
 
-  <div class="state-box" id="errorBox">
-    <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
-    <div id="errorMsg">Something went wrong.</div>
-  </div>
+    <div class="state-box" id="loadingBox"><div class="spinner"></div><div>Fetching weather…</div></div>
+    <div class="state-box" id="errorBox"><div style="font-size:2rem;margin-bottom:10px">⚠️</div><div id="errorMsg"></div></div>
 
-  <div class="summary-card" id="summaryCard">
-    <div class="summary-top">
-      <div>
-        <div class="location-name" id="locName"></div>
-        <div style="color:var(--muted);font-size:0.82rem;margin-top:4px" id="locSub"></div>
+    <!-- Today summary -->
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-top">
+        <div>
+          <div class="location-name" id="locName"></div>
+          <div style="color:var(--muted);font-size:.78rem;margin-top:3px" id="locSub"></div>
+        </div>
+        <div class="badges">
+          <div class="today-badge" id="todayBadge"><div class="badge-dot"></div><span id="todayLabel"></span></div>
+          <div class="today-badge" id="migraineBadge" style="display:none"><div class="badge-dot" style="background:var(--migraine)"></div><span id="migraineLabel"></span></div>
+        </div>
       </div>
-      <div class="today-badge" id="todayBadge">
-        <div class="badge-dot"></div>
-        <span id="todayLabel"></span>
+      <div class="metrics" id="todayMetrics"></div>
+      <div class="tip-box" id="todayTip"></div>
+      <div class="tip-box migraine-tip" id="migraineTip" style="display:none"></div>
+    </div>
+
+    <!-- Hourly / period breakdown -->
+    <div class="section-title" id="periodTitle">Today — Morning · Afternoon · Evening</div>
+    <div class="hourly-strips" id="periodStrips"></div>
+
+    <!-- 7-day -->
+    <div class="section-title" id="forecastTitle" style="margin-top:24px">7-Day Pain Outlook</div>
+    <div class="forecast-grid" id="forecastGrid"></div>
+
+    <div class="legend" id="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div>Minimal risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--mod)"></div>Moderate risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div>High risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--severe)"></div>Severe risk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--migraine)"></div>Migraine risk</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ DIARY TAB ═════════════════════════════ -->
+  <div id="diaryTab">
+    <div class="diary-sub-tabs">
+      <button class="dst active" onclick="switchDiaryTab('log')">✏️ Log Day</button>
+      <button class="dst" onclick="switchDiaryTab('history')">📋 History</button>
+      <button class="dst" onclick="switchDiaryTab('trends')">📈 Trends</button>
+    </div>
+
+    <!-- Log -->
+    <div id="diaryLog">
+      <div class="diary-entry-form">
+        <h3>How are you feeling today?</h3>
+        <div class="diary-date-row">
+          <label>Date</label>
+          <input type="date" id="diaryDate" />
+        </div>
+
+        <div class="rating-section">
+          <div class="rating-label">💢 Pain level (1 = none, 10 = severe)</div>
+          <div class="rating-row" id="painRating"></div>
+        </div>
+        <div class="rating-section">
+          <div class="rating-label">😴 Fatigue level (1–10)</div>
+          <div class="rating-row" id="fatigueRating"></div>
+        </div>
+        <div class="rating-section">
+          <div class="rating-label">🌀 Migraine? (0 = none, 10 = severe)</div>
+          <div class="rating-row" id="migraineRating"></div>
+        </div>
+
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">Symptoms / triggers noticed:</div>
+        <div class="diary-tags" id="tagButtons"></div>
+
+        <textarea class="diary-notes" id="diaryNotes" placeholder="Any notes for today… (optional)"></textarea>
+        <div class="diary-save-row">
+          <button class="btn btn-sm" onclick="saveEntry()">Save Entry</button>
+        </div>
       </div>
     </div>
-    <div class="metrics" id="todayMetrics"></div>
-    <div class="tip-box" id="todayTip"></div>
-  </div>
 
-  <div class="section-title" id="forecastTitle">7-Day Pain Outlook</div>
-  <div class="forecast-grid" id="forecastGrid"></div>
+    <!-- History -->
+    <div id="diaryHistory" style="display:none">
+      <div id="entryList" class="diary-list"></div>
+    </div>
 
-  <div class="legend" id="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div> Minimal risk</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--mod)"></div> Moderate risk</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div> High risk</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--severe)"></div> Severe risk</div>
+    <!-- Trends -->
+    <div id="diaryTrends" style="display:none">
+      <div id="trendsContent"></div>
+    </div>
   </div>
 </div>
 
 <script>
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════
+// CONSTANTS & HELPERS
+// ════════════════════════════════════════════════════════════════════
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LEVEL_LABELS=['','Minimal','Moderate','High Risk','Severe'];
+const LEVEL_COLORS=['','var(--low)','var(--mod)','var(--high)','var(--severe)'];
 
-const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const SYMPTOM_TAGS=['Joint stiffness','Muscle aches','Back pain','Knee pain','Shoulder pain',
+  'Neck pain','Fatigue','Brain fog','Sensitivity to light','Nausea','Throbbing headache',
+  'Mood dip','Poor sleep','Exercise helped','Rest needed'];
 
-function fmtDate(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+function fmtDate(s){const d=new Date(s+'T12:00:00');return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;}
+function fmtDateShort(s){const d=new Date(s+'T12:00:00');return `${d.getDate()} ${MONTHS[d.getMonth()]}`;}
+function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
+function isToday(s){return s===todayStr();}
+function show(el){el.classList.add('visible');}
+function hide(el){el.classList.remove('visible');}
+
+// ════════════════════════════════════════════════════════════════════
+// PAIN / MIGRAINE SCORE
+// ════════════════════════════════════════════════════════════════════
+function painScore(day){
+  let s=0;
+  const p=day.pressure,h=day.humidity,rain=day.rain,swing=day.swing,pDrop=day.pressureDrop;
+  if(p<995)s+=35;else if(p<1000)s+=28;else if(p<1005)s+=20;else if(p<1010)s+=12;else if(p<1015)s+=5;
+  if(h>90)s+=25;else if(h>80)s+=18;else if(h>70)s+=10;else if(h>60)s+=4;
+  if(rain>20)s+=20;else if(rain>10)s+=15;else if(rain>5)s+=10;else if(rain>1)s+=5;else if(rain>0)s+=2;
+  if(swing>16)s+=10;else if(swing>12)s+=7;else if(swing>8)s+=4;else if(swing>4)s+=2;
+  if(pDrop>8)s+=10;else if(pDrop>5)s+=7;else if(pDrop>3)s+=4;else if(pDrop>1)s+=2;
+  return Math.min(s,100);
 }
 
-function isToday(dateStr) {
-  const now = new Date();
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
+// Migraine triggers:
+// 1. Rapid pressure change (drop OR rise – both can trigger)
+// 2. Bright light / UV index (proxy: cloudless + high UV)
+// 3. High temperature (>28°C)
+// 4. Strong wind (>40 km/h – chinook-type triggers)
+// 5. Storm approach (thunderstorm code + low pressure)
+// 6. Humidity extremes (very high OR very low <30%)
+function migraineScore(day){
+  let s=0;
+  const p=day.pressure,h=day.humidity;
+  const pChange=Math.abs(day.pressureDrop); // both directions
+  const pRise=day.pressureRise||0;
+  const totalPChange=pChange+pRise;
+
+  // Pressure change (0-35) — any rapid change is a migraine trigger
+  if(totalPChange>10)s+=35;else if(totalPChange>7)s+=27;else if(totalPChange>5)s+=18;
+  else if(totalPChange>3)s+=10;else if(totalPChange>1)s+=4;
+
+  // Absolute low pressure (0-20)
+  if(p<998)s+=20;else if(p<1005)s+=13;else if(p<1010)s+=7;else if(p<1015)s+=3;
+
+  // High temperature (0-15)
+  if(day.tempMax>30)s+=15;else if(day.tempMax>27)s+=10;else if(day.tempMax>24)s+=5;
+
+  // Wind (0-15) — Foehn / chinook winds are known migraine triggers
+  if(day.wind>60)s+=15;else if(day.wind>40)s+=10;else if(day.wind>25)s+=5;
+
+  // Thunderstorm (wmo 95-99) (0-10)
+  if(day.wmo>=95)s+=10;else if(day.wmo>=80)s+=5;
+
+  // Humidity extremes (0-5)
+  if(h>88||h<30)s+=5;else if(h>80)s+=2;
+
+  return Math.min(s,100);
 }
 
-// ── Pain score algorithm ─────────────────────────────────────────────────────
-// Factors that worsen muscle/joint pain:
-//   1. Low atmospheric pressure (below ~1013 hPa, worse below 1005)
-//   2. High humidity (>70%, worse >85%)
-//   3. Rain or precipitation
-//   4. Large temperature swings (>10°C spread in a day)
-//   5. Rapid pressure drop (falling pressure is worse than stable low)
-
-function painScore(day) {
-  let score = 0;
-  const p = day.pressure;   // hPa
-  const h = day.humidity;   // %
-  const rain = day.rain;    // mm
-  const swing = day.swing;  // °C
-  const pDrop = day.pressureDrop; // hPa drop vs previous day
-
-  // Pressure (0–35 pts)
-  if (p < 995) score += 35;
-  else if (p < 1000) score += 28;
-  else if (p < 1005) score += 20;
-  else if (p < 1010) score += 12;
-  else if (p < 1015) score += 5;
-
-  // Humidity (0–25 pts)
-  if (h > 90) score += 25;
-  else if (h > 80) score += 18;
-  else if (h > 70) score += 10;
-  else if (h > 60) score += 4;
-
-  // Rain (0–20 pts)
-  if (rain > 20) score += 20;
-  else if (rain > 10) score += 15;
-  else if (rain > 5) score += 10;
-  else if (rain > 1) score += 5;
-  else if (rain > 0) score += 2;
-
-  // Temperature swing (0–10 pts)
-  if (swing > 16) score += 10;
-  else if (swing > 12) score += 7;
-  else if (swing > 8) score += 4;
-  else if (swing > 4) score += 2;
-
-  // Pressure drop (0–10 pts)  — falling pressure is a key trigger
-  if (pDrop > 8) score += 10;
-  else if (pDrop > 5) score += 7;
-  else if (pDrop > 3) score += 4;
-  else if (pDrop > 1) score += 2;
-
-  return Math.min(score, 100);
+function levelFromScore(s){
+  if(s>=65)return 4;if(s>=40)return 3;if(s>=20)return 2;return 1;
 }
 
-function levelFromScore(score) {
-  if (score >= 65) return 4;
-  if (score >= 40) return 3;
-  if (score >= 20) return 2;
-  return 1;
+function migraineLevelLabel(s){
+  if(s>=65)return 'High Migraine Risk';
+  if(s>=40)return 'Moderate Migraine Risk';
+  if(s>=20)return 'Low Migraine Risk';
+  return null;
 }
 
-const LEVEL_LABELS = ['', 'Minimal', 'Moderate', 'High Risk', 'Severe'];
-const LEVEL_COLORS = ['', 'var(--low)', 'var(--mod)', 'var(--high)', 'var(--severe)'];
-
-function painAdvice(day, level) {
-  const tips = [];
-  if (day.pressure < 1005) tips.push("Low pressure is the main trigger today — consider planning lighter activity.");
-  if (day.humidity > 80) tips.push("High humidity can amplify joint stiffness; staying warm and dry helps.");
-  if (day.rain > 5) tips.push("Rain expected — dampness may worsen aching; dress in layers.");
-  if (day.swing > 10) tips.push("Large temperature swing today; gradual warm-up before movement is recommended.");
-  if (day.pressureDrop > 4) tips.push("Pressure is dropping — this rapid change is a known flare trigger.");
-  if (level <= 1) return "Conditions look favourable today. Good day for gentle exercise or outdoor walks.";
-  if (tips.length === 0) return "Mild weather factors present. Listen to your body and rest if needed.";
-  return tips.join(' ');
+function pressureLabel(p){
+  if(p<995)return 'Very low';if(p<1005)return 'Low';if(p<1013)return 'Below avg';
+  if(p<1020)return 'Normal';return 'High';
 }
 
-// ── Geocoding (Open-Meteo Geocoding API) ────────────────────────────────────
-
-async function geocode(city) {
-  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
-  const r = await fetch(url);
-  const d = await r.json();
-  if (!d.results || d.results.length === 0) throw new Error(`City "${city}" not found. Try a different spelling.`);
-  const res = d.results[0];
-  return {
-    lat: res.latitude,
-    lon: res.longitude,
-    name: res.name,
-    country: res.country,
-    region: res.admin1 || ''
-  };
+function pressureColor(p){
+  if(p<1005)return 'var(--high)';if(p<1013)return 'var(--mod)';return 'var(--muted)';
 }
 
-// ── Weather fetch ────────────────────────────────────────────────────────────
+function wmoIcon(c){
+  if(c===0)return '☀️';if(c<=2)return '⛅';if(c<=3)return '☁️';
+  if(c<=49)return '🌫️';if(c<=59)return '🌦️';if(c<=69)return '🌧️';
+  if(c<=79)return '🌨️';if(c<=84)return '🌧️';if(c<=89)return '⛈️';return '🌩️';
+}
 
-async function fetchWeather(lat, lon) {
-  const vars = [
-    'temperature_2m_max',
-    'temperature_2m_min',
-    'precipitation_sum',
-    'rain_sum',
-    'relative_humidity_2m_max',
-    'relative_humidity_2m_mean',
-    'surface_pressure_mean',
-    'surface_pressure_min',
-    'windspeed_10m_max',
-    'weathercode'
+function painAdvice(day,level){
+  const tips=[];
+  if(day.pressure<1005)tips.push(`Pressure is ${pressureLabel(day.pressure).toLowerCase()} at ${day.pressure} hPa — joint tissue expansion is likely.`);
+  if(day.humidity>80)tips.push('Very high humidity may amplify stiffness; keeping warm and dry helps.');
+  if(day.rain>5)tips.push('Significant rain expected — dress in layers and protect affected joints.');
+  if(day.swing>10)tips.push(`Temperature swings ${day.swing}°C today — warm up gently before any activity.`);
+  if(day.pressureDrop>4)tips.push(`Pressure dropping ${day.pressureDrop} hPa from yesterday — this rapid fall is a key flare trigger.`);
+  if(level<=1)return '✅ Conditions look favourable. A good day for gentle exercise or outdoor walks.';
+  return tips.length?tips.join(' '):'Mild weather factors present. Listen to your body and rest if needed.';
+}
+
+function migraineAdvice(day,ms){
+  const tips=[];
+  const pChange=Math.abs(day.pressureDrop)+(day.pressureRise||0);
+  if(pChange>5)tips.push(`Significant pressure change of ${pChange.toFixed(1)} hPa detected — a known migraine trigger. Consider prophylactic measures.`);
+  if(day.tempMax>27)tips.push(`High temperature (${day.tempMax}°C) — stay hydrated and avoid prolonged sun exposure.`);
+  if(day.wind>40)tips.push('Strong winds can trigger migraines in sensitive individuals; minimise outdoor exposure.');
+  if(day.wmo>=95)tips.push('Thunderstorms approaching — the electromagnetic changes are a known trigger.');
+  if(day.humidity<30)tips.push('Very dry air today — dehydration risk is higher; increase water intake.');
+  return tips.length?tips.join(' '):'Moderate migraine weather factors. Stay rested and monitor triggers.';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// API CALLS
+// ════════════════════════════════════════════════════════════════════
+async function geocode(city){
+  const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+  const d=await r.json();
+  if(!d.results||!d.results.length)throw new Error(`City "${city}" not found.`);
+  const res=d.results[0];
+  return{lat:res.latitude,lon:res.longitude,name:res.name,country:res.country,region:res.admin1||''};
+}
+
+async function fetchWeather(lat,lon){
+  const daily=[
+    'temperature_2m_max','temperature_2m_min','precipitation_sum','rain_sum',
+    'relative_humidity_2m_max','relative_humidity_2m_mean','surface_pressure_mean',
+    'surface_pressure_min','windspeed_10m_max','weathercode'
   ].join(',');
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${vars}&forecast_days=7&timezone=auto`;
-  const r = await fetch(url);
-  const d = await r.json();
-  if (d.error) throw new Error(d.reason || 'Weather API error');
+  // Hourly for period breakdown (today)
+  const hourly=[
+    'temperature_2m','relative_humidity_2m','surface_pressure','precipitation',
+    'windspeed_10m','weathercode'
+  ].join(',');
+
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&hourly=${hourly}&forecast_days=7&timezone=auto`;
+  const r=await fetch(url);
+  const d=await r.json();
+  if(d.error)throw new Error(d.reason||'Weather API error');
   return d;
 }
 
-// ── WMO weather code to icon ─────────────────────────────────────────────────
-function wmoIcon(code) {
-  if (code === 0) return '☀️';
-  if (code <= 2) return '⛅';
-  if (code <= 3) return '☁️';
-  if (code <= 49) return '🌫️';
-  if (code <= 59) return '🌦️';
-  if (code <= 69) return '🌧️';
-  if (code <= 79) return '🌨️';
-  if (code <= 84) return '🌧️';
-  if (code <= 89) return '⛈️';
-  return '🌩️';
-}
+// ════════════════════════════════════════════════════════════════════
+// BUILD DATA STRUCTURES
+// ════════════════════════════════════════════════════════════════════
+function buildDays(d){
+  const days=[];
+  const dates=d.daily.time;
+  const pressures=d.daily.surface_pressure_mean;
 
-// ── Build days array ─────────────────────────────────────────────────────────
+  for(let i=0;i<dates.length;i++){
+    const swing=(d.daily.temperature_2m_max[i]??0)-(d.daily.temperature_2m_min[i]??0);
+    const pressure=d.daily.surface_pressure_mean[i]??1013;
+    const prevP=i>0?(pressures[i-1]??pressure):pressure;
+    const nextP=i<dates.length-1?(pressures[i+1]??pressure):pressure;
+    const pDrop=Math.max(0,prevP-pressure);
+    const pRise=Math.max(0,pressure-prevP); // rising pressure also matters for migraine
 
-function buildDays(d) {
-  const days = [];
-  const dates = d.daily.time;
-  const pressures = d.daily.surface_pressure_mean;
-
-  for (let i = 0; i < dates.length; i++) {
-    const swing = (d.daily.temperature_2m_max[i] ?? 0) - (d.daily.temperature_2m_min[i] ?? 0);
-    const pressure = d.daily.surface_pressure_mean[i] ?? 1013;
-    const prevPressure = i > 0 ? (d.daily.surface_pressure_mean[i - 1] ?? pressure) : pressure;
-    const pDrop = Math.max(0, prevPressure - pressure);
-
-    const day = {
-      date: dates[i],
-      tempMax: Math.round(d.daily.temperature_2m_max[i] ?? 0),
-      tempMin: Math.round(d.daily.temperature_2m_min[i] ?? 0),
-      pressure: Math.round(pressure),
-      pressureMin: Math.round(d.daily.surface_pressure_min[i] ?? pressure),
-      humidity: Math.round(d.daily.relative_humidity_2m_mean[i] ?? 50),
-      humidityMax: Math.round(d.daily.relative_humidity_2m_max[i] ?? 50),
-      rain: Math.round((d.daily.rain_sum[i] ?? 0) * 10) / 10,
-      precip: Math.round((d.daily.precipitation_sum[i] ?? 0) * 10) / 10,
-      wind: Math.round(d.daily.windspeed_10m_max[i] ?? 0),
-      swing: Math.round(swing),
-      pressureDrop: Math.round(pDrop * 10) / 10,
-      icon: wmoIcon(d.daily.weathercode[i] ?? 0),
+    const day={
+      date:dates[i],
+      tempMax:Math.round(d.daily.temperature_2m_max[i]??0),
+      tempMin:Math.round(d.daily.temperature_2m_min[i]??0),
+      pressure:Math.round(pressure),
+      pressureMin:Math.round(d.daily.surface_pressure_min[i]??pressure),
+      prevPressure:Math.round(prevP),
+      humidity:Math.round(d.daily.relative_humidity_2m_mean[i]??50),
+      humidityMax:Math.round(d.daily.relative_humidity_2m_max[i]??50),
+      rain:Math.round((d.daily.rain_sum[i]??0)*10)/10,
+      wind:Math.round(d.daily.windspeed_10m_max[i]??0),
+      swing:Math.round(swing),
+      pressureDrop:Math.round(pDrop*10)/10,
+      pressureRise:Math.round(pRise*10)/10,
+      wmo:d.daily.weathercode[i]??0,
+      icon:wmoIcon(d.daily.weathercode[i]??0),
     };
-    day.score = painScore(day);
-    day.level = levelFromScore(day.score);
+    day.score=painScore(day);
+    day.level=levelFromScore(day.score);
+    day.migraineScore=migraineScore(day);
     days.push(day);
   }
   return days;
 }
 
-// ── Render ───────────────────────────────────────────────────────────────────
+function buildPeriods(d){
+  // Group today's hourly into Morning (6-12), Afternoon (12-18), Evening (18-24)
+  const todayPrefix=d.hourly.time[0].slice(0,10);
+  const periods=[
+    {label:'Morning',emoji:'🌅',hours:[6,7,8,9,10,11]},
+    {label:'Afternoon',emoji:'☀️',hours:[12,13,14,15,16,17]},
+    {label:'Evening',emoji:'🌙',hours:[18,19,20,21,22,23]},
+  ];
 
-function show(el) { el.classList.add('visible'); }
-function hide(el) { el.classList.remove('visible'); }
+  return periods.map(period=>{
+    const indices=period.hours
+      .map(h=>d.hourly.time.findIndex(t=>t===`${todayPrefix}T${String(h).padStart(2,'0')}:00`))
+      .filter(i=>i>=0);
 
-function renderSummary(location, day) {
-  document.getElementById('locName').textContent = location.name + (location.country ? ', ' + location.country : '');
-  document.getElementById('locSub').textContent = isToday(day.date) ? 'Today\'s outlook' : fmtDate(day.date);
+    if(!indices.length)return null;
 
-  const badge = document.getElementById('todayBadge');
-  badge.className = `today-badge level-${day.level}`;
-  document.getElementById('todayLabel').textContent = LEVEL_LABELS[day.level] + ' Pain Risk';
+    const avg=key=>Math.round(indices.reduce((s,i)=>s+(d.hourly[key][i]??0),0)/indices.length);
+    const min=key=>Math.round(Math.min(...indices.map(i=>d.hourly[key][i]??99)));
 
-  const scoreBar = `
-    <div style="margin-top:16px">
-      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-bottom:6px">
-        <span>Pain Risk Score</span><span style="color:var(--text);font-weight:500">${day.score}/100</span>
-      </div>
-      <div style="background:var(--surface);border-radius:100px;height:6px;overflow:hidden">
-        <div style="width:${day.score}%;height:100%;background:${LEVEL_COLORS[day.level]};border-radius:100px;transition:width 1s ease"></div>
-      </div>
-    </div>`;
+    const pressure=avg('surface_pressure');
+    const prevPressure=indices[0]>0?(d.hourly.surface_pressure[indices[0]-1]??pressure):pressure;
+    const pDrop=Math.max(0,prevPressure-pressure);
+    const pRise=Math.max(0,pressure-prevPressure);
 
-  document.getElementById('todayMetrics').innerHTML = `
+    const day={
+      pressure,prevPressure:Math.round(prevPressure),
+      humidity:avg('relative_humidity_2m'),
+      rain:Math.round(indices.reduce((s,i)=>s+(d.hourly.precipitation[i]??0),0)*10)/10,
+      wind:avg('windspeed_10m'),
+      swing:0, // no swing within a period
+      pressureDrop:Math.round(pDrop*10)/10,
+      pressureRise:Math.round(pRise*10)/10,
+      tempMax:avg('temperature_2m'),
+      tempMin:avg('temperature_2m'),
+      wmo:d.hourly.weathercode[indices[Math.floor(indices.length/2)]]??0,
+    };
+    day.score=painScore(day);
+    day.level=levelFromScore(day.score);
+    day.migraineScore=migraineScore(day);
+
+    return{...period,...day,
+      timeRange:`${period.hours[0]}:00–${period.hours[period.hours.length-1]+1}:00`,
+      icon:wmoIcon(day.wmo),
+    };
+  }).filter(Boolean);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// RENDER FORECAST
+// ════════════════════════════════════════════════════════════════════
+function renderSummary(location,day){
+  document.getElementById('locName').textContent=location.name+(location.country?', '+location.country:'');
+  document.getElementById('locSub').textContent=isToday(day.date)?'Today\'s overview':fmtDate(day.date);
+
+  const badge=document.getElementById('todayBadge');
+  badge.className=`today-badge level-${day.level}`;
+  document.getElementById('todayLabel').textContent=LEVEL_LABELS[day.level]+' Pain Risk';
+
+  // Migraine badge
+  const ml=migraineLevelLabel(day.migraineScore);
+  const mb=document.getElementById('migraineBadge');
+  if(ml&&day.migraineScore>=20){
+    mb.style.display='inline-flex';
+    document.getElementById('migraineLabel').textContent=ml;
+  } else mb.style.display='none';
+
+  // Pressure detail string
+  const pDropStr=day.pressureDrop>1?` (dropped from ${day.prevPressure} → ${day.pressure} hPa)`:'';
+  const pRiseStr=day.pressureRise>1?` (rose from ${day.prevPressure} → ${day.pressure} hPa)`:'';
+
+  document.getElementById('todayMetrics').innerHTML=`
     <div class="metric">
       <div class="metric-icon">🌡️</div>
       <div class="metric-value">${day.tempMin}–${day.tempMax}°C</div>
       <div class="metric-label">Temperature</div>
-      <div class="metric-note" style="color:${day.swing > 10 ? 'var(--high)' : 'var(--muted)'}">${day.swing}° swing</div>
+      <div class="metric-note" style="color:${day.swing>10?'var(--high)':'var(--muted)'}">${day.swing}° swing</div>
     </div>
     <div class="metric">
       <div class="metric-icon">🔽</div>
       <div class="metric-value">${day.pressure} hPa</div>
-      <div class="metric-label">Pressure</div>
-      <div class="metric-note" style="color:${day.pressure < 1005 ? 'var(--high)' : day.pressure < 1013 ? 'var(--mod)' : 'var(--muted)'}">
-        ${day.pressure < 1005 ? 'Very low' : day.pressure < 1013 ? 'Below avg' : 'Normal'}
-      </div>
+      <div class="metric-label">Pressure (avg)</div>
+      <div class="metric-note" style="color:${pressureColor(day.pressure)}">${pressureLabel(day.pressure)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">⬇️</div>
+      <div class="metric-value">${day.pressureMin} hPa</div>
+      <div class="metric-label">Pressure (min)</div>
+      <div class="metric-note" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div>
     </div>
     <div class="metric">
       <div class="metric-icon">💧</div>
       <div class="metric-value">${day.humidity}%</div>
       <div class="metric-label">Humidity</div>
-      <div class="metric-note" style="color:${day.humidity > 80 ? 'var(--high)' : day.humidity > 65 ? 'var(--mod)' : 'var(--muted)'}">
-        ${day.humidity > 80 ? 'Very high' : day.humidity > 65 ? 'Elevated' : 'Comfortable'}
-      </div>
+      <div class="metric-note" style="color:${day.humidity>80?'var(--high)':day.humidity>65?'var(--mod)':'var(--muted)'}">${day.humidity>80?'Very high':day.humidity>65?'Elevated':'Comfortable'}</div>
     </div>
     <div class="metric">
       <div class="metric-icon">🌧️</div>
       <div class="metric-value">${day.rain} mm</div>
       <div class="metric-label">Rain</div>
-      <div class="metric-note" style="color:${day.rain > 5 ? 'var(--high)' : day.rain > 0 ? 'var(--mod)' : 'var(--muted)'}">
-        ${day.rain > 10 ? 'Heavy' : day.rain > 5 ? 'Moderate' : day.rain > 0 ? 'Light' : 'None'}
-      </div>
+      <div class="metric-note" style="color:${day.rain>5?'var(--high)':day.rain>0?'var(--mod)':'var(--muted)'}">${day.rain>10?'Heavy':day.rain>5?'Moderate':day.rain>0?'Light':'None'}</div>
     </div>
-    ${day.pressureDrop > 2 ? `
+    ${day.pressureDrop>1||day.pressureRise>1?`
     <div class="metric">
-      <div class="metric-icon">📉</div>
-      <div class="metric-value">−${day.pressureDrop} hPa</div>
-      <div class="metric-label">Pressure Drop</div>
-      <div class="metric-note" style="color:${day.pressureDrop > 5 ? 'var(--severe)' : 'var(--high)'}">Falling fast</div>
-    </div>` : ''}
+      <div class="metric-icon">${day.pressureDrop>day.pressureRise?'📉':'📈'}</div>
+      <div class="metric-value">${day.pressureDrop>day.pressureRise?'−'+day.pressureDrop:'+'+day.pressureRise} hPa</div>
+      <div class="metric-label">vs yesterday</div>
+      <div class="metric-note" style="color:${(day.pressureDrop>day.pressureRise?day.pressureDrop:day.pressureRise)>5?'var(--severe)':'var(--high)'}">${day.pressureDrop>day.pressureRise?'Falling':'Rising'}</div>
+    </div>`:''}
+    <div class="metric">
+      <div class="metric-icon">💨</div>
+      <div class="metric-value">${day.wind} km/h</div>
+      <div class="metric-label">Wind</div>
+      <div class="metric-note" style="color:${day.wind>40?'var(--high)':'var(--muted)'}">${day.wind>60?'Strong':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div>
+    </div>
   `;
 
-  document.getElementById('todayTip').innerHTML = `<strong>💡 Today's advice:</strong> ${painAdvice(day, day.level)}`;
-  document.getElementById('todayMetrics').innerHTML += scoreBar;
+  // Score bar
+  document.getElementById('todayMetrics').innerHTML+=`
+    <div class="score-bar-wrap" style="grid-column:1/-1">
+      <div class="score-bar-labels"><span>Pain Risk Score</span><span style="color:var(--text);font-weight:500">${day.score}/100</span></div>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.score}%;background:${LEVEL_COLORS[day.level]}"></div></div>
+      <div class="score-bar-labels" style="margin-top:8px"><span>Migraine Risk Score</span><span style="color:var(--text);font-weight:500">${day.migraineScore}/100</span></div>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.migraineScore}%;background:var(--migraine)"></div></div>
+    </div>`;
+
+  document.getElementById('todayTip').innerHTML=`<strong>💡 Pain advice:</strong> ${painAdvice(day,day.level)}`;
+
+  const mt=document.getElementById('migraineTip');
+  if(day.migraineScore>=20){
+    mt.style.display='block';
+    mt.innerHTML=`<strong>🌀 Migraine advice:</strong> ${migraineAdvice(day,day.migraineScore)}`;
+  } else mt.style.display='none';
 
   show(document.getElementById('summaryCard'));
 }
 
-function renderForecast(days) {
-  const grid = document.getElementById('forecastGrid');
-  grid.innerHTML = '';
+function renderPeriods(periods){
+  const strip=document.getElementById('periodStrips');
+  strip.innerHTML='';
+  periods.forEach(p=>{
+    const pDropStr=p.pressureDrop>1?` (${p.prevPressure}→${p.pressure} hPa, −${p.pressureDrop})`:'';
+    const pRiseStr=p.pressureRise>1?` (${p.prevPressure}→${p.pressure} hPa, +${p.pressureRise})`:'';
+    const pStr=pDropStr||pRiseStr||`${p.pressure} hPa`;
 
-  days.forEach((day, i) => {
-    const wrapper = document.createElement('div');
-
-    const card = document.createElement('div');
-    card.className = `day-card level-${day.level}`;
-    card.innerHTML = `
+    const row=document.createElement('div');
+    row.className='period-row';
+    row.innerHTML=`
       <div>
-        <div class="day-name">${isToday(day.date) ? 'Today' : DAYS[new Date(day.date + 'T12:00:00').getDay()]}</div>
-        <div class="day-date">${new Date(day.date + 'T12:00:00').getDate()} ${MONTHS[new Date(day.date + 'T12:00:00').getMonth()]}</div>
+        <div class="period-label">${p.emoji} ${p.label}</div>
+        <div class="period-time">${p.timeRange}</div>
       </div>
-      <div class="day-metrics">
-        <div class="day-metric"><span>${day.icon}</span></div>
-        <div class="day-metric"><span>🌡️</span><span class="val">${day.tempMin}–${day.tempMax}°C</span></div>
-        <div class="day-metric"><span>🔽</span><span class="val">${day.pressure} hPa</span></div>
-        <div class="day-metric"><span>💧</span><span class="val">${day.humidity}%</span></div>
-        ${day.rain > 0 ? `<div class="day-metric"><span>🌧️</span><span class="val">${day.rain}mm</span></div>` : ''}
+      <div class="period-metrics">
+        <div class="pm"><span>${p.icon}</span></div>
+        <div class="pm">🌡️ <span class="v">${p.tempMax}°C</span></div>
+        <div class="pm">🔽 <span class="v" style="color:${pressureColor(p.pressure)}">${pStr}</span></div>
+        <div class="pm">💧 <span class="v">${p.humidity}%</span></div>
+        ${p.rain>0?`<div class="pm">🌧️ <span class="v">${p.rain}mm</span></div>`:''}
+        ${p.migraineScore>=20?`<div class="pm">🌀 <span class="v" style="color:var(--migraine)">M:${p.migraineScore}</span></div>`:''}
       </div>
-      <div class="pain-chip level-${day.level}" style="background:${LEVEL_COLORS[day.level]}22;color:${LEVEL_COLORS[day.level]};border:1px solid ${LEVEL_COLORS[day.level]}44">
-        ${LEVEL_LABELS[day.level]}
-      </div>
+      <div class="period-chip level-${p.level}" style="background:${LEVEL_COLORS[p.level]}22;color:${LEVEL_COLORS[p.level]};border:1px solid ${LEVEL_COLORS[p.level]}44">${LEVEL_LABELS[p.level]}</div>
     `;
+    strip.appendChild(row);
+  });
+  document.getElementById('periodTitle').classList.add('visible');
+  strip.classList.add('visible');
+}
 
-    const detail = document.createElement('div');
-    detail.className = 'day-detail';
-    detail.innerHTML = `
+function renderForecast(days){
+  const grid=document.getElementById('forecastGrid');
+  grid.innerHTML='';
+  let openCard=null,openDetail=null;
+
+  days.forEach((day,i)=>{
+    const wrapper=document.createElement('div');
+
+    const card=document.createElement('div');
+    card.className=`day-card level-${day.level}`;
+
+    const pDropStr=day.pressureDrop>1?`${day.prevPressure}→${day.pressure} hPa (−${day.pressureDrop})`:`${day.pressure} hPa`;
+    const pRiseStr=day.pressureRise>1?`${day.prevPressure}→${day.pressure} hPa (+${day.pressureRise})`:'';
+    const pDisplay=day.pressureDrop>1?pDropStr:(day.pressureRise>1?pRiseStr:`${day.pressure} hPa`);
+    const pColor=day.pressureDrop>1||day.pressure<1013?pressureColor(day.pressure):'var(--muted)';
+
+    card.innerHTML=`
+      <div>
+        <div class="day-name">${isToday(day.date)?'Today':DAYS[new Date(day.date+'T12:00:00').getDay()]}</div>
+        <div class="day-date">${fmtDateShort(day.date)}</div>
+      </div>
+      <div class="day-metrics-row">
+        <div class="dm">${day.icon}</div>
+        <div class="dm">🌡️ <span class="v">${day.tempMin}–${day.tempMax}°C</span></div>
+        <div class="dm">🔽 <span class="v" style="color:${pColor}">${pDisplay}</span></div>
+        <div class="dm">💧 <span class="v">${day.humidity}%</span></div>
+        ${day.rain>0?`<div class="dm">🌧️ <span class="v">${day.rain}mm</span></div>`:''}
+        ${day.migraineScore>=40?`<div class="dm">🌀 <span class="v" style="color:var(--migraine)">Migraine</span></div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="pain-chip level-${day.level}" style="background:${LEVEL_COLORS[day.level]}22;color:${LEVEL_COLORS[day.level]};border:1px solid ${LEVEL_COLORS[day.level]}44">${LEVEL_LABELS[day.level]}</div>
+        <span class="chevron">▼</span>
+      </div>`;
+
+    const detail=document.createElement('div');
+    detail.className='day-detail';
+
+    const pChangeNote=day.pressureDrop>1
+      ?`Dropped from <strong>${day.prevPressure} hPa</strong> (yesterday) to <strong>${day.pressure} hPa</strong> today — a fall of <strong>${day.pressureDrop} hPa</strong>. ${day.pressureDrop>5?'This rapid fall is a strong joint and migraine trigger.':'Moderate drop; may affect sensitive joints.'}`
+      :day.pressureRise>1
+      ?`Rose from <strong>${day.prevPressure} hPa</strong> (yesterday) to <strong>${day.pressure} hPa</strong> today — a rise of <strong>${day.pressureRise} hPa</strong>. ${day.pressureRise>5?'Rising pressure can also trigger migraines in some people.':''}`
+      :`Pressure stable around <strong>${day.pressure} hPa</strong> — ${pressureLabel(day.pressure).toLowerCase()}.`;
+
+    detail.innerHTML=`
       <div class="detail-grid">
         <div class="detail-item">
-          <div class="di-label">Pain Risk Score</div>
+          <div class="di-label">Pain Score</div>
           <div class="di-value" style="color:${LEVEL_COLORS[day.level]}">${day.score}/100</div>
+          <div class="di-sub">${LEVEL_LABELS[day.level]}</div>
         </div>
         <div class="detail-item">
-          <div class="di-label">Min Pressure</div>
-          <div class="di-value">${day.pressureMin} hPa</div>
+          <div class="di-label">Migraine Score</div>
+          <div class="di-value" style="color:var(--migraine)">${day.migraineScore}/100</div>
+          <div class="di-sub">${migraineLevelLabel(day.migraineScore)||'Low risk'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Pressure (avg → min)</div>
+          <div class="di-value">${day.pressure} → ${day.pressureMin} hPa</div>
+          <div class="di-sub" style="color:${pressureColor(day.pressureMin)}">${pressureLabel(day.pressureMin)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="di-label">Pressure vs prev day</div>
+          <div class="di-value">${day.prevPressure} → ${day.pressure} hPa</div>
+          <div class="di-sub" style="color:${day.pressureDrop>3||day.pressureRise>5?'var(--high)':'var(--muted)'}">
+            ${day.pressureDrop>1?'↓ −'+day.pressureDrop+' hPa':day.pressureRise>1?'↑ +'+day.pressureRise+' hPa':'Stable'}
+          </div>
         </div>
         <div class="detail-item">
           <div class="di-label">Max Humidity</div>
           <div class="di-value">${day.humidityMax}%</div>
+          <div class="di-sub">(avg ${day.humidity}%)</div>
         </div>
         <div class="detail-item">
-          <div class="di-label">Temp Swing</div>
+          <div class="di-label">Temp swing</div>
           <div class="di-value">${day.swing}°C</div>
-        </div>
-        <div class="detail-item">
-          <div class="di-label">Pressure Drop</div>
-          <div class="di-value">${day.pressureDrop > 0 ? '−' + day.pressureDrop + ' hPa' : 'Stable'}</div>
+          <div class="di-sub">${day.tempMin}°C → ${day.tempMax}°C</div>
         </div>
         <div class="detail-item">
           <div class="di-label">Wind</div>
           <div class="di-value">${day.wind} km/h</div>
+          <div class="di-sub">${day.wind>60?'Strong — migraine risk':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div>
         </div>
       </div>
-      <div class="detail-advice">💬 ${painAdvice(day, day.level)}</div>
+      <div class="detail-advice" style="margin-bottom:8px">
+        <strong>🔽 Pressure detail:</strong> ${pChangeNote}
+      </div>
+      <div class="detail-advice">💢 <strong>Joint/muscle:</strong> ${painAdvice(day,day.level)}</div>
+      ${day.migraineScore>=20?`<div class="detail-migraine" style="margin-top:8px">🌀 <strong>Migraine:</strong> ${migraineAdvice(day,day.migraineScore)}</div>`:''}
     `;
 
-    card.addEventListener('click', () => {
-      detail.classList.toggle('open');
+    card.addEventListener('click',()=>{
+      const isOpen=detail.classList.contains('open');
+      // Close all others
+      if(openDetail&&openDetail!==detail){openDetail.classList.remove('open');openCard.classList.remove('open');}
+      detail.classList.toggle('open',!isOpen);
+      card.classList.toggle('open',!isOpen);
+      if(!isOpen){openCard=card;openDetail=detail;}
+      else{openCard=null;openDetail=null;}
     });
 
     wrapper.appendChild(card);
@@ -820,94 +808,290 @@ function renderForecast(days) {
     grid.appendChild(wrapper);
   });
 
-  show(document.getElementById('forecastTitle'));
-  show(document.getElementById('forecastGrid'));
+  document.getElementById('forecastTitle').classList.add('visible');
+  grid.classList.add('visible');
   show(document.getElementById('legend'));
 }
 
-// ── Main flow ────────────────────────────────────────────────────────────────
-
-function setLoading(on) {
-  const box = document.getElementById('loadingBox');
-  on ? show(box) : hide(box);
+// ════════════════════════════════════════════════════════════════════
+// MAIN FETCH & DISPLAY
+// ════════════════════════════════════════════════════════════════════
+function setLoading(on){const b=document.getElementById('loadingBox');on?show(b):hide(b);}
+function setError(msg){document.getElementById('errorMsg').textContent=msg;show(document.getElementById('errorBox'));}
+function clearResults(){
+  ['errorBox','summaryCard','legend'].forEach(id=>hide(document.getElementById(id)));
+  ['periodTitle','forecastTitle'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  document.getElementById('periodStrips').classList.remove('visible');
+  document.getElementById('forecastGrid').classList.remove('visible');
 }
 
-function setError(msg) {
-  document.getElementById('errorMsg').textContent = msg;
-  show(document.getElementById('errorBox'));
-}
-
-function clearResults() {
-  hide(document.getElementById('errorBox'));
-  hide(document.getElementById('summaryCard'));
-  hide(document.getElementById('forecastTitle'));
-  hide(document.getElementById('forecastGrid'));
-  hide(document.getElementById('legend'));
-}
-
-async function runForecast(location) {
-  clearResults();
-  setLoading(true);
-  try {
-    const weather = await fetchWeather(location.lat, location.lon);
-    const days = buildDays(weather);
+async function runForecast(location){
+  clearResults();setLoading(true);
+  try{
+    const w=await fetchWeather(location.lat,location.lon);
+    const days=buildDays(w);
+    const periods=buildPeriods(w);
     setLoading(false);
-    renderSummary(location, days[0]);
+    renderSummary(location,days[0]);
+    if(periods.length)renderPeriods(periods);
     renderForecast(days);
-  } catch (e) {
-    setLoading(false);
-    setError(e.message || 'Failed to load weather data.');
-  }
+  }catch(e){setLoading(false);setError(e.message||'Failed to load weather.');}
 }
 
-async function searchCity() {
-  const city = document.getElementById('cityInput').value.trim();
-  if (!city) return;
-  clearResults();
-  setLoading(true);
-  try {
-    const loc = await geocode(city);
+async function searchCity(){
+  const city=document.getElementById('cityInput').value.trim();
+  if(!city)return;
+  clearResults();setLoading(true);
+  try{const loc=await geocode(city);await runForecast(loc);}
+  catch(e){setLoading(false);setError(e.message);}
+}
+
+document.getElementById('searchBtn').addEventListener('click',searchCity);
+document.getElementById('cityInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchCity();});
+document.getElementById('geoBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation){setError('Geolocation not supported.');return;}
+  clearResults();setLoading(true);
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const{latitude:lat,longitude:lon}=pos.coords;
+    const loc={lat,lon,name:`${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,country:'',region:''};
     await runForecast(loc);
-  } catch (e) {
-    setLoading(false);
-    setError(e.message);
-  }
-}
-
-document.getElementById('searchBtn').addEventListener('click', searchCity);
-document.getElementById('cityInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchCity();
+  },()=>{setLoading(false);setError('Could not get location. Try searching by city name.');});
 });
 
-document.getElementById('geoBtn').addEventListener('click', () => {
-  if (!navigator.geolocation) { setError('Geolocation not supported by your browser.'); return; }
-  clearResults();
-  setLoading(true);
-  navigator.geolocation.getCurrentPosition(async pos => {
-    try {
-      const { latitude: lat, longitude: lon } = pos.coords;
-      // Reverse geocode with Open-Meteo
-      const url = `https://geocoding-api.open-meteo.com/v1/search?name=&latitude=${lat}&longitude=${lon}&count=1`;
-      // Fall back to coordinates label
-      const location = { lat, lon, name: `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`, country: '', region: '' };
-      await runForecast(location);
-    } catch(e) {
-      setLoading(false);
-      setError(e.message);
-    }
-  }, () => {
-    setLoading(false);
-    setError('Could not get your location. Try searching by city name.');
+// ════════════════════════════════════════════════════════════════════
+// DIARY
+// ════════════════════════════════════════════════════════════════════
+const DIARY_KEY='paincast_diary_v1';
+
+function loadEntries(){
+  try{return JSON.parse(localStorage.getItem(DIARY_KEY)||'[]');}catch{return[];}
+}
+function saveEntries(entries){localStorage.setItem(DIARY_KEY,JSON.stringify(entries));}
+
+// Rating buttons
+let diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
+
+function buildRatingBtns(containerId,key,cls){
+  const c=document.getElementById(containerId);
+  const max=key==='migraine'?10:10;
+  const start=key==='migraine'?0:1;
+  c.innerHTML='';
+  for(let v=start;v<=max;v++){
+    const b=document.createElement('button');
+    b.className='rating-btn';b.textContent=v;
+    b.onclick=()=>{
+      diaryState[key]=v;
+      c.querySelectorAll('.rating-btn').forEach(x=>x.className='rating-btn');
+      b.classList.add(`sel-${key}`);
+    };
+    c.appendChild(b);
+  }
+}
+
+function buildTagBtns(){
+  const c=document.getElementById('tagButtons');
+  c.innerHTML='';
+  SYMPTOM_TAGS.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='diary-tag';b.textContent=t;
+    b.onclick=()=>{
+      b.classList.toggle('selected');
+      if(b.classList.contains('selected')){if(!diaryState.tags.includes(t))diaryState.tags.push(t);}
+      else diaryState.tags=diaryState.tags.filter(x=>x!==t);
+    };
+    c.appendChild(b);
   });
-});
+}
 
-// Auto-load for Wortegem, Belgium since that's the user's location
-(async () => {
-  try {
-    const loc = await geocode('Wortegem');
-    document.getElementById('cityInput').value = 'Wortegem, Belgium';
+function initDiary(){
+  document.getElementById('diaryDate').value=todayStr();
+  buildRatingBtns('painRating','pain','sel-pain');
+  buildRatingBtns('fatigueRating','fatigue','sel-fatigue');
+  buildRatingBtns('migraineRating','migraine','sel-migraine');
+  buildTagBtns();
+  diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
+}
+
+function saveEntry(){
+  const date=document.getElementById('diaryDate').value;
+  const notes=document.getElementById('diaryNotes').value.trim();
+  if(!date){alert('Please select a date.');return;}
+
+  const entries=loadEntries();
+  // Remove existing entry for same date
+  const filtered=entries.filter(e=>e.date!==date);
+  filtered.unshift({date,pain:diaryState.pain,fatigue:diaryState.fatigue,
+    migraine:diaryState.migraine,tags:[...diaryState.tags],notes,ts:Date.now()});
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  saveEntries(filtered);
+
+  // Reset
+  initDiary();
+  document.getElementById('diaryNotes').value='';
+  alert('Entry saved! ✅');
+}
+
+function renderHistory(){
+  const entries=loadEntries();
+  const c=document.getElementById('entryList');
+  if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet. Start logging how you feel each day!</div>';return;}
+  c.innerHTML='';
+  entries.forEach((e,i)=>{
+    const card=document.createElement('div');
+    card.className='diary-entry-card';
+    card.innerHTML=`
+      <div class="dec-header">
+        <div class="dec-date">${fmtDate(e.date)}</div>
+        <div class="dec-scores">
+          ${e.pain>0?`<span class="score-pill sp-pain">💢 Pain: ${e.pain}/10</span>`:''}
+          ${e.fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${e.fatigue}/10</span>`:''}
+          ${e.migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${e.migraine}/10</span>`:''}
+        </div>
+      </div>
+      ${e.tags&&e.tags.length?`<div class="dec-tags">${e.tags.map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
+      ${e.notes?`<div class="dec-notes">${e.notes}</div>`:''}
+      <button class="dec-delete" onclick="deleteEntry(${i})">🗑 Delete</button>
+    `;
+    c.appendChild(card);
+  });
+}
+
+function deleteEntry(idx){
+  if(!confirm('Delete this entry?'))return;
+  const entries=loadEntries();entries.splice(idx,1);saveEntries(entries);renderHistory();
+}
+
+function renderTrends(){
+  const entries=loadEntries();
+  const c=document.getElementById('trendsContent');
+  if(entries.length<3){c.innerHTML='<div class="no-entries">Log at least 3 days to see trends appear here.</div>';return;}
+
+  const recent=entries.slice(0,14); // last 14 entries
+  const avgPain=(arr)=>arr.filter(e=>e.pain>0).reduce((s,e)=>s+e.pain,0)/Math.max(arr.filter(e=>e.pain>0).length,1);
+  const avgMig=(arr)=>arr.filter(e=>e.migraine>0).reduce((s,e)=>s+e.migraine,0)/Math.max(arr.filter(e=>e.migraine>0).length,1);
+
+  const ap=avgPain(recent).toFixed(1);
+  const am=avgMig(recent).toFixed(1);
+  const migraineDays=recent.filter(e=>e.migraine>=5).length;
+  const highPainDays=recent.filter(e=>e.pain>=7).length;
+
+  // Tag frequency
+  const tagFreq={};
+  recent.forEach(e=>(e.tags||[]).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
+  const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+  // Day-of-week patterns
+  const dowPain={};const dowCount={};
+  entries.forEach(e=>{
+    if(e.pain>0){
+      const dow=new Date(e.date+'T12:00:00').getDay();
+      dowPain[dow]=(dowPain[dow]||0)+e.pain;
+      dowCount[dow]=(dowCount[dow]||0)+1;
+    }
+  });
+  const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]}))
+    .sort((a,b)=>b.avg-a.avg);
+  const worstDay=dowAvg[0];
+
+  // Mini sparkline data
+  const sparkData=[...recent].reverse().map(e=>e.pain||0);
+
+  const trends=[];
+  if(ap>5)trends.push({icon:'📈',text:`Average pain over recent entries is <strong>${ap}/10</strong> — consistently elevated. Consider discussing with your doctor.`});
+  else trends.push({icon:'📊',text:`Average pain is <strong>${ap}/10</strong> across recent entries — ${ap<3?'relatively well-managed':'moderate'}.`});
+
+  if(migraineDays>2)trends.push({icon:'🌀',text:`<strong>${migraineDays} days</strong> with significant migraines recorded recently. Track weather pressure changes on those days.`});
+
+  if(topTags.length)trends.push({icon:'🏷️',text:`Most frequent symptoms: <strong>${topTags.map(([t,c])=>`${t} (${c}×)`).join(', ')}</strong>.`});
+
+  if(worstDay&&dowCount[worstDay.day]>=2)trends.push({icon:'📅',text:`<strong>${DAYS[worstDay.day]}</strong> tends to be your highest pain day on average (${worstDay.avg.toFixed(1)}/10). Plan lighter activity then.`});
+
+  if(highPainDays>3)trends.push({icon:'⚠️',text:`<strong>${highPainDays} days</strong> with pain ≥7 recorded. Note if these coincide with bad weather days in the forecast.`});
+
+  c.innerHTML=`
+    <div class="trends-card">
+      <h3>📈 Recent Trends (last ${recent.length} entries)</h3>
+      ${trends.map(t=>`<div class="trend-item"><div class="trend-icon">${t.icon}</div><div class="trend-text">${t.text}</div></div>`).join('')}
+    </div>
+    <div class="trends-card">
+      <h3>Pain history (last ${sparkData.length} days, oldest → newest)</h3>
+      <div class="mini-chart"><canvas id="sparkCanvas"></canvas></div>
+      <div style="font-size:.75rem;color:var(--muted);text-align:right;margin-top:4px">Scale: 0–10</div>
+    </div>
+  `;
+
+  // Draw sparkline
+  requestAnimationFrame(()=>{
+    const canvas=document.getElementById('sparkCanvas');
+    if(!canvas)return;
+    const w=canvas.parentElement.offsetWidth;
+    canvas.width=w*2;canvas.height=160;canvas.style.width=w+'px';canvas.style.height='80px';
+    const ctx=canvas.getContext('2d');
+    const dpr=2;
+    if(!sparkData.length)return;
+    const maxV=10,pad=16*dpr;
+    const cw=canvas.width,ch=canvas.height;
+    const xStep=(cw-pad*2)/(Math.max(sparkData.length-1,1));
+
+    // Gradient fill
+    const grad=ctx.createLinearGradient(0,0,0,ch);
+    grad.addColorStop(0,'rgba(201,79,79,.3)');grad.addColorStop(1,'rgba(201,79,79,0)');
+    ctx.beginPath();
+    sparkData.forEach((v,i)=>{
+      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.lineTo(pad+(sparkData.length-1)*xStep,ch-pad);
+    ctx.lineTo(pad,ch-pad);ctx.closePath();
+    ctx.fillStyle=grad;ctx.fill();
+
+    // Line
+    ctx.beginPath();ctx.strokeStyle='#c94f4f';ctx.lineWidth=2*dpr;ctx.lineJoin='round';
+    sparkData.forEach((v,i)=>{
+      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // Dots
+    sparkData.forEach((v,i)=>{
+      const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
+      ctx.beginPath();ctx.arc(x,y,3*dpr,0,Math.PI*2);
+      ctx.fillStyle=v>=7?'#c94f4f':v>=4?'#e8c66a':'#5bb88a';ctx.fill();
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════════════
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['forecast','diary'][i]===tab));
+  document.getElementById('forecastTab').style.display=tab==='forecast'?'block':'none';
+  const dt=document.getElementById('diaryTab');
+  dt.style.display=tab==='diary'?'block':'none';
+  dt.classList.toggle('active',tab==='diary');
+  if(tab==='diary'){initDiary();renderHistory();}
+}
+
+function switchDiaryTab(sub){
+  document.querySelectorAll('.dst').forEach((t,i)=>t.classList.toggle('active',['log','history','trends'][i]===sub));
+  document.getElementById('diaryLog').style.display=sub==='log'?'block':'none';
+  document.getElementById('diaryHistory').style.display=sub==='history'?'block':'none';
+  document.getElementById('diaryTrends').style.display=sub==='trends'?'block':'none';
+  if(sub==='history')renderHistory();
+  if(sub==='trends')renderTrends();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════════════════
+(async()=>{
+  try{
+    const loc=await geocode('Beveren, Belgium');
+    document.getElementById('cityInput').value='Beveren, Belgium';
     await runForecast(loc);
-  } catch(e) { /* silently skip auto-load */ }
+  }catch(e){/* silent */}
 })();
 </script>
 </body>
