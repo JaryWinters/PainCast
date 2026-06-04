@@ -94,7 +94,7 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .past-badge{background:rgba(74,127,168,.2);color:var(--past);border:1px solid rgba(74,127,168,.3);}
 .future-badge{background:rgba(201,169,110,.12);color:var(--accent);border:1px solid rgba(201,169,110,.25);}
 
-/* Day accordion — shared by past and future */
+/* Day accordion */
 .days-list{display:none;flex-direction:column;gap:0;border:1px solid var(--border);
   border-radius:16px;overflow:hidden;animation:fadeUp .4s ease both;margin-bottom:4px;}
 .days-list.visible{display:flex;}
@@ -105,7 +105,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .day-row:hover{background:var(--surface);}
 .day-row.open-row{background:var(--surface);}
 
-/* Left accent bar */
 .day-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
 .day-row.level-1::before{background:var(--low);}
 .day-row.level-2::before{background:var(--mod);}
@@ -123,11 +122,9 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .chevron{font-size:.65rem;color:var(--muted);margin-left:3px;transition:transform .22s;display:inline-block;}
 .day-row.open-row .chevron{transform:rotate(180deg);}
 
-/* Expanded day content */
 .day-body{display:none;padding:0 18px 16px;animation:fadeDown .22s ease both;}
 .day-body.open{display:block;}
 
-/* Period strips inside a day */
 .period-strips{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);
   border-radius:12px;overflow:hidden;margin-bottom:12px;}
 .period-strip{display:grid;grid-template-columns:100px 1fr auto;align-items:center;
@@ -140,7 +137,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .pmet .v{color:var(--text);font-weight:500;}
 .pchip{padding:4px 10px;border-radius:100px;font-size:.71rem;font-weight:500;white-space:nowrap;}
 
-/* Detail grid */
 .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-bottom:10px;}
 .detail-item{background:var(--card);border-radius:9px;padding:11px 12px;}
 .di-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px;}
@@ -162,24 +158,11 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 #diaryTab{display:none;}
 #diaryTab.active{display:block;}
 
-.sheets-setup{background:var(--card);border:1px solid rgba(201,169,110,.25);border-radius:16px;
-  padding:20px 22px;margin-bottom:20px;animation:fadeUp .4s ease both;}
-.sheets-setup h3{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;color:var(--accent);}
-.sheets-setup p{font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:10px;}
-.sheets-url-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.sheets-url-row input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);
-  border-radius:9px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
-.sheets-url-row input:focus{border-color:rgba(201,169,110,.4);}
-.sheets-url-row input::placeholder{color:var(--muted);}
-.connected-bar{background:rgba(91,184,138,.1);border:1px solid rgba(91,184,138,.25);border-radius:10px;
-  padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--low);margin-bottom:14px;}
-
 .diary-sub-tabs{display:flex;gap:4px;margin-bottom:18px;}
 .dst{flex:1;padding:9px 6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);
   font-family:'DM Sans',sans-serif;font-size:.8rem;border-radius:9px;cursor:pointer;transition:all .2s;text-align:center;}
 .dst.active{background:var(--card);color:var(--text);border-color:rgba(255,255,255,.12);}
 
-/* Log form */
 .diary-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;animation:fadeUp .4s ease both;}
 .diary-form h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;margin-bottom:14px;}
 .form-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
@@ -209,7 +192,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .form-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}
 .save-status{font-size:.78rem;color:var(--muted);}
 
-/* History & trends */
 .diary-list{display:flex;flex-direction:column;gap:8px;}
 .dec{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 16px;position:relative;}
 .dec-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
@@ -241,7 +223,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .mini-chart{height:72px;position:relative;margin:10px 0;}
 .mini-chart canvas{width:100%!important;height:72px!important;}
 
-/* Sheets sync indicator */
 .sync-row{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted);margin-bottom:14px;}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
 .sync-dot.ok{background:var(--low);}
@@ -249,7 +230,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .sync-dot.loading{background:var(--mod);animation:pulse 1s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* Keyframes */
 @keyframes fadeDown{from{opacity:0;transform:translateY(-13px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -286,7 +266,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
     <div class="state-box" id="loadingBox"><div class="spinner"></div><div>Fetching weather…</div></div>
     <div class="state-box" id="errorBox"><div style="font-size:1.8rem;margin-bottom:8px">⚠️</div><div id="errorMsg"></div></div>
 
-    <!-- Today summary -->
     <div class="summary-card" id="summaryCard">
       <div class="summary-top">
         <div>
@@ -303,11 +282,9 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
       <div class="tip-box migraine-tip" id="migraineTip" style="display:none"></div>
     </div>
 
-    <!-- Past 3 days -->
     <div class="section-label" id="pastLabel">Past 3 days <span class="sl-badge past-badge">Actual weather</span></div>
     <div class="days-list" id="pastList"></div>
 
-    <!-- 7-day forecast -->
     <div class="section-label" id="futureLabel">7-Day Pain Outlook <span class="sl-badge future-badge">Forecast</span></div>
     <div class="days-list" id="futureList"></div>
 
@@ -323,38 +300,6 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 
   <!-- ═══════ DIARY TAB ═══════ -->
   <div id="diaryTab">
-
-    <!-- Sheets setup -->
-    <div id="sheetsSetup" class="sheets-setup">
-      <h3>🔗 Connect Google Sheets (one-time setup)</h3>
-      <p>PainCast uses a Google Sheet as a free database so your diary syncs across all devices. Follow the setup guide below, then paste your Web App URL here.</p>
-      <details style="margin-bottom:10px">
-        <summary style="cursor:pointer;font-size:.83rem;color:var(--accent);font-weight:500">📋 Setup instructions (click to expand)</summary>
-        <div style="font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:10px;padding:12px;background:var(--surface);border-radius:9px">
-          <strong style="color:var(--text)">Step 1:</strong> Go to <a href="https://sheets.google.com" target="_blank" style="color:var(--accent)">sheets.google.com</a> and create a new spreadsheet.<br>
-          <strong style="color:var(--text)">Step 2:</strong> Name it <em>PainCast Diary</em>. In row 1, add these headers exactly:<br>
-          <code style="background:var(--bg);padding:3px 7px;border-radius:5px;color:#9fd6a0;display:block;margin:6px 0">Date | Pain | Fatigue | Migraine | Tags | Notes | PressureAvg | PressureMin | Humidity | Rain | TempMin | TempMax | Wind | PainScore | MigraineScore</code>
-          <strong style="color:var(--text)">Step 3:</strong> In the Sheet, go to <strong>Extensions → Apps Script</strong>.<br>
-          <strong style="color:var(--text)">Step 4:</strong> Delete all code and paste the script from the <code>apps-script.gs</code> file (download button below).<br>
-          <strong style="color:var(--text)">Step 5:</strong> Click <strong>Deploy → New deployment</strong>. Type: Web App. Execute as: Me. Who has access: <strong>Anyone</strong>. Click Deploy.<br>
-          <strong style="color:var(--text)">Step 6:</strong> Copy the Web App URL and paste it below.
-        </div>
-      </details>
-      <a href="#" id="downloadScript" style="font-size:.78rem;color:var(--accent2)">⬇ Download apps-script.gs</a>
-      <div class="sheets-url-row">
-        <input type="text" id="sheetsUrl" placeholder="https://script.google.com/macros/s/…/exec" />
-        <button class="btn btn-sm" onclick="saveSheetUrl()">Connect</button>
-      </div>
-    </div>
-
-    <div id="sheetsConnected" style="display:none">
-      <div class="connected-bar">
-        <div class="sync-dot ok"></div>
-        <span>Google Sheets connected — diary syncs across all devices</span>
-        <button onclick="disconnectSheet()" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem">Disconnect</button>
-      </div>
-    </div>
-
     <div class="diary-sub-tabs">
       <button class="dst active" onclick="switchDiaryTab('log')">✏️ Log Day</button>
       <button class="dst" onclick="switchDiaryTab('history')">📋 History</button>
@@ -416,7 +361,8 @@ const LEVEL_COLORS=['','var(--low)','var(--mod)','var(--high)','var(--severe)'];
 const SYMPTOM_TAGS=['Joint stiffness','Muscle aches','Back pain','Knee pain','Shoulder pain',
   'Neck pain','Fatigue','Brain fog','Sensitivity to light','Nausea','Throbbing headache',
   'Mood dip','Poor sleep','Exercise helped','Rest needed','Neck tension'];
-const HARDCODED_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyn9QqeuiOBQ3PVEiz525VPQloTY6lwGqOXQLZi56n5KjtcAhA26tEqDVRPQPl1Cq21/exec';
+
+const SHEET_URL='https://script.google.com/macros/s/AKfycbyn9QqeuiOBQ3PVEiz525VPQloTY6lwGqOXQLZi56n5KjtcAhA26tEqDVRPQPl1Cq21/exec';
 
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
@@ -480,7 +426,7 @@ function migraineAdvice(d){
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  API — GEOCODE + WEATHER (past_days=3 for history)
+//  API — GEOCODE + WEATHER
 // ════════════════════════════════════════════════════════════════════
 async function geocode(city){
   const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
@@ -499,7 +445,6 @@ async function fetchWeather(lat,lon){
   const hourly=[
     'temperature_2m','relative_humidity_2m','surface_pressure','precipitation','windspeed_10m','weathercode'
   ].join(',');
-  // past_days=3 gives us 3 past + today + 7 future = 11 days total
   const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&hourly=${hourly}&forecast_days=7&past_days=3&timezone=auto`;
   const r=await fetch(url);
   const d=await r.json();
@@ -543,7 +488,6 @@ function buildDays(data){
   });
 }
 
-// Build morning/afternoon/evening periods for any given date
 function buildPeriodsForDate(data,dateStr){
   const periods=[
     {label:'Morning',emoji:'🌅',hours:[6,7,8,9,10,11]},
@@ -664,7 +608,6 @@ function renderDayBody(day,periods,isPast){
   `;
 }
 
-// Generic: render a list of days into a container with accordion behaviour
 function renderDaysList(containerId,days,data,isPast){
   const container=document.getElementById(containerId);
   container.innerHTML='';
@@ -796,7 +739,7 @@ async function runForecast(location){
     setLoading(false);
     if(todayDay)renderSummary(location,todayDay);
     if(past.length){
-      renderDaysList('pastList',[...past].reverse(),w,true); // newest first
+      renderDaysList('pastList',[...past].reverse(),w,true);
       document.getElementById('pastLabel').classList.add('visible');
     }
     if(future.length){
@@ -827,48 +770,21 @@ document.getElementById('geoBtn').addEventListener('click',()=>{
 });
 
 // ════════════════════════════════════════════════════════════════════
-//  GOOGLE SHEETS INTEGRATION
+//  GOOGLE SHEETS — hardcoded, always connected
 // ════════════════════════════════════════════════════════════════════
-function getSheetUrl(){ return HARDCODED_SHEET_URL; }
-
-function saveSheetUrl(){
-  const url=document.getElementById('sheetsUrl').value.trim();
-  if(!url.startsWith('https://script.google.com')){alert('Please paste a valid Google Apps Script Web App URL.');return;}
-  localStorage.setItem(SHEETS_KEY,url);
-  updateSheetUI();
-}
-
-function disconnectSheet(){
-  localStorage.removeItem(SHEETS_KEY);
-  document.getElementById('sheetsUrl').value='';
-  updateSheetUI();
-}
-
-function updateSheetUI(){
-  const url=getSheetUrl();
-  document.getElementById('sheetsSetup').style.display=url?'none':'block';
-  document.getElementById('sheetsConnected').style.display=url?'block':'none';
-}
-
 async function sheetsGet(){
-  const url=getSheetUrl();
-  if(!url)return[];
-  const r=await fetch(url+'?action=get');
+  const r=await fetch(SHEET_URL+'?action=get');
   const d=await r.json();
   return d.entries||[];
 }
 
 async function sheetsAdd(entry){
-  const url=getSheetUrl();
-  if(!url)throw new Error('No Google Sheet connected.');
-  const r=await fetch(url,{method:'POST',body:JSON.stringify({action:'add',entry})});
+  const r=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'add',entry})});
   return r.json();
 }
 
 async function sheetsDelete(date){
-  const url=getSheetUrl();
-  if(!url)return;
-  await fetch(url,{method:'POST',body:JSON.stringify({action:'delete',date})});
+  await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'delete',date})});
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -912,7 +828,6 @@ async function saveEntry(){
   const status=document.getElementById('saveStatus');
   status.textContent='Saving…';
 
-  // Collect current weather for the date if available
   let wxData={};
   if(currentLocation){
     try{
@@ -930,7 +845,7 @@ async function saveEntry(){
 
   try{
     await sheetsAdd(entry);
-    status.textContent='✅ Saved to Google Sheets!';
+    status.textContent='✅ Saved!';
   }catch(e){
     status.textContent='⚠️ '+e.message;
   }
@@ -942,7 +857,7 @@ async function saveEntry(){
 async function renderHistory(){
   const dot=document.getElementById('histSyncDot');
   const msg=document.getElementById('histSyncMsg');
-  dot.className='sync-dot loading';msg.textContent='Loading from Google Sheets…';
+  dot.className='sync-dot loading';msg.textContent='Loading entries…';
   const c=document.getElementById('entryList');c.innerHTML='';
   try{
     const entries=await sheetsGet();
@@ -1005,7 +920,6 @@ async function renderTrends(){
     const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]})).sort((a,b)=>b.avg-a.avg);
     const worstDay=dowAvg[0];
 
-    // Weather correlation: high pain days vs pressure
     const wxEntries=recent.filter(e=>e.pressure&&e.pain>0);
     let corrNote='';
     if(wxEntries.length>=3){
@@ -1064,89 +978,6 @@ async function renderTrends(){
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  APPS SCRIPT DOWNLOAD
-// ════════════════════════════════════════════════════════════════════
-document.getElementById('downloadScript').addEventListener('click',e=>{
-  e.preventDefault();
-  const script=`// PainCast — Google Apps Script backend
-// Paste this into Extensions > Apps Script in your Google Sheet
-
-const SHEET_NAME = 'Diary';
-
-function doGet(e) {
-  const action = e.parameter.action;
-  if (action === 'get') return getEntries();
-  return jsonResponse({ error: 'Unknown action' });
-}
-
-function doPost(e) {
-  const data = JSON.parse(e.postData.contents);
-  if (data.action === 'add') return addEntry(data.entry);
-  if (data.action === 'delete') return deleteEntry(data.date);
-  return jsonResponse({ error: 'Unknown action' });
-}
-
-function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  return ss.getSheetByName(SHEET_NAME) || ss.getActiveSheet();
-}
-
-function getEntries() {
-  const sheet = getSheet();
-  const rows = sheet.getDataRange().getValues();
-  if (rows.length < 2) return jsonResponse({ entries: [] });
-  const headers = rows[0];
-  const entries = rows.slice(1)
-    .filter(r => r[0]) // skip empty rows
-    .map(r => {
-      const obj = {};
-      headers.forEach((h, i) => { obj[h] = r[i] ?? ''; });
-      return obj;
-    })
-    .sort((a, b) => String(b.Date || b.date).localeCompare(String(a.Date || a.date)));
-  return jsonResponse({ entries });
-}
-
-function addEntry(entry) {
-  const sheet = getSheet();
-  const rows = sheet.getDataRange().getValues();
-  const headers = rows[0];
-  // Check if date already exists — update row if so
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === String(entry.date || entry.Date)) {
-      const row = headers.map(h => entry[h] ?? entry[h.toLowerCase()] ?? '');
-      sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
-      return jsonResponse({ status: 'updated' });
-    }
-  }
-  // Otherwise append
-  const row = headers.map(h => entry[h] ?? entry[h.toLowerCase()] ?? '');
-  sheet.appendRow(row);
-  return jsonResponse({ status: 'added' });
-}
-
-function deleteEntry(date) {
-  const sheet = getSheet();
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === String(date)) {
-      sheet.deleteRow(i + 1);
-      return jsonResponse({ status: 'deleted' });
-    }
-  }
-  return jsonResponse({ status: 'not found' });
-}
-
-function jsonResponse(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}`;
-  const blob=new Blob([script],{type:'text/plain'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='apps-script.gs';a.click();
-});
-
-// ════════════════════════════════════════════════════════════════════
 //  TAB SWITCHING
 // ════════════════════════════════════════════════════════════════════
 function switchTab(tab){
@@ -1155,7 +986,7 @@ function switchTab(tab){
   const dt=document.getElementById('diaryTab');
   dt.style.display=tab==='diary'?'block':'none';
   dt.classList.toggle('active',tab==='diary');
-  if(tab==='diary'){updateSheetUI();initDiary();}
+  if(tab==='diary')initDiary();
 }
 
 function switchDiaryTab(sub){
@@ -1170,7 +1001,6 @@ function switchDiaryTab(sub){
 // ════════════════════════════════════════════════════════════════════
 //  BOOT
 // ════════════════════════════════════════════════════════════════════
-updateSheetUI();
 (async()=>{
   try{const loc=await geocode('Beveren, Belgium');document.getElementById('cityInput').value='Beveren, Belgium';await runForecast(loc);}
   catch(e){}
