@@ -887,6 +887,8 @@ async function renderHistory(){
     const entries=await sheetsGet();
     dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
     if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
+    // DEBUG — remove after confirming field names
+    if(entries.length>0){console.log('First entry keys:',Object.keys(entries[0]));console.log('First entry raw:',JSON.stringify(entries[0]));}
     entries.forEach(e=>{
       // normalise: sheet returns PascalCase headers
       const date=e.Date||e.date||'';
