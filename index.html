@@ -416,7 +416,7 @@ const LEVEL_COLORS=['','var(--low)','var(--mod)','var(--high)','var(--severe)'];
 const SYMPTOM_TAGS=['Joint stiffness','Muscle aches','Back pain','Knee pain','Shoulder pain',
   'Neck pain','Fatigue','Brain fog','Sensitivity to light','Nausea','Throbbing headache',
   'Mood dip','Poor sleep','Exercise helped','Rest needed','Neck tension'];
-const SHEETS_KEY='paincast_sheets_url';
+const HARDCODED_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyn9QqeuiOBQ3PVEiz525VPQloTY6lwGqOXQLZi56n5KjtcAhA26tEqDVRPQPl1Cq21/exec';
 
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
@@ -829,7 +829,7 @@ document.getElementById('geoBtn').addEventListener('click',()=>{
 // ════════════════════════════════════════════════════════════════════
 //  GOOGLE SHEETS INTEGRATION
 // ════════════════════════════════════════════════════════════════════
-function getSheetUrl(){return localStorage.getItem(SHEETS_KEY)||'';}
+function getSheetUrl(){ return HARDCODED_SHEET_URL; }
 
 function saveSheetUrl(){
   const url=document.getElementById('sheetsUrl').value.trim();
