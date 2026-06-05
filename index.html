@@ -190,6 +190,34 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .diary-notes:focus{border-color:rgba(201,169,110,.4);}
 .diary-notes::placeholder{color:var(--muted);}
 .form-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+.pill-section{margin-bottom:12px;}
+.pill-label{font-size:.78rem;color:var(--muted);margin-bottom:7px;}
+.pill-list{display:flex;flex-direction:column;gap:6px;}
+.pill-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);
+  border:1px solid var(--border);border-radius:9px;padding:9px 13px;}
+.pill-name{font-size:.83rem;color:var(--text);}
+.pill-counter{display:flex;align-items:center;gap:8px;}
+.pill-count{font-size:.9rem;font-weight:500;color:var(--text);min-width:18px;text-align:center;}
+.pill-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--card);
+  color:var(--text);font-size:1rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;}
+.pill-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pill-btn:disabled{opacity:.3;cursor:default;}
+.hydration-section{margin-bottom:12px;}
+.hydration-label{font-size:.78rem;color:var(--muted);margin-bottom:7px;}
+.hydration-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.hydration-row label{font-size:.83rem;color:var(--text);flex:1;}
+.owala-counter{display:flex;align-items:center;gap:8px;}
+.owala-count{font-size:.9rem;font-weight:500;color:var(--accent2);min-width:18px;text-align:center;}
+.elektro-toggle{width:44px;height:24px;border-radius:100px;border:none;cursor:pointer;
+  position:relative;transition:background .2s;flex-shrink:0;}
+.elektro-toggle.on{background:var(--low);}
+.elektro-toggle.off{background:var(--border);}
+.elektro-toggle::after{content:'';position:absolute;top:3px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:left .2s;}
+.elektro-toggle.on::after{left:23px;}
+.elektro-toggle.off::after{left:3px;}
+.soda-row{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.soda-check{width:18px;height:18px;accent-color:var(--severe);cursor:pointer;}
 .save-status{font-size:.78rem;color:var(--muted);}
 
 .diary-list{display:flex;flex-direction:column;gap:8px;}
@@ -329,6 +357,32 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
         <div style="font-size:.77rem;color:var(--muted);margin-bottom:7px">Symptoms / triggers noticed:</div>
         <div class="diary-tags" id="tagButtons"></div>
         <textarea class="diary-notes" id="diaryNotes" placeholder="Any notes for today… (optional)"></textarea>
+
+        <div class="pill-section">
+          <div class="pill-label">💊 Medication taken today</div>
+          <div class="pill-list" id="pillList"></div>
+        </div>
+
+        <div class="hydration-section">
+          <div class="hydration-label">💧 Hydration today</div>
+          <div class="hydration-row">
+            <label>🫙 Owala bottles (700ml each)</label>
+            <div class="owala-counter">
+              <button class="pill-btn" id="owalaDown" onclick="changeOwala(-1)">−</button>
+              <span class="owala-count" id="owalaCount">0</span>
+              <button class="pill-btn" onclick="changeOwala(1)">+</button>
+            </div>
+          </div>
+          <div class="hydration-row">
+            <label>⚡ Electrolyte drink today?</label>
+            <button class="elektro-toggle off" id="elektroToggle" onclick="toggleElektro()"></button>
+          </div>
+          <div class="soda-row">
+            <input type="checkbox" class="soda-check" id="sodaCheck" />
+            <label for="sodaCheck" style="font-size:.83rem;color:var(--muted);cursor:pointer">Only drank sodas today (no water / bottles)</label>
+          </div>
+        </div>
+
         <div class="form-footer">
           <span class="save-status" id="saveStatus"></span>
           <button class="btn btn-sm" onclick="saveEntry()">Save Entry</button>
@@ -360,9 +414,11 @@ const LEVEL_LABELS=['','Minimal','Moderate','High Risk','Severe'];
 const LEVEL_COLORS=['','var(--low)','var(--mod)','var(--high)','var(--severe)'];
 const SYMPTOM_TAGS=['Joint stiffness','Muscle aches','Back pain','Knee pain','Shoulder pain',
   'Neck pain','Fatigue','Brain fog','Sensitivity to light','Nausea','Throbbing headache',
-  'Mood dip','Poor sleep','Exercise helped','Rest needed','Neck tension'];
+  'Migraine','Tension headache','Mood dip','Poor sleep','Exercise helped','Rest needed',
+  'Heat needed','Cold needed','Neck tension'];
 
 const SHEET_URL='https://script.google.com/macros/s/AKfycbyn9QqeuiOBQ3PVEiz525VPQloTY6lwGqOXQLZi56n5KjtcAhA26tEqDVRPQPl1Cq21/exec';
+const PILLS=['Zomig','Zolmitriptan','Excedrin','Dafalgan Forte','Dafalgan Caffeine'];
 
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
@@ -799,7 +855,7 @@ async function sheetsDelete(date){
 // ════════════════════════════════════════════════════════════════════
 //  DIARY UI
 // ════════════════════════════════════════════════════════════════════
-let diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
+let diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false};
 
 function buildRatingBtns(cid,key,start,max){
   const c=document.getElementById(cid);c.innerHTML='';
@@ -821,13 +877,55 @@ function buildTagBtns(){
   });
 }
 
+function buildPillList(){
+  const c=document.getElementById('pillList');c.innerHTML='';
+  PILLS.forEach(p=>{
+    if(!diaryState.pills[p])diaryState.pills[p]=0;
+    const row=document.createElement('div');row.className='pill-row';
+    row.innerHTML=`
+      <span class="pill-name">${p}</span>
+      <div class="pill-counter">
+        <button class="pill-btn" onclick="changePill('${p}',-1)" id="pillDown_${p.replace(/\s/g,'_')}">−</button>
+        <span class="pill-count" id="pillCount_${p.replace(/\s/g,'_')}">${diaryState.pills[p]}</span>
+        <button class="pill-btn" onclick="changePill('${p}',1)">+</button>
+      </div>`;
+    c.appendChild(row);
+  });
+}
+
+function changePill(name,delta){
+  diaryState.pills[name]=Math.max(0,(diaryState.pills[name]||0)+delta);
+  const id=name.replace(/\s/g,'_');
+  document.getElementById('pillCount_'+id).textContent=diaryState.pills[name];
+  const downBtn=document.getElementById('pillDown_'+id);
+  if(downBtn)downBtn.disabled=diaryState.pills[name]===0;
+}
+
+function changeOwala(delta){
+  diaryState.owala=Math.max(0,diaryState.owala+delta);
+  document.getElementById('owalaCount').textContent=diaryState.owala;
+  document.getElementById('owalaDown').disabled=diaryState.owala===0;
+}
+
+function toggleElektro(){
+  diaryState.elektro=!diaryState.elektro;
+  const btn=document.getElementById('elektroToggle');
+  btn.classList.toggle('on',diaryState.elektro);
+  btn.classList.toggle('off',!diaryState.elektro);
+}
+
 function initDiary(){
   document.getElementById('diaryDate').value=todayStr();
   buildRatingBtns('painRating','pain',1,10);
   buildRatingBtns('fatigueRating','fatigue',1,10);
   buildRatingBtns('migraineRating','migraine',0,10);
   buildTagBtns();
-  diaryState={pain:0,fatigue:0,migraine:0,tags:[]};
+  diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false};
+  buildPillList();
+  document.getElementById('owalaCount').textContent='0';
+  document.getElementById('owalaDown').disabled=true;
+  document.getElementById('elektroToggle').className='elektro-toggle off';
+  document.getElementById('sodaCheck').checked=false;
 }
 
 async function saveEntry(){
@@ -857,6 +955,11 @@ async function saveEntry(){
     }catch(e){}
   }
 
+  // Build pill summary string e.g. "Zomig×2; Excedrin×1"
+  const pillSummary=PILLS.filter(p=>diaryState.pills[p]>0)
+    .map(p=>`${p}×${diaryState.pills[p]}`).join('; ');
+  diaryState.sodaOnly=document.getElementById('sodaCheck').checked;
+
   const entry={
     Date:date,
     Pain:diaryState.pain,
@@ -864,6 +967,10 @@ async function saveEntry(){
     Migraine:diaryState.migraine,
     Tags:diaryState.tags.join(';'),
     Notes:notes,
+    Medication:pillSummary,
+    OwalBottles:diaryState.owala,
+    Electrolytes:diaryState.elektro?'Yes':'No',
+    SodaOnly:diaryState.sodaOnly?'Yes':'No',
     ...wxData
   };
 
@@ -901,6 +1008,10 @@ async function renderHistory(){
       const tempMin=e.TempMin||e.tempMin||'';
       const tempMax=e.TempMax||e.tempMax||'';
       const painScore=e.PainScore||e.painScore||'';
+      const medication=e.Medication||'';
+      const owala=e.OwalBottles||e.owala||'';
+      const electrolytes=e.Electrolytes||'';
+      const sodaOnly=e.SodaOnly||'';
       if(!date)return;
       const card=document.createElement('div');card.className='dec';
       card.innerHTML=`
@@ -914,6 +1025,14 @@ async function renderHistory(){
         </div>
         ${tags?`<div class="dec-tags">${tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
         ${notes?`<div class="dec-notes">${notes}</div>`:''}
+        ${medication?`<div class="dec-weather" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+          <span class="dw">💊 <span>${medication}</span></span>
+        </div>`:''}
+        ${(owala||electrolytes||sodaOnly)?`<div class="dec-weather" style="margin-top:4px">
+          ${owala?`<span class="dw">🫙 <span>${owala} Owala</span></span>`:''}
+          ${electrolytes?`<span class="dw">⚡ <span>Electrolytes: ${electrolytes}</span></span>`:''}
+          ${sodaOnly==='Yes'?`<span class="dw" style="color:var(--high)">🥤 <span>Sodas only</span></span>`:''}
+        </div>`:''}
         ${pressure?`<div class="dec-weather">
           <span class="dw">🔽 <span>${pressure} hPa</span></span>
           <span class="dw">💧 <span>${humidity}%</span></span>
