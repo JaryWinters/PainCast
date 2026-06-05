@@ -306,6 +306,7 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
         </div>
       </div>
       <div class="metrics" id="todayMetrics"></div>
+      <div id="todayPeriods" style="margin-top:14px"></div>
       <div class="tip-box pain-tip" id="todayTip"></div>
       <div class="tip-box migraine-tip" id="migraineTip" style="display:none"></div>
     </div>
@@ -727,7 +728,7 @@ function renderDaysList(containerId,days,data,isPast){
 // ════════════════════════════════════════════════════════════════════
 //  RENDER SUMMARY (today)
 // ════════════════════════════════════════════════════════════════════
-function renderSummary(location,day){
+function renderSummary(location,day,weatherData){
   document.getElementById('locName').textContent=location.name+(location.country?', '+location.country:'');
   const badge=document.getElementById('todayBadge');
   badge.className=`today-badge level-${day.level}`;
@@ -762,6 +763,17 @@ function renderSummary(location,day){
       <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.migraineScore}%;background:var(--migraine)"></div></div>
     </div>`;
 
+  // Period strips for today
+  const todayPeriodsEl=document.getElementById('todayPeriods');
+  if(weatherData){
+    const periods=buildPeriodsForDate(weatherData,day.date);
+    todayPeriodsEl.innerHTML=periods.length
+      ?`<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Time of day breakdown</div>`+renderPeriodStrips(periods)
+      :'';
+  } else {
+    todayPeriodsEl.innerHTML='';
+  }
+
   document.getElementById('todayTip').innerHTML=`<strong>💡 Joint &amp; muscle:</strong> ${painAdvice(day,day.level)}`;
   const mt=document.getElementById('migraineTip');
   if(day.migraineScore>=20){mt.style.display='block';mt.innerHTML=`<strong>🌀 Migraine:</strong> ${migraineAdvice(day)}`;}
@@ -793,7 +805,7 @@ async function runForecast(location){
     const todayDay=allDays.find(d=>isToday(d.date));
     const future=allDays.filter(d=>d.date>today);
     setLoading(false);
-    if(todayDay)renderSummary(location,todayDay);
+    if(todayDay)renderSummary(location,todayDay,w);
     if(past.length){
       renderDaysList('pastList',[...past].reverse(),w,true);
       document.getElementById('pastLabel').classList.add('visible');
