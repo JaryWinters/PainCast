@@ -191,6 +191,23 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .diary-notes::placeholder{color:var(--muted);}
 .form-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}
 .pill-section{margin-bottom:12px;}
+.quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.quick-btn{flex:1;min-width:70px;padding:10px 8px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;
+  font-weight:500;cursor:pointer;transition:all .18s;text-align:center;line-height:1.3;}
+.quick-btn:hover{border-color:var(--accent);color:var(--text);}
+.quick-btn.sel-sleep-great{background:rgba(91,184,138,.2);border-color:var(--low);color:var(--low);}
+.quick-btn.sel-sleep-okay{background:rgba(232,198,106,.15);border-color:var(--mod);color:var(--mod);}
+.quick-btn.sel-sleep-poor{background:rgba(224,122,80,.2);border-color:var(--high);color:var(--high);}
+.quick-btn.sel-sleep-bad{background:rgba(201,79,79,.2);border-color:var(--severe);color:var(--severe);}
+.quick-btn.sel-activity-rest{background:rgba(126,159,201,.15);border-color:var(--accent2);color:var(--accent2);}
+.quick-btn.sel-activity-light{background:rgba(91,184,138,.15);border-color:var(--low);color:var(--low);}
+.quick-btn.sel-activity-moderate{background:rgba(232,198,106,.15);border-color:var(--mod);color:var(--mod);}
+.quick-btn.sel-activity-active{background:rgba(224,122,80,.2);border-color:var(--high);color:var(--high);}
+.helped-box{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.2);border-radius:10px;
+  padding:11px 14px;margin-top:8px;display:none;animation:fadeUp .25s ease both;}
+.helped-box.visible{display:block;}
+.helped-label{font-size:.78rem;color:var(--accent);margin-bottom:7px;}
 .pill-label{font-size:.78rem;color:var(--muted);margin-bottom:7px;}
 .pill-list{display:flex;flex-direction:column;gap:6px;}
 .pill-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);
@@ -221,22 +238,39 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .save-status{font-size:.78rem;color:var(--muted);}
 
 .diary-list{display:flex;flex-direction:column;gap:8px;}
-.dec{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 16px;position:relative;}
-.dec-header{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;padding-right:36px;}
+.diary-list{border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.dec{background:var(--card);border-bottom:1px solid var(--border);position:relative;cursor:pointer;transition:background .18s;}
+.dec:last-child{border-bottom:none;}
+.dec:hover{background:var(--surface);}
+.dec.open-dec{background:var(--surface);}
+.dec-summary{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:13px 16px;}
+.dec-summary-left{display:flex;flex-direction:column;gap:5px;}
 .dec-date{font-family:'Playfair Display',serif;font-size:.93rem;font-style:italic;}
 .dec-scores{display:flex;gap:6px;flex-wrap:wrap;}
 .score-pill{padding:3px 9px;border-radius:100px;font-size:.7rem;font-weight:500;}
 .sp-pain{background:rgba(201,79,79,.2);color:#e89090;}
 .sp-fatigue{background:rgba(232,198,106,.15);color:#e8d070;}
 .sp-migraine{background:rgba(155,114,207,.2);color:#c4a8f0;}
-.dec-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.dec-quick{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.dqs{font-size:.74rem;color:var(--muted);}
+.dqs span{color:var(--text);}
+.dec-chevron{font-size:.65rem;color:var(--muted);transition:transform .22s;}
+.dec.open-dec .dec-chevron{transform:rotate(180deg);}
+.dec-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);animation:fadeDown .2s ease both;}
+.dec-body.open{display:block;}
+.dec-section{margin-bottom:10px;}
+.dec-section-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;}
+.dec-tags{display:flex;gap:4px;flex-wrap:wrap;}
 .dec-tag{padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.05);font-size:.68rem;color:var(--muted);}
 .dec-notes{font-size:.8rem;color:var(--muted);line-height:1.5;}
-.dec-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);
-  cursor:pointer;font-size:.75rem;opacity:.45;transition:opacity .18s;}
-.dec-del:hover{opacity:1;color:var(--severe);}
-.dec-weather{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px;padding-top:7px;
-  border-top:1px solid var(--border);}
+.dec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:10px;}
+.dec-cell{background:var(--card);border-radius:8px;padding:9px 11px;}
+.dc-label{font-size:.67rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:2px;}
+.dc-value{font-size:.88rem;font-weight:500;color:var(--text);}
+.dec-del{margin-top:8px;background:none;border:1px solid rgba(201,79,79,.25);border-radius:8px;
+  color:var(--muted);cursor:pointer;font-size:.75rem;padding:6px 12px;opacity:.6;transition:all .18s;}
+.dec-del:hover{opacity:1;color:var(--severe);border-color:var(--severe);}
+.dec-weather{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px;padding-top:7px;border-top:1px solid var(--border);}
 .dw{font-size:.74rem;color:var(--muted);}
 .dw span{color:var(--text);}
 
@@ -359,9 +393,37 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
         <div class="diary-tags" id="tagButtons"></div>
         <textarea class="diary-notes" id="diaryNotes" placeholder="Any notes for today… (optional)"></textarea>
 
+        <div class="rating-section">
+          <div class="rating-label">😴 How did you sleep last night?</div>
+          <div class="quick-row" id="sleepBtns">
+            <button class="quick-btn" onclick="selectSleep('Great','sel-sleep-great',this)">😌<br>Great</button>
+            <button class="quick-btn" onclick="selectSleep('Okay','sel-sleep-okay',this)">🙂<br>Okay</button>
+            <button class="quick-btn" onclick="selectSleep('Poor','sel-sleep-poor',this)">😞<br>Poor</button>
+            <button class="quick-btn" onclick="selectSleep('Bad','sel-sleep-bad',this)">😩<br>Very bad</button>
+          </div>
+        </div>
+
+        <div class="rating-section">
+          <div class="rating-label">🏃 Activity level today</div>
+          <div class="quick-row" id="activityBtns">
+            <button class="quick-btn" onclick="selectActivity('Rest day','sel-activity-rest',this)">🛋️<br>Rest day</button>
+            <button class="quick-btn" onclick="selectActivity('Light','sel-activity-light',this)">🚶<br>Light</button>
+            <button class="quick-btn" onclick="selectActivity('Moderate','sel-activity-moderate',this)">🚴<br>Moderate</button>
+            <button class="quick-btn" onclick="selectActivity('Active','sel-activity-active',this)">💪<br>Active</button>
+          </div>
+        </div>
+
         <div class="pill-section">
           <div class="pill-label">💊 Medication taken today</div>
           <div class="pill-list" id="pillList"></div>
+          <div class="helped-box" id="helpedBox">
+            <div class="helped-label">💬 Did the medication help?</div>
+            <div class="quick-row">
+              <button class="quick-btn" onclick="selectHelped('Yes',this)">✅<br>Yes</button>
+              <button class="quick-btn" onclick="selectHelped('Partially',this)">🔶<br>Partially</button>
+              <button class="quick-btn" onclick="selectHelped('No',this)">❌<br>No</button>
+            </div>
+          </div>
         </div>
 
         <div class="hydration-section">
@@ -424,7 +486,16 @@ const PILLS=['Zomig','Zolmitriptan','Excedrin','Dafalgan Forte','Dafalgan Caffei
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════════════════════════════
-function fmtDate(s){if(!s)return'?';const str=String(s).trim();const datePart=str.includes('T')?str.split('T')[0]:str;const d=new Date(datePart+'T12:00:00');if(isNaN(d))return str;return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
+function fmtDate(s){
+  if(!s)return'?';
+  const str=String(s).trim();
+  // Always extract just the YYYY-MM-DD part before any T, regardless of timezone
+  const datePart=str.includes('T')?str.split('T')[0]:str;
+  const [y,m,d]=datePart.split('-').map(Number);
+  if(!y||!m||!d)return str;
+  const dt=new Date(y,m-1,d); // local constructor — no timezone shift
+  return `${DAYS[dt.getDay()]}, ${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+}
 function fmtDateShort(s){const d=new Date(s+'T12:00:00');return `${d.getDate()} ${MONTHS[d.getMonth()]}`;}
 function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
 function isToday(s){return s===todayStr();}
@@ -867,7 +938,7 @@ async function sheetsDelete(date){
 // ════════════════════════════════════════════════════════════════════
 //  DIARY UI
 // ════════════════════════════════════════════════════════════════════
-let diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false};
+let diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false,sleep:'',activity:'',medicationHelped:''};
 
 function buildRatingBtns(cid,key,start,max){
   const c=document.getElementById(cid);c.innerHTML='';
@@ -887,6 +958,35 @@ function buildTagBtns(){
       else diaryState.tags=diaryState.tags.filter(x=>x!==t);};
     c.appendChild(b);
   });
+}
+
+function selectSleep(val,cls,btn){
+  diaryState.sleep=val;
+  document.querySelectorAll('#sleepBtns .quick-btn').forEach(b=>{b.className='quick-btn';});
+  btn.classList.add(cls);
+}
+
+function selectActivity(val,cls,btn){
+  diaryState.activity=val;
+  document.querySelectorAll('#activityBtns .quick-btn').forEach(b=>{b.className='quick-btn';});
+  btn.classList.add(cls);
+}
+
+function selectHelped(val,btn){
+  diaryState.medicationHelped=val;
+  btn.closest('.quick-row').querySelectorAll('.quick-btn').forEach(b=>{b.className='quick-btn';});
+  const clsMap={'Yes':'sel-sleep-great','Partially':'sel-sleep-okay','No':'sel-sleep-bad'};
+  btn.classList.add(clsMap[val]);
+}
+
+function updateHelpedBox(){
+  const anyPill=PILLS.some(p=>(diaryState.pills[p]||0)>0);
+  const box=document.getElementById('helpedBox');
+  box.classList.toggle('visible',anyPill);
+  if(!anyPill){
+    diaryState.medicationHelped='';
+    box.querySelectorAll('.quick-btn').forEach(b=>b.className='quick-btn');
+  }
 }
 
 function buildPillList(){
@@ -911,6 +1011,7 @@ function changePill(name,delta){
   document.getElementById('pillCount_'+id).textContent=diaryState.pills[name];
   const downBtn=document.getElementById('pillDown_'+id);
   if(downBtn)downBtn.disabled=diaryState.pills[name]===0;
+  updateHelpedBox();
 }
 
 function changeOwala(delta){
@@ -932,12 +1033,15 @@ function initDiary(){
   buildRatingBtns('fatigueRating','fatigue',1,10);
   buildRatingBtns('migraineRating','migraine',0,10);
   buildTagBtns();
-  diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false};
+  diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false,sleep:'',activity:'',medicationHelped:''};
   buildPillList();
   document.getElementById('owalaCount').textContent='0';
   document.getElementById('owalaDown').disabled=true;
   document.getElementById('elektroToggle').className='elektro-toggle off';
   document.getElementById('sodaCheck').checked=false;
+  document.querySelectorAll('#sleepBtns .quick-btn').forEach(b=>b.className='quick-btn');
+  document.querySelectorAll('#activityBtns .quick-btn').forEach(b=>b.className='quick-btn');
+  document.getElementById('helpedBox').classList.remove('visible');
 }
 
 async function saveEntry(){
@@ -979,7 +1083,10 @@ async function saveEntry(){
     Migraine:diaryState.migraine,
     Tags:diaryState.tags.join(';'),
     Notes:notes,
+    Sleep:diaryState.sleep,
+    Activity:diaryState.activity,
     Medication:pillSummary,
+    MedicationHelped:diaryState.medicationHelped,
     OwalBottles:diaryState.owala,
     Electrolytes:diaryState.elektro?'Yes':'No',
     SodaOnly:diaryState.sodaOnly?'Yes':'No',
@@ -1006,6 +1113,7 @@ async function renderHistory(){
     const entries=await sheetsGet();
     dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
     if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
+    let openDec=null,openBody=null;
     entries.forEach(e=>{
       // normalise: sheet returns PascalCase headers
       const date=e.Date||e.date||'';
@@ -1020,39 +1128,111 @@ async function renderHistory(){
       const tempMin=e.TempMin||e.tempMin||'';
       const tempMax=e.TempMax||e.tempMax||'';
       const painScore=e.PainScore||e.painScore||'';
+      const migraineScore=e.MigraineScore||e.migraineScore||'';
       const medication=e.Medication||'';
+      const medicationHelped=e.MedicationHelped||'';
       const owala=e.OwalBottles||e.owala||'';
       const electrolytes=e.Electrolytes||'';
       const sodaOnly=e.SodaOnly||'';
+      const sleep=e.Sleep||'';
+      const activity=e.Activity||'';
       if(!date)return;
-      const card=document.createElement('div');card.className='dec';
-      card.innerHTML=`
-        <div class="dec-header">
+
+      const card=document.createElement('div');
+      card.className='dec';
+
+      // ── Summary row (always visible) ──────────────────────────────
+      const summary=document.createElement('div');
+      summary.className='dec-summary';
+      summary.innerHTML=`
+        <div class="dec-summary-left">
           <div class="dec-date">${fmtDate(date)}</div>
           <div class="dec-scores">
-            ${pain>0?`<span class="score-pill sp-pain">💢 Pain: ${pain}/10</span>`:''}
-            ${fatigue>0?`<span class="score-pill sp-fatigue">😴 Fatigue: ${fatigue}/10</span>`:''}
-            ${migraine>0?`<span class="score-pill sp-migraine">🌀 Migraine: ${migraine}/10</span>`:''}
+            ${pain>0?`<span class="score-pill sp-pain">💢 ${pain}/10</span>`:''}
+            ${fatigue>0?`<span class="score-pill sp-fatigue">😴 ${fatigue}/10</span>`:''}
+            ${migraine>0?`<span class="score-pill sp-migraine">🌀 ${migraine}/10</span>`:''}
+          </div>
+          <div class="dec-quick">
+            ${sleep?`<span class="dqs">😴 <span>${sleep}</span></span>`:''}
+            ${activity?`<span class="dqs">🏃 <span>${activity}</span></span>`:''}
+            ${medication?`<span class="dqs">💊 <span>${medication.split(';')[0].trim()}${medication.includes(';')?'…':''}</span></span>`:''}
           </div>
         </div>
-        ${tags?`<div class="dec-tags">${tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>`:''}
-        ${notes?`<div class="dec-notes">${notes}</div>`:''}
-        ${medication?`<div class="dec-weather" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
-          <span class="dw">💊 <span>${medication}</span></span>
+        <span class="dec-chevron">▼</span>`;
+
+      // ── Expanded body ─────────────────────────────────────────────
+      const body=document.createElement('div');
+      body.className='dec-body';
+      body.innerHTML=`
+        ${(pain||fatigue||migraine)?`
+        <div class="dec-section" style="margin-top:12px">
+          <div class="dec-section-title">Scores</div>
+          <div class="dec-grid">
+            ${pain>0?`<div class="dec-cell"><div class="dc-label">Joint & muscle pain</div><div class="dc-value" style="color:var(--severe)">${pain}/10</div></div>`:''}
+            ${fatigue>0?`<div class="dec-cell"><div class="dc-label">Fatigue</div><div class="dc-value" style="color:var(--mod)">${fatigue}/10</div></div>`:''}
+            ${migraine>0?`<div class="dec-cell"><div class="dc-label">Migraine</div><div class="dc-value" style="color:var(--migraine)">${migraine}/10</div></div>`:''}
+          </div>
         </div>`:''}
-        ${(owala||electrolytes||sodaOnly)?`<div class="dec-weather" style="margin-top:4px">
-          ${owala?`<span class="dw">🫙 <span>${owala} Owala</span></span>`:''}
-          ${electrolytes?`<span class="dw">⚡ <span>Electrolytes: ${electrolytes}</span></span>`:''}
-          ${sodaOnly==='Yes'?`<span class="dw" style="color:var(--high)">🥤 <span>Sodas only</span></span>`:''}
+        ${(sleep||activity)?`
+        <div class="dec-section">
+          <div class="dec-section-title">Day overview</div>
+          <div class="dec-grid">
+            ${sleep?`<div class="dec-cell"><div class="dc-label">Sleep quality</div><div class="dc-value">${sleep}</div></div>`:''}
+            ${activity?`<div class="dec-cell"><div class="dc-label">Activity level</div><div class="dc-value">${activity}</div></div>`:''}
+          </div>
         </div>`:''}
-        ${pressure?`<div class="dec-weather">
-          <span class="dw">🔽 <span>${pressure} hPa</span></span>
-          <span class="dw">💧 <span>${humidity}%</span></span>
-          <span class="dw">🌧️ <span>${rain}mm</span></span>
-          <span class="dw">🌡️ <span>${tempMin}–${tempMax}°C</span></span>
-          ${painScore?`<span class="dw">Pain score: <span>${painScore}/100</span></span>`:''}
+        ${tags?`
+        <div class="dec-section">
+          <div class="dec-section-title">Symptoms & triggers</div>
+          <div class="dec-tags">${tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>
         </div>`:''}
-        <button class="dec-del" onclick="deleteEntry('${date}',this)">🗑 Delete</button>`;
+        ${notes?`
+        <div class="dec-section">
+          <div class="dec-section-title">Notes</div>
+          <div class="dec-notes">${notes}</div>
+        </div>`:''}
+        ${medication?`
+        <div class="dec-section">
+          <div class="dec-section-title">Medication</div>
+          <div class="dec-grid">
+            <div class="dec-cell" style="grid-column:1/-1"><div class="dc-label">Pills taken</div><div class="dc-value" style="font-size:.82rem">${medication}</div></div>
+            ${medicationHelped?`<div class="dec-cell"><div class="dc-label">Did it help?</div><div class="dc-value" style="color:${medicationHelped==='Yes'?'var(--low)':medicationHelped==='Partially'?'var(--mod)':'var(--severe)'}">${medicationHelped}</div></div>`:''}
+          </div>
+        </div>`:''}
+        ${(owala||electrolytes||sodaOnly)?`
+        <div class="dec-section">
+          <div class="dec-section-title">Hydration</div>
+          <div class="dec-grid">
+            ${owala?`<div class="dec-cell"><div class="dc-label">Owala bottles</div><div class="dc-value">${owala} × 700ml</div></div>`:''}
+            ${electrolytes?`<div class="dec-cell"><div class="dc-label">Electrolytes</div><div class="dc-value">${electrolytes}</div></div>`:''}
+            ${sodaOnly?`<div class="dec-cell"><div class="dc-label">Sodas only</div><div class="dc-value" style="color:${sodaOnly==='Yes'?'var(--high)':'var(--low)'}">${sodaOnly}</div></div>`:''}
+          </div>
+        </div>`:''}
+        ${pressure?`
+        <div class="dec-section">
+          <div class="dec-section-title">Weather that day</div>
+          <div class="dec-grid">
+            <div class="dec-cell"><div class="dc-label">Pressure</div><div class="dc-value">${pressure} hPa</div></div>
+            <div class="dec-cell"><div class="dc-label">Humidity</div><div class="dc-value">${humidity}%</div></div>
+            <div class="dec-cell"><div class="dc-label">Rain</div><div class="dc-value">${rain}mm</div></div>
+            <div class="dec-cell"><div class="dc-label">Temperature</div><div class="dc-value">${tempMin}–${tempMax}°C</div></div>
+            ${painScore?`<div class="dec-cell"><div class="dc-label">Pain score</div><div class="dc-value">${painScore}/100</div></div>`:''}
+            ${migraineScore?`<div class="dec-cell"><div class="dc-label">Migraine score</div><div class="dc-value" style="color:var(--migraine)">${migraineScore}/100</div></div>`:''}
+          </div>
+        </div>`:''}
+        <button class="dec-del" onclick="event.stopPropagation();deleteEntry('${date}',this)">🗑 Delete entry</button>`;
+
+      summary.addEventListener('click',()=>{
+        const isOpen=body.classList.contains('open');
+        if(openBody&&openBody!==body){openBody.classList.remove('open');openDec.classList.remove('open-dec');}
+        body.classList.toggle('open',!isOpen);
+        card.classList.toggle('open-dec',!isOpen);
+        openDec=!isOpen?card:null;
+        openBody=!isOpen?body:null;
+      });
+
+      card.appendChild(summary);
+      card.appendChild(body);
       c.appendChild(card);
     });
   }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
