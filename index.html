@@ -5,21 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PainCast — Weather Pain Forecast</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PainCast">
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "782c1410-5cae-4f84-a449-e6b71c9b56f0",
-      notifyButton: { enable: false }, // we handle prompting ourselves
-      welcomeNotification: { disable: true },
-    });
-  });
-</script>
+
 <style>
 :root {
   --bg:#0d0f14; --surface:#13161d; --card:#181c25; --border:rgba(255,255,255,0.07);
@@ -334,16 +320,7 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 
   <!-- ═══════ FORECAST TAB ═══════ -->
   <div id="forecastTab">
-    <div id="notifBanner" style="display:none;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);border-radius:13px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;animation:fadeUp .4s ease both">
-      <div style="flex:1;min-width:180px">
-        <div style="font-size:.85rem;font-weight:500;color:var(--accent);margin-bottom:3px">🔔 Daily diary reminder</div>
-        <div style="font-size:.78rem;color:var(--muted);line-height:1.5">Get a notification each evening to log your day. Tap Allow when prompted.</div>
-      </div>
-      <div style="display:flex;gap:7px">
-        <button class="btn btn-sm" onclick="requestNotifPermission()">Enable</button>
-        <button class="btn btn-sm btn-ghost" onclick="dismissNotifBanner()" style="font-size:.78rem">Not now</button>
-      </div>
-    </div>
+
     <div class="location-bar">
       <input type="text" id="cityInput" placeholder="City name…" />
       <button class="btn btn-ghost" id="geoBtn" title="Use my location">📍</button>
@@ -1384,62 +1361,12 @@ function switchDiaryTab(sub){
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  NOTIFICATIONS
-// ════════════════════════════════════════════════════════════════════
-function showNotifBannerIfNeeded(){
-  // Only relevant inside the PWA (home screen app)
-  const isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
-  if(!isStandalone)return;
-  // Dismissed this session already
-  if(sessionStorage.getItem('notif_dismissed'))return;
-
-  // If browser already has a definitive answer, respect it
-  if(!('Notification' in window))return;
-  if(Notification.permission==='denied')return;
-
-  // If already granted, no need for banner
-  if(Notification.permission==='granted'){
-    // Let OneSignal quietly re-register in background
-    return;
-  }
-
-  // permission === 'default' — ask OneSignal if we're already subscribed
-  window.OneSignalDeferred=window.OneSignalDeferred||[];
-  OneSignalDeferred.push(function(OneSignal){
-    try{
-      const opted=OneSignal.User?.PushSubscription?.optedIn;
-      if(opted){return;} // already subscribed, stay quiet
-    }catch(e){}
-    // Not subscribed — show the banner
-    document.getElementById('notifBanner').style.display='flex';
-  });
-}
-
-async function requestNotifPermission(){
-  document.getElementById('notifBanner').style.display='none';
-  window.OneSignalDeferred=window.OneSignalDeferred||[];
-  OneSignalDeferred.push(async function(OneSignal){
-    try{
-      await OneSignal.Notifications.requestPermission();
-    }catch(e){console.warn('OneSignal permission request failed',e);}
-  });
-}
-
-function dismissNotifBanner(){
-  document.getElementById('notifBanner').style.display='none';
-  // Use sessionStorage — lasts for this app session only.
-  // On next open OneSignal will confirm subscription state directly.
-  sessionStorage.setItem('notif_dismissed','1');
-}
-
-// ════════════════════════════════════════════════════════════════════
 //  BOOT
 // ════════════════════════════════════════════════════════════════════
 (async()=>{
   try{const loc=await geocode('Beveren, Belgium');document.getElementById('cityInput').value='Beveren, Belgium';await runForecast(loc);}
   catch(e){}
 })();
-showNotifBannerIfNeeded();
 </script>
 </body>
 </html>
