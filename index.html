@@ -1345,7 +1345,7 @@ async function renderStreakBar(){
       msg.textContent='✅ Logged today — great job!';
     } else if(daysAgo===1){
       dot.style.background='var(--mod)';
-      msg.textContent='Last logged: yesterday. Don't forget to log today!';
+      msg.textContent="Last logged: yesterday. Don't forget to log today!";
     } else if(daysAgo<=3){
       dot.style.background='var(--high)';
       msg.textContent=`Last logged: ${daysAgo} days ago. Time to catch up!`;
