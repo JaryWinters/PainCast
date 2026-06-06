@@ -1386,26 +1386,31 @@ function switchDiaryTab(sub){
 // ════════════════════════════════════════════════════════════════════
 //  NOTIFICATIONS
 // ════════════════════════════════════════════════════════════════════
-const NOTIF_DISMISSED_KEY='paincast_notif_dismissed';
-const NOTIF_SUBSCRIBED_KEY='paincast_notif_subscribed';
-
 function showNotifBannerIfNeeded(){
-  // Don't show if user dismissed or already subscribed via our own flag
-  if(localStorage.getItem(NOTIF_DISMISSED_KEY))return;
-  if(localStorage.getItem(NOTIF_SUBSCRIBED_KEY))return;
+  // Only relevant inside the PWA (home screen app)
+  const isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+  if(!isStandalone)return;
+  // Dismissed this session already
+  if(sessionStorage.getItem('notif_dismissed'))return;
+
+  // If browser already has a definitive answer, respect it
   if(!('Notification' in window))return;
   if(Notification.permission==='denied')return;
 
-  // Also check OneSignal subscription state if SDK already loaded
+  // If already granted, no need for banner
+  if(Notification.permission==='granted'){
+    // Let OneSignal quietly re-register in background
+    return;
+  }
+
+  // permission === 'default' — ask OneSignal if we're already subscribed
   window.OneSignalDeferred=window.OneSignalDeferred||[];
   OneSignalDeferred.push(function(OneSignal){
-    const isSubscribed=OneSignal.User&&OneSignal.User.PushSubscription&&OneSignal.User.PushSubscription.optedIn;
-    if(isSubscribed){
-      // Already subscribed — store flag and don't show banner
-      localStorage.setItem(NOTIF_SUBSCRIBED_KEY,'1');
-      return;
-    }
-    // Show banner
+    try{
+      const opted=OneSignal.User?.PushSubscription?.optedIn;
+      if(opted){return;} // already subscribed, stay quiet
+    }catch(e){}
+    // Not subscribed — show the banner
     document.getElementById('notifBanner').style.display='flex';
   });
 }
@@ -1414,16 +1419,17 @@ async function requestNotifPermission(){
   document.getElementById('notifBanner').style.display='none';
   window.OneSignalDeferred=window.OneSignalDeferred||[];
   OneSignalDeferred.push(async function(OneSignal){
-    await OneSignal.Notifications.requestPermission();
-    // Store our own flag regardless of what the browser permission API says
-    // (iOS Safari doesn't reliably reflect 'granted' via the Notification API)
-    localStorage.setItem(NOTIF_SUBSCRIBED_KEY,'1');
+    try{
+      await OneSignal.Notifications.requestPermission();
+    }catch(e){console.warn('OneSignal permission request failed',e);}
   });
 }
 
 function dismissNotifBanner(){
   document.getElementById('notifBanner').style.display='none';
-  localStorage.setItem(NOTIF_DISMISSED_KEY,'1');
+  // Use sessionStorage — lasts for this app session only.
+  // On next open OneSignal will confirm subscription state directly.
+  sessionStorage.setItem('notif_dismissed','1');
 }
 
 // ════════════════════════════════════════════════════════════════════
