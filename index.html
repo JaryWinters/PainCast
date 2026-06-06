@@ -588,10 +588,7 @@ async function fetchWeather(lat,lon){
     'relative_humidity_2m_max','relative_humidity_2m_mean','surface_pressure_mean',
     'surface_pressure_min','windspeed_10m_max','weathercode'
   ].join(',');
-  const hourly=[
-    'temperature_2m','relative_humidity_2m','surface_pressure','precipitation','windspeed_10m','weathercode'
-  ].join(',');
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&hourly=${hourly}&forecast_days=7&past_days=3&timezone=auto`;
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${daily}&forecast_days=7&past_days=3&timezone=auto`;
   const r=await fetch(url);
   const d=await r.json();
   if(d.error)throw new Error(d.reason||'Weather API error');
@@ -1363,8 +1360,13 @@ async function renderStreakBar(){
 //  BOOT
 // ════════════════════════════════════════════════════════════════════
 (async()=>{
-  try{const loc=await geocode('Beveren, Belgium');document.getElementById('cityInput').value='Beveren, Belgium';await runForecast(loc);}
-  catch(e){}
+  try{
+    const loc=await geocode('Beveren, Belgium');
+    document.getElementById('cityInput').value='Beveren, Belgium';
+    await runForecast(loc);
+  }catch(e){
+    console.error('Boot error:',e);
+  }
 })();
 </script>
 </body>
