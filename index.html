@@ -763,11 +763,11 @@ let currentLocation=null;
 function setLoading(on){const b=document.getElementById('loadingBox');on?show(b):hide(b);}
 function setError(msg){document.getElementById('errorMsg').textContent=msg;show(document.getElementById('errorBox'));}
 function clearResults(){
-  document.getElementById('quickLogBtn').style.display='none';
-  document.getElementById('warningBanner').classList.remove('visible');
-  ['errorBox','summaryCard','legend'].forEach(id=>hide(document.getElementById(id)));
-  ['pastLabel','futureLabel'].forEach(id=>document.getElementById(id).classList.remove('visible'));
-  ['pastList','futureList'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  const qlb=document.getElementById('quickLogBtn');if(qlb)qlb.style.display='none';
+  const wb=document.getElementById('warningBanner');if(wb)wb.classList.remove('visible');
+  ['errorBox','summaryCard','legend'].forEach(id=>{const el=document.getElementById(id);if(el)hide(el);});
+  ['pastLabel','futureLabel'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('visible');});
+  ['pastList','futureList'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('visible');});
 }
 
 async function runForecast(location){
@@ -800,8 +800,11 @@ async function searchCity(){
   const city=document.getElementById('cityInput').value.trim();
   if(!city)return;
   clearResults();setLoading(true);
-  try{const loc=await geocode(city);await runForecast(loc);}
-  catch(e){setLoading(false);setError(e.message);}
+  try{
+    const loc=await geocode(city);
+    localStorage.setItem('paincast_city',city);
+    await runForecast(loc);
+  }catch(e){setLoading(false);setError(e.message);}
 }
 
 document.getElementById('searchBtn').addEventListener('click',searchCity);
@@ -1361,11 +1364,18 @@ async function renderStreakBar(){
 // ════════════════════════════════════════════════════════════════════
 (async()=>{
   try{
-    const loc=await geocode('Beveren, Belgium');
-    document.getElementById('cityInput').value='Beveren, Belgium';
+    const savedCity=localStorage.getItem('paincast_city')||'Beveren, Belgium';
+    document.getElementById('cityInput').value=savedCity;
+    const loc=await geocode(savedCity);
     await runForecast(loc);
   }catch(e){
     console.error('Boot error:',e);
+    // Fallback to hardcoded default
+    try{
+      document.getElementById('cityInput').value='Beveren, Belgium';
+      const loc=await geocode('Beveren, Belgium');
+      await runForecast(loc);
+    }catch(e2){console.error('Fallback error:',e2);}
   }
 })();
 </script>
