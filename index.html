@@ -1387,39 +1387,38 @@ function switchDiaryTab(sub){
 //  NOTIFICATIONS
 // ════════════════════════════════════════════════════════════════════
 const NOTIF_DISMISSED_KEY='paincast_notif_dismissed';
+const NOTIF_SUBSCRIBED_KEY='paincast_notif_subscribed';
 
 function showNotifBannerIfNeeded(){
-  // Don't show if already dismissed or already granted/denied
+  // Don't show if user dismissed or already subscribed via our own flag
   if(localStorage.getItem(NOTIF_DISMISSED_KEY))return;
+  if(localStorage.getItem(NOTIF_SUBSCRIBED_KEY))return;
   if(!('Notification' in window))return;
-  if(Notification.permission==='granted'||Notification.permission==='denied')return;
-  // Only show on home screen PWA (standalone) or after a short delay on desktop
-  const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
-  if(isStandalone){
+  if(Notification.permission==='denied')return;
+
+  // Also check OneSignal subscription state if SDK already loaded
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  OneSignalDeferred.push(function(OneSignal){
+    const isSubscribed=OneSignal.User&&OneSignal.User.PushSubscription&&OneSignal.User.PushSubscription.optedIn;
+    if(isSubscribed){
+      // Already subscribed — store flag and don't show banner
+      localStorage.setItem(NOTIF_SUBSCRIBED_KEY,'1');
+      return;
+    }
+    // Show banner
     document.getElementById('notifBanner').style.display='flex';
-  } else {
-    // Show after 30 s on desktop/browser so it's not the first thing they see
-    setTimeout(()=>{
-      if(Notification.permission==='default')
-        document.getElementById('notifBanner').style.display='flex';
-    },30000);
-  }
+  });
 }
 
 async function requestNotifPermission(){
   document.getElementById('notifBanner').style.display='none';
-  try{
-    window.OneSignalDeferred=window.OneSignalDeferred||[];
-    OneSignalDeferred.push(async function(OneSignal){
-      await OneSignal.Notifications.requestPermission();
-      if(OneSignal.Notifications.permission){
-        console.log('PainCast: notifications enabled');
-      }
-    });
-  }catch(e){
-    // Fallback if OneSignal not loaded yet
-    await Notification.requestPermission();
-  }
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  OneSignalDeferred.push(async function(OneSignal){
+    await OneSignal.Notifications.requestPermission();
+    // Store our own flag regardless of what the browser permission API says
+    // (iOS Safari doesn't reliably reflect 'granted' via the Notification API)
+    localStorage.setItem(NOTIF_SUBSCRIBED_KEY,'1');
+  });
 }
 
 function dismissNotifBanner(){
