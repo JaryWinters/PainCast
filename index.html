@@ -298,6 +298,16 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .dw span{color:var(--text);}
 
 .trends-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:16px;}
+.month-picker{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.month-picker select{background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;cursor:pointer;}
+.month-picker select:focus{border-color:rgba(201,169,110,.4);}
+.month-picker label{font-size:.78rem;color:var(--muted);}
+.chart-wrap{position:relative;width:100%;margin:10px 0 4px;}
+.chart-wrap canvas{width:100%!important;display:block;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;}
+.cl-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted);}
+.cl-dot{width:10px;height:3px;border-radius:2px;}
 .trends-card h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:12px;}
 .trend-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.81rem;}
 .trend-item:last-child{border-bottom:none;}
@@ -512,12 +522,24 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 
     <!-- History -->
     <div id="diaryHistory" style="display:none">
+      <div class="month-picker">
+        <label>Showing:</label>
+        <select id="histMonthPicker" onchange="renderHistory()">
+          <option value="all">All entries</option>
+        </select>
+      </div>
       <div class="sync-row"><div class="sync-dot" id="histSyncDot"></div><span id="histSyncMsg">Loading…</span></div>
       <div id="entryList" class="diary-list"></div>
     </div>
 
     <!-- Trends -->
     <div id="diaryTrends" style="display:none">
+      <div class="month-picker">
+        <label>Showing:</label>
+        <select id="trendMonthPicker" onchange="renderTrends()">
+          <option value="all">All entries</option>
+        </select>
+      </div>
       <div class="sync-row"><div class="sync-dot" id="trendSyncDot"></div><span id="trendSyncMsg">Loading…</span></div>
       <div id="trendsContent"></div>
     </div>
@@ -1061,46 +1083,87 @@ async function saveEntry(){
   initDiary();
 }
 
+async function getAllEntries(){
+  const entries=await sheetsGet();
+  return entries.map(e=>({
+    date:String(e.Date||e.date||'').split('T')[0],
+    pain:Number(e.Pain||e.pain||0),
+    fatigue:Number(e.Fatigue||e.fatigue||0),
+    migraine:Number(e.Migraine||e.migraine||0),
+    tags:e.Tags||e.tags||'',
+    notes:e.Notes||e.notes||'',
+    pressure:Number(e.PressureAvg||e.pressure||0),
+    pressureMin:Number(e.PressureMin||0),
+    humidity:Number(e.Humidity||e.humidity||0),
+    rain:Number(e.Rain||e.rain||0),
+    tempMin:Number(e.TempMin||e.tempMin||0),
+    tempMax:Number(e.TempMax||e.tempMax||0),
+    wind:Number(e.Wind||e.wind||0),
+    painScore:Number(e.PainScore||e.painScore||0),
+    migraineScore:Number(e.MigraineScore||e.migraineScore||0),
+    medication:e.Medication||'',
+    medicationHelped:e.MedicationHelped||'',
+    owala:e.OwalBottles||e.owala||'',
+    electrolytes:e.Electrolytes||'',
+    sodaOnly:e.SodaOnly||'',
+    sleep:e.Sleep||'',
+    activity:e.Activity||'',
+  })).filter(e=>e.date);
+}
+
+function getMonthOptions(entries){
+  const seen=new Set();
+  entries.forEach(e=>{
+    if(e.date){const [y,m]=e.date.split('-');seen.add(`${y}-${m}`);}
+  });
+  return [...seen].sort().reverse();
+}
+
+function populateMonthPicker(pickerId,entries){
+  const sel=document.getElementById(pickerId);
+  const current=sel.value;
+  // Keep the "All" option, rebuild the rest
+  while(sel.options.length>1)sel.remove(1);
+  getMonthOptions(entries).forEach(ym=>{
+    const [y,m]=ym.split('-');
+    const label=`${MONTHS[parseInt(m)-1]} ${y}`;
+    const opt=document.createElement('option');
+    opt.value=ym;opt.textContent=label;
+    sel.appendChild(opt);
+  });
+  // Restore selection if still valid
+  if([...sel.options].some(o=>o.value===current))sel.value=current;
+}
+
+function filterByMonth(entries,pickerId){
+  const val=document.getElementById(pickerId)?.value||'all';
+  if(val==='all')return entries;
+  return entries.filter(e=>e.date&&e.date.startsWith(val));
+}
+
 async function renderHistory(){
   const dot=document.getElementById('histSyncDot');
   const msg=document.getElementById('histSyncMsg');
   dot.className='sync-dot loading';msg.textContent='Loading entries…';
   const c=document.getElementById('entryList');c.innerHTML='';
   try{
-    const entries=await sheetsGet();
-    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries loaded`;
-    if(!entries.length){c.innerHTML='<div class="no-entries">No diary entries yet.</div>';return;}
+    const allEntries=await getAllEntries();
+    populateMonthPicker('histMonthPicker',allEntries);
+    const entries=filterByMonth(allEntries,'histMonthPicker');
+    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries`;
+    if(!entries.length){c.innerHTML='<div class="no-entries">No entries for this period.</div>';return;}
     let openDec=null,openBody=null;
     entries.forEach(e=>{
-      // normalise: sheet returns PascalCase headers
-      const date=e.Date||e.date||'';
-      const pain=Number(e.Pain||e.pain||0);
-      const fatigue=Number(e.Fatigue||e.fatigue||0);
-      const migraine=Number(e.Migraine||e.migraine||0);
-      const tags=e.Tags||e.tags||'';
-      const notes=e.Notes||e.notes||'';
-      const pressure=e.PressureAvg||e.pressure||'';
-      const humidity=e.Humidity||e.humidity||'';
-      const rain=e.Rain||e.rain||'';
-      const tempMin=e.TempMin||e.tempMin||'';
-      const tempMax=e.TempMax||e.tempMax||'';
-      const painScore=e.PainScore||e.painScore||'';
-      const migraineScore=e.MigraineScore||e.migraineScore||'';
-      const medication=e.Medication||'';
-      const medicationHelped=e.MedicationHelped||'';
-      const owala=e.OwalBottles||e.owala||'';
-      const electrolytes=e.Electrolytes||'';
-      const sodaOnly=e.SodaOnly||'';
-      const sleep=e.Sleep||'';
-      const activity=e.Activity||'';
-      if(!date)return;
+      const {date,pain,fatigue,migraine,tags,notes,pressure,pressureMin,humidity,rain,
+             tempMin,tempMax,painScore,migraineScore,medication,medicationHelped,
+             owala,electrolytes,sodaOnly,sleep,activity}=e;
 
-      const card=document.createElement('div');
-      card.className='dec';
+      // Pressure context label
+      const presLabel=pressure<1000?'Very low — likely trigger':pressure<1008?'Low':pressure<1015?'Normal':'High';
+      const presColor=pressure<1000?'var(--severe)':pressure<1008?'var(--high)':pressure<1015?'var(--muted)':'var(--low)';
 
-      // ── Summary row (always visible) ──────────────────────────────
-      const summary=document.createElement('div');
-      summary.className='dec-summary';
+      const card=document.createElement('div');card.className='dec';
+      const summary=document.createElement('div');summary.className='dec-summary';
       summary.innerHTML=`
         <div class="dec-summary-left">
           <div class="dec-date">${fmtDate(date)}</div>
@@ -1112,14 +1175,12 @@ async function renderHistory(){
           <div class="dec-quick">
             ${sleep?`<span class="dqs">😴 <span>${sleep}</span></span>`:''}
             ${activity?`<span class="dqs">🏃 <span>${activity}</span></span>`:''}
-            ${medication?`<span class="dqs">💊 <span>${medication.split(';')[0].trim()}${medication.includes(';')?'…':''}</span></span>`:''}
+            ${pressure?`<span class="dqs">🔽 <span style="color:${presColor}">${pressure} hPa</span></span>`:''}
           </div>
         </div>
         <span class="dec-chevron">▼</span>`;
 
-      // ── Expanded body ─────────────────────────────────────────────
-      const body=document.createElement('div');
-      body.className='dec-body';
+      const body=document.createElement('div');body.className='dec-body';
       body.innerHTML=`
         ${(pain||fatigue||migraine)?`
         <div class="dec-section" style="margin-top:12px">
@@ -1129,7 +1190,7 @@ async function renderHistory(){
             ${fatigue>0?`<div class="dec-cell"><div class="dc-label">Fatigue</div><div class="dc-value" style="color:var(--mod)">${fatigue}/10</div></div>`:''}
             ${migraine>0?`<div class="dec-cell"><div class="dc-label">Migraine</div><div class="dc-value" style="color:var(--migraine)">${migraine}/10</div></div>`:''}
           </div>
-        </div>`:''}
+        </div>`:``}
         ${(sleep||activity)?`
         <div class="dec-section">
           <div class="dec-section-title">Day overview</div>
@@ -1137,17 +1198,17 @@ async function renderHistory(){
             ${sleep?`<div class="dec-cell"><div class="dc-label">Sleep quality</div><div class="dc-value">${sleep}</div></div>`:''}
             ${activity?`<div class="dec-cell"><div class="dc-label">Activity level</div><div class="dc-value">${activity}</div></div>`:''}
           </div>
-        </div>`:''}
+        </div>`:``}
         ${tags?`
         <div class="dec-section">
           <div class="dec-section-title">Symptoms & triggers</div>
           <div class="dec-tags">${tags.split(';').filter(Boolean).map(t=>`<span class="dec-tag">${t}</span>`).join('')}</div>
-        </div>`:''}
+        </div>`:``}
         ${notes?`
         <div class="dec-section">
           <div class="dec-section-title">Notes</div>
           <div class="dec-notes">${notes}</div>
-        </div>`:''}
+        </div>`:``}
         ${medication?`
         <div class="dec-section">
           <div class="dec-section-title">Medication</div>
@@ -1155,7 +1216,7 @@ async function renderHistory(){
             <div class="dec-cell" style="grid-column:1/-1"><div class="dc-label">Pills taken</div><div class="dc-value" style="font-size:.82rem">${medication}</div></div>
             ${medicationHelped?`<div class="dec-cell"><div class="dc-label">Did it help?</div><div class="dc-value" style="color:${medicationHelped==='Yes'?'var(--low)':medicationHelped==='Partially'?'var(--mod)':'var(--severe)'}">${medicationHelped}</div></div>`:''}
           </div>
-        </div>`:''}
+        </div>`:``}
         ${(owala||electrolytes||sodaOnly)?`
         <div class="dec-section">
           <div class="dec-section-title">Hydration</div>
@@ -1164,19 +1225,23 @@ async function renderHistory(){
             ${electrolytes?`<div class="dec-cell"><div class="dc-label">Electrolytes</div><div class="dc-value">${electrolytes}</div></div>`:''}
             ${sodaOnly?`<div class="dec-cell"><div class="dc-label">Sodas only</div><div class="dc-value" style="color:${sodaOnly==='Yes'?'var(--high)':'var(--low)'}">${sodaOnly}</div></div>`:''}
           </div>
-        </div>`:''}
+        </div>`:``}
         ${pressure?`
         <div class="dec-section">
           <div class="dec-section-title">Weather that day</div>
           <div class="dec-grid">
-            <div class="dec-cell"><div class="dc-label">Pressure</div><div class="dc-value">${pressure} hPa</div></div>
+            <div class="dec-cell">
+              <div class="dc-label">Pressure</div>
+              <div class="dc-value" style="color:${presColor}">${pressure} hPa</div>
+              <div style="font-size:.68rem;color:${presColor};margin-top:2px">${presLabel}</div>
+            </div>
             <div class="dec-cell"><div class="dc-label">Humidity</div><div class="dc-value">${humidity}%</div></div>
             <div class="dec-cell"><div class="dc-label">Rain</div><div class="dc-value">${rain}mm</div></div>
             <div class="dec-cell"><div class="dc-label">Temperature</div><div class="dc-value">${tempMin}–${tempMax}°C</div></div>
-            ${painScore?`<div class="dec-cell"><div class="dc-label">Pain score</div><div class="dc-value">${painScore}/100</div></div>`:''}
+            ${painScore?`<div class="dec-cell"><div class="dc-label">Weather pain score</div><div class="dc-value">${painScore}/100</div></div>`:''}
             ${migraineScore?`<div class="dec-cell"><div class="dc-label">Migraine score</div><div class="dc-value" style="color:var(--migraine)">${migraineScore}/100</div></div>`:''}
           </div>
-        </div>`:''}
+        </div>`:``}
         <button class="dec-del" onclick="event.stopPropagation();deleteEntry('${date}',this)">🗑 Delete entry</button>`;
 
       summary.addEventListener('click',()=>{
@@ -1187,10 +1252,7 @@ async function renderHistory(){
         openDec=!isOpen?card:null;
         openBody=!isOpen?body:null;
       });
-
-      card.appendChild(summary);
-      card.appendChild(body);
-      c.appendChild(card);
+      card.appendChild(summary);card.appendChild(body);c.appendChild(card);
     });
   }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
 }
@@ -1202,99 +1264,201 @@ async function deleteEntry(date,btn){
   btn.closest('.dec').remove();
 }
 
+function drawChart(canvasId,days,painData,fatigueData,migraineData,weatherScoreData){
+  requestAnimationFrame(()=>{
+    const canvas=document.getElementById(canvasId);
+    if(!canvas)return;
+    const W=canvas.parentElement.offsetWidth;
+    const H=160;
+    canvas.width=W*2;canvas.height=H*2;
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    const ctx=canvas.getContext('2d');
+    ctx.scale(2,2);
+    const pad={t:10,r:12,b:28,l:28};
+    const cw=W-pad.l-pad.r;
+    const ch=H-pad.t-pad.b;
+    const n=days.length;
+    if(n<2)return;
+    const xp=i=>pad.l+i*(cw/(n-1));
+    const yp=v=>pad.t+ch-(v/10)*ch;
+
+    // Grid lines
+    ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+    [0,2,4,6,8,10].forEach(v=>{
+      const y=yp(v);
+      ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='9px DM Sans,sans-serif';
+      ctx.fillText(v,2,y+3);
+    });
+
+    // X axis day labels
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='8px DM Sans,sans-serif';ctx.textAlign='center';
+    days.forEach((d,i)=>{
+      if(n<=14||i%2===0){
+        const [,m,dy]=d.split('-');
+        ctx.fillText(`${parseInt(dy)}/${parseInt(m)}`,xp(i),H-pad.b+12);
+      }
+    });
+    ctx.textAlign='left';
+
+    function drawLine(data,color,dash=[]){
+      const pts=data.map((v,i)=>({x:xp(i),y:yp(v)})).filter((_,i)=>data[i]>0);
+      if(pts.length<2)return;
+      ctx.beginPath();ctx.setLineDash(dash);ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+      pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+      ctx.stroke();ctx.setLineDash([]);
+    }
+
+    function drawArea(data,color){
+      const pts=data.map((v,i)=>({x:xp(i),y:yp(v),v}));
+      ctx.beginPath();
+      pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+      ctx.lineTo(xp(n-1),yp(0));ctx.lineTo(xp(0),yp(0));ctx.closePath();
+      ctx.fillStyle=color;ctx.fill();
+    }
+
+    // Weather score in background (converted 0-100 → 0-10)
+    if(weatherScoreData&&weatherScoreData.some(v=>v>0)){
+      drawArea(weatherScoreData.map(v=>v/10),'rgba(126,159,201,0.08)');
+      drawLine(weatherScoreData.map(v=>v/10),'rgba(126,159,201,0.35)',[4,3]);
+    }
+    // Migraine
+    if(migraineData&&migraineData.some(v=>v>0))drawLine(migraineData,'rgba(155,114,207,0.7)');
+    // Fatigue
+    if(fatigueData&&fatigueData.some(v=>v>0))drawLine(fatigueData,'rgba(232,198,106,0.7)');
+    // Pain (most prominent)
+    drawLine(painData,'rgba(201,79,79,0.9)');
+    // Dots for pain
+    painData.forEach((v,i)=>{
+      if(v<=0)return;
+      ctx.beginPath();ctx.arc(xp(i),yp(v),3,0,Math.PI*2);
+      ctx.fillStyle=v>=7?'#c94f4f':v>=4?'#e8c66a':'#5bb88a';ctx.fill();
+    });
+  });
+}
+
 async function renderTrends(){
   const dot=document.getElementById('trendSyncDot');
   const msg=document.getElementById('trendSyncMsg');
   dot.className='sync-dot loading';msg.textContent='Loading…';
   const c=document.getElementById('trendsContent');c.innerHTML='';
   try{
-    const entries=await sheetsGet();
-    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries analysed`;
+    const allEntries=await getAllEntries();
+    populateMonthPicker('trendMonthPicker',allEntries);
+    const entries=filterByMonth(allEntries,'trendMonthPicker');
+    const isAllTime=document.getElementById('trendMonthPicker')?.value==='all';
+
+    dot.className='sync-dot ok';msg.textContent=`${entries.length} entries`;
     if(entries.length<3){c.innerHTML='<div class="no-entries">Log at least 3 days to see trends.</div>';return;}
 
-    // normalise entries to consistent lowercase keys
-    const norm=entries.map(e=>({
-      date:e.Date||e.date||'',
-      pain:Number(e.Pain||e.pain||0),
-      fatigue:Number(e.Fatigue||e.fatigue||0),
-      migraine:Number(e.Migraine||e.migraine||0),
-      tags:e.Tags||e.tags||'',
-      pressure:Number(e.PressureAvg||e.pressure||0),
-      humidity:Number(e.Humidity||e.humidity||0),
-    })).filter(e=>e.date);
+    // Sort oldest→newest for charts
+    const chronological=[...entries].sort((a,b)=>a.date.localeCompare(b.date));
 
-    const recent=norm.slice(0,14);
-    const ap=(recent.filter(e=>e.pain>0).reduce((s,e)=>s+e.pain,0)/Math.max(recent.filter(e=>e.pain>0).length,1)).toFixed(1);
-    const migraineDays=recent.filter(e=>e.migraine>=5).length;
-    const highPainDays=recent.filter(e=>e.pain>=7).length;
+    // Stats
+    const painEntries=entries.filter(e=>e.pain>0);
+    const fatEntries=entries.filter(e=>e.fatigue>0);
+    const migEntries=entries.filter(e=>e.migraine>0);
+    const ap=painEntries.length?(painEntries.reduce((s,e)=>s+e.pain,0)/painEntries.length).toFixed(1):'—';
+    const af=fatEntries.length?(fatEntries.reduce((s,e)=>s+e.fatigue,0)/fatEntries.length).toFixed(1):'—';
+    const am=migEntries.length?(migEntries.reduce((s,e)=>s+e.migraine,0)/migEntries.length).toFixed(1):'—';
+    const highPainDays=entries.filter(e=>e.pain>=7).length;
+    const migraineDays=entries.filter(e=>e.migraine>=5).length;
+    const medDays=entries.filter(e=>e.medication).length;
+    const helpedDays=entries.filter(e=>e.medicationHelped==='Yes').length;
+    const partialDays=entries.filter(e=>e.medicationHelped==='Partially').length;
 
-    const tagFreq={};
-    recent.forEach(e=>(e.tags||'').split(';').filter(Boolean).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
-    const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,4);
-
+    // Day-of-week worst pain
     const dowPain={};const dowCount={};
-    norm.forEach(e=>{if(e.pain>0){const dow=new Date(e.date+'T12:00:00').getDay();dowPain[dow]=(dowPain[dow]||0)+e.pain;dowCount[dow]=(dowCount[dow]||0)+1;}});
-    const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d]})).sort((a,b)=>b.avg-a.avg);
-    const worstDay=dowAvg[0];
+    entries.forEach(e=>{if(e.pain>0){const d=new Date(e.date+'T12:00:00').getDay();dowPain[d]=(dowPain[d]||0)+e.pain;dowCount[d]=(dowCount[d]||0)+1;}});
+    const dowAvg=Object.entries(dowPain).map(([d,s])=>({day:parseInt(d),avg:s/dowCount[d],n:dowCount[d]})).sort((a,b)=>b.avg-a.avg);
+    const worstDow=dowAvg[0];
+    const bestDow=[...dowAvg].reverse()[0];
 
-    const wxEntries=recent.filter(e=>e.pressure&&e.pain>0);
+    // Sleep correlation
+    const sleepMap={'Great':4,'Okay':3,'Poor':2,'Bad':1,'Very bad':1};
+    const sleepCorr=entries.filter(e=>e.sleep&&e.pain>0);
+    const poorSleepHighPain=sleepCorr.filter(e=>(sleepMap[e.sleep]||3)<=2&&e.pain>=6).length;
+
+    // Pressure correlation
+    const wxEntries=entries.filter(e=>e.pressure>0&&e.pain>0);
     let corrNote='';
     if(wxEntries.length>=3){
-      const highPainLowPressure=wxEntries.filter(e=>e.pain>=6&&e.pressure<1010).length;
-      if(highPainLowPressure>=2)corrNote=`On <strong>${highPainLowPressure} days</strong> with pain ≥6, pressure was below 1010 hPa — a clear weather correlation.`;
-      const highPainHighHumidity=wxEntries.filter(e=>e.pain>=6&&e.humidity>75).length;
-      if(highPainHighHumidity>=2&&!corrNote)corrNote=`On <strong>${highPainHighHumidity} days</strong> with high pain, humidity was above 75% — possible correlation.`;
+      const hlp=wxEntries.filter(e=>e.pain>=6&&e.pressure<1010).length;
+      if(hlp>=2)corrNote=`On <strong>${hlp} days</strong> with pain ≥6, pressure was below 1010 hPa — pressure is likely a trigger.`;
+      const hhh=wxEntries.filter(e=>e.pain>=6&&e.humidity>75).length;
+      if(hhh>=2&&!corrNote)corrNote=`On <strong>${hhh} days</strong> with high pain, humidity exceeded 75%.`;
     }
 
-    const trends=[];
-    if(ap>5)trends.push({icon:'📈',text:`Average joint &amp; muscle pain is <strong>${ap}/10</strong> — consistently elevated. Consider discussing with your doctor.`});
-    else trends.push({icon:'📊',text:`Average joint &amp; muscle pain is <strong>${ap}/10</strong> — ${Number(ap)<3?'well-managed':'moderate'}.`});
-    if(migraineDays>2)trends.push({icon:'🌀',text:`<strong>${migraineDays}</strong> days with significant migraines (≥5) in recent entries.`});
-    if(corrNote)trends.push({icon:'☁️',text:corrNote});
-    if(topTags.length)trends.push({icon:'🏷️',text:`Most frequent symptoms: <strong>${topTags.map(([t,n])=>`${t} (${n}×)`).join(', ')}</strong>.`});
-    if(worstDay&&dowCount[worstDay.day]>=2)trends.push({icon:'📅',text:`<strong>${DAYS[worstDay.day]}</strong> tends to have the highest pain on average (${worstDay.avg.toFixed(1)}/10).`});
-    if(highPainDays>3)trends.push({icon:'⚠️',text:`<strong>${highPainDays} days</strong> with pain ≥7 in recent entries.`});
+    // Tag frequency
+    const tagFreq={};
+    entries.forEach(e=>(e.tags||'').split(';').filter(Boolean).forEach(t=>{tagFreq[t]=(tagFreq[t]||0)+1;}));
+    const topTags=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
 
-    const sparkData=[...recent].reverse().map(e=>e.pain||0);
+    // Hydration on good vs bad days
+    const goodHydration=entries.filter(e=>e.pain>0&&e.pain<=4&&Number(e.owala)>=2).length;
+    const badHydration=entries.filter(e=>e.pain>=7&&Number(e.owala)<=1).length;
+
+    // Build insights list
+    const insights=[];
+    if(ap!=='—'){
+      const apNum=Number(ap);
+      insights.push({icon:'💢',text:`Average pain: <strong>${ap}/10</strong> — ${apNum>=7?'consistently severe, worth discussing with your doctor':apNum>=5?'moderately elevated':apNum>=3?'manageable':'well-controlled'}.`});
+    }
+    if(af!=='—')insights.push({icon:'😴',text:`Average fatigue: <strong>${af}/10</strong>.`});
+    if(am!=='—'&&Number(am)>0)insights.push({icon:'🌀',text:`Average migraine severity: <strong>${am}/10</strong> on days with migraines.`});
+    if(highPainDays>0)insights.push({icon:'🔴',text:`<strong>${highPainDays}</strong> ${highPainDays===1?'day':'days'} with severe pain (≥7/10) in this period.`});
+    if(migraineDays>0)insights.push({icon:'🌀',text:`<strong>${migraineDays}</strong> ${migraineDays===1?'day':'days'} with significant migraines (≥5/10).`});
+    if(corrNote)insights.push({icon:'🔽',text:corrNote});
+    if(worstDow&&worstDow.n>=2)insights.push({icon:'📅',text:`<strong>${DAYS[worstDow.day]}</strong> tends to be the hardest day (avg pain ${worstDow.avg.toFixed(1)}/10).`});
+    if(bestDow&&bestDow.n>=2&&bestDow.day!==worstDow?.day)insights.push({icon:'✨',text:`<strong>${DAYS[bestDow.day]}</strong> tends to be the easiest day (avg pain ${bestDow.avg.toFixed(1)}/10).`});
+    if(poorSleepHighPain>=2)insights.push({icon:'😴',text:`On <strong>${poorSleepHighPain} days</strong> with poor/bad sleep, pain was ≥6 — sleep quality appears to affect pain levels.`});
+    if(medDays>0)insights.push({icon:'💊',text:`Medication taken on <strong>${medDays}</strong> ${medDays===1?'day':'days'}. Helped on ${helpedDays}, partially on ${partialDays}.`});
+    if(goodHydration>=2)insights.push({icon:'🫙',text:`On days with ≥2 Owala bottles, pain tended to be lower — hydration may help.`});
+    if(topTags.length)insights.push({icon:'🏷️',text:`Most frequent symptoms: <strong>${topTags.map(([t,n])=>`${t} (${n}×)`).join(', ')}</strong>.`});
+
+    // Chart data
+    const days=chronological.map(e=>e.date);
+    const painData=chronological.map(e=>e.pain);
+    const fatigueData=chronological.map(e=>e.fatigue);
+    const migraineData=chronological.map(e=>e.migraine);
+    const weatherData=chronological.map(e=>e.painScore); // 0-100 scale, drawn at /10
 
     c.innerHTML=`
       <div class="trends-card">
-        <h3>📈 Insights (last ${recent.length} entries)</h3>
-        ${trends.map(t=>`<div class="trend-item"><div class="trend-icon">${t.icon}</div><div class="trend-text">${t.text}</div></div>`).join('')}
+        <h3>📊 Summary${isAllTime?'':`  — ${document.getElementById('trendMonthPicker').options[document.getElementById('trendMonthPicker').selectedIndex].text}`}</h3>
+        <div class="dec-grid" style="margin-bottom:0">
+          <div class="dec-cell"><div class="dc-label">Avg pain</div><div class="dc-value" style="color:var(--severe)">${ap}/10</div></div>
+          <div class="dec-cell"><div class="dc-label">Avg fatigue</div><div class="dc-value" style="color:var(--mod)">${af}/10</div></div>
+          <div class="dec-cell"><div class="dc-label">Avg migraine</div><div class="dc-value" style="color:var(--migraine)">${am}/10</div></div>
+          <div class="dec-cell"><div class="dc-label">High pain days</div><div class="dc-value">${highPainDays}</div></div>
+          <div class="dec-cell"><div class="dc-label">Migraine days</div><div class="dc-value">${migraineDays}</div></div>
+          <div class="dec-cell"><div class="dc-label">Entries logged</div><div class="dc-value">${entries.length}</div></div>
+        </div>
       </div>
+
       <div class="trends-card">
-        <h3>Joint pain history (oldest → newest)</h3>
-        <div class="mini-chart"><canvas id="sparkCanvas"></canvas></div>
-        <div style="font-size:.72rem;color:var(--muted);text-align:right;margin-top:3px">Scale 0–10</div>
+        <h3>📈 Pain, fatigue &amp; migraine over time</h3>
+        <div class="chart-wrap"><canvas id="mainChart" style="height:160px"></canvas></div>
+        <div class="chart-legend">
+          <div class="cl-item"><div class="cl-dot" style="background:#c94f4f"></div>Pain</div>
+          <div class="cl-item"><div class="cl-dot" style="background:#e8c66a"></div>Fatigue</div>
+          <div class="cl-item"><div class="cl-dot" style="background:#9b72cf"></div>Migraine</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(126,159,201,0.5);border:1px dashed rgba(126,159,201,0.5)"></div>Weather pain forecast</div>
+        </div>
+      </div>
+
+      <div class="trends-card">
+        <h3>💡 Insights</h3>
+        ${insights.map(t=>`<div class="trend-item"><div class="trend-icon">${t.icon}</div><div class="trend-text">${t.text}</div></div>`).join('')}
       </div>`;
 
-    requestAnimationFrame(()=>{
-      const canvas=document.getElementById('sparkCanvas');
-      if(!canvas||!sparkData.length)return;
-      const w=canvas.parentElement.offsetWidth;
-      canvas.width=w*2;canvas.height=144;canvas.style.width=w+'px';canvas.style.height='72px';
-      const ctx=canvas.getContext('2d');
-      const maxV=10,pad=14*2,cw=canvas.width,ch=canvas.height;
-      const xStep=(cw-pad*2)/(Math.max(sparkData.length-1,1));
-      const grad=ctx.createLinearGradient(0,0,0,ch);
-      grad.addColorStop(0,'rgba(201,79,79,.35)');grad.addColorStop(1,'rgba(201,79,79,0)');
-      ctx.beginPath();
-      sparkData.forEach((v,i)=>{const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-      ctx.lineTo(pad+(sparkData.length-1)*xStep,ch-pad);ctx.lineTo(pad,ch-pad);ctx.closePath();
-      ctx.fillStyle=grad;ctx.fill();
-      ctx.beginPath();ctx.strokeStyle='#c94f4f';ctx.lineWidth=3;ctx.lineJoin='round';
-      sparkData.forEach((v,i)=>{const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-      ctx.stroke();
-      sparkData.forEach((v,i)=>{
-        const x=pad+i*xStep;const y=ch-pad-(v/maxV)*(ch-pad*2);
-        ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
-        ctx.fillStyle=v>=7?'#c94f4f':v>=4?'#e8c66a':'#5bb88a';ctx.fill();
-      });
-    });
-  }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;}
+    drawChart('mainChart',days,painData,fatigueData,migraineData,weatherData);
+
+  }catch(e){dot.className='sync-dot err';msg.textContent='Error: '+e.message;console.error(e);}
 }
 
 // ════════════════════════════════════════════════════════════════════
+//  TAB SWITCHING// ════════════════════════════════════════════════════════════════════
 //  TAB SWITCHING
 // ════════════════════════════════════════════════════════════════════
 function switchTab(tab){
