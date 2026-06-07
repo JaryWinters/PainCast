@@ -123,7 +123,7 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .chevron{font-size:.65rem;color:var(--muted);margin-left:3px;transition:transform .22s;display:inline-block;}
 .day-row.open-row .chevron{transform:rotate(180deg);}
 
-.day-body{display:none;padding:0 18px 16px;animation:fadeDown .22s ease both;}
+.day-body{display:none;padding:14px 18px 18px;animation:fadeDown .22s ease both;}
 .day-body.open{display:block;}
 
 
@@ -184,15 +184,24 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
 .form-row input[type=date]{background:var(--surface);border:1px solid var(--border);border-radius:9px;
   padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
 .form-row input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6);}
-.rating-section{margin-bottom:12px;}
-.rating-label{font-size:.78rem;color:var(--muted);margin-bottom:7px;}
-.rating-row{display:flex;gap:6px;flex-wrap:wrap;}
-.rbt{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
-  color:var(--muted);font-size:.82rem;font-weight:500;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;}
-.rbt:hover{border-color:var(--accent);color:var(--text);}
-.rbt.sel-pain{background:rgba(201,79,79,.25);border-color:var(--severe);color:#e89090;}
-.rbt.sel-fatigue{background:rgba(232,198,106,.2);border-color:var(--mod);color:#e8d070;}
-.rbt.sel-migraine{background:rgba(155,114,207,.2);border-color:var(--migraine);color:#c4a8f0;}
+.rating-section{margin-bottom:14px;}
+.rating-label{font-size:.78rem;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.rating-label .rl-val{font-size:.88rem;font-weight:500;color:var(--text);}
+.slider-wrap{position:relative;padding:4px 0;}
+.diary-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:100px;
+  outline:none;cursor:pointer;background:var(--surface);border:none;}
+.diary-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;
+  border-radius:50%;cursor:pointer;border:2px solid var(--bg);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .15s;}
+.diary-slider::-moz-range-thumb{width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:2px solid var(--bg);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.slider-pain::-webkit-slider-thumb{background:var(--severe);}
+.slider-pain::-moz-range-thumb{background:var(--severe);}
+.slider-fatigue::-webkit-slider-thumb{background:var(--mod);}
+.slider-fatigue::-moz-range-thumb{background:var(--mod);}
+.slider-migraine::-webkit-slider-thumb{background:var(--migraine);}
+.slider-migraine::-moz-range-thumb{background:var(--migraine);}
+.slider-ticks{display:flex;justify-content:space-between;padding:4px 0 0;margin-top:2px;}
+.slider-ticks span{font-size:.65rem;color:var(--muted);text-align:center;width:10%;}
 .diary-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 .diary-tag{padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
   color:var(--muted);font-size:.74rem;cursor:pointer;transition:all .18s;}
@@ -396,16 +405,46 @@ header{text-align:center;margin-bottom:32px;animation:fadeDown .8s ease both;}
           <input type="date" id="diaryDate" />
         </div>
         <div class="rating-section">
-          <div class="rating-label">💢 Joint &amp; muscle pain level (1 = none → 10 = severe)</div>
-          <div class="rating-row" id="painRating"></div>
+          <div class="rating-label">
+            <span>💢 Joint &amp; muscle pain</span>
+            <span class="rl-val" id="painVal">—</span>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" class="diary-slider slider-pain" id="painSlider" min="1" max="10" value="0"
+              oninput="onSlider('pain','painSlider','painVal','#c94f4f')">
+          </div>
+          <div class="slider-ticks">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
         </div>
         <div class="rating-section">
-          <div class="rating-label">😴 Fatigue level (1–10)</div>
-          <div class="rating-row" id="fatigueRating"></div>
+          <div class="rating-label">
+            <span>😴 Fatigue</span>
+            <span class="rl-val" id="fatigueVal">—</span>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" class="diary-slider slider-fatigue" id="fatigueSlider" min="1" max="10" value="0"
+              oninput="onSlider('fatigue','fatigueSlider','fatigueVal','#e8c66a')">
+          </div>
+          <div class="slider-ticks">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
         </div>
         <div class="rating-section">
-          <div class="rating-label">🌀 Migraine severity (0 = none → 10 = severe)</div>
-          <div class="rating-row" id="migraineRating"></div>
+          <div class="rating-label">
+            <span>🌀 Migraine severity</span>
+            <span class="rl-val" id="migraineVal">—</span>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" class="diary-slider slider-migraine" id="migraineSlider" min="0" max="10" value="0"
+              oninput="onSlider('migraine','migraineSlider','migraineVal','#9b72cf')">
+          </div>
+          <div class="slider-ticks">
+            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
         </div>
         <div style="font-size:.77rem;color:var(--muted);margin-bottom:7px">Symptoms / triggers noticed:</div>
         <div class="diary-tags" id="tagButtons"></div>
@@ -850,13 +889,16 @@ async function sheetsDelete(date){
 // ════════════════════════════════════════════════════════════════════
 let diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false,sleep:'',activity:'',medicationHelped:''};
 
-function buildRatingBtns(cid,key,start,max){
-  const c=document.getElementById(cid);c.innerHTML='';
-  for(let v=start;v<=max;v++){
-    const b=document.createElement('button');b.className='rbt';b.textContent=v;
-    b.onclick=()=>{diaryState[key]=v;c.querySelectorAll('.rbt').forEach(x=>x.className='rbt');b.classList.add(`sel-${key}`);};
-    c.appendChild(b);
-  }
+function onSlider(key,sliderId,valId,color){
+  const val=Number(document.getElementById(sliderId).value);
+  diaryState[key]=val;
+  const label=document.getElementById(valId);
+  label.textContent=val+'/10';
+  label.style.color=color;
+  // Update slider track fill
+  const slider=document.getElementById(sliderId);
+  const pct=(val-Number(slider.min))/(Number(slider.max)-Number(slider.min))*100;
+  slider.style.background=`linear-gradient(to right,${color} ${pct}%,var(--surface) ${pct}%)`;
 }
 
 function buildTagBtns(){
@@ -939,9 +981,14 @@ function toggleElektro(){
 
 function initDiary(){
   document.getElementById('diaryDate').value=todayStr();
-  buildRatingBtns('painRating','pain',1,10);
-  buildRatingBtns('fatigueRating','fatigue',1,10);
-  buildRatingBtns('migraineRating','migraine',0,10);
+  // Reset sliders
+  ['painSlider','fatigueSlider','migraineSlider'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value=0;el.style.background='var(--surface)';}
+  });
+  ['painVal','fatigueVal','migraineVal'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.textContent='—';
+  });
   buildTagBtns();
   diaryState={pain:0,fatigue:0,migraine:0,tags:[],pills:{},owala:0,elektro:false,sodaOnly:false,sleep:'',activity:'',medicationHelped:''};
   buildPillList();
