@@ -718,6 +718,13 @@ function renderDayBody(day,isPast){
         <div class="di-label">Rain / Wind</div>
         <div class="di-value">${day.rain}mm / ${day.wind}km/h</div>
       </div>
+      <div class="detail-item">
+        <div class="di-label">Pressure</div>
+        <div class="di-value" style="color:${day.pressure<1005?'var(--high)':day.pressure<1013?'var(--mod)':'var(--muted)'}">${day.pressure} hPa</div>
+        <div class="di-sub" style="color:${day.pressure<1005?'var(--high)':day.pressure<1013?'var(--mod)':'var(--muted)'}">
+          ${day.pressureDrop>3?`↓ dropped ${day.pressureDrop} hPa`:day.pressureRise>3?`↑ rose ${day.pressureRise} hPa`:pressureLabel(day.pressure)}
+        </div>
+      </div>
     </div>
     ${isPast
       ?`<div class="advice-box ab-past">📅 ${painAdvice(day,day.level)}</div>`
@@ -802,6 +809,11 @@ function renderSummary(location,day){
       <div class="metric-label">Rain</div><div class="metric-note" style="color:${day.rain>5?'var(--high)':day.rain>0?'var(--mod)':'var(--muted)'}">${day.rain>10?'Heavy':day.rain>5?'Moderate':day.rain>0?'Light':'None'}</div></div>
     <div class="metric"><div class="metric-icon">💨</div><div class="metric-value">${day.wind} km/h</div>
       <div class="metric-label">Wind</div><div class="metric-note" style="color:${day.wind>40?'var(--high)':'var(--muted)'}">${day.wind>60?'Strong':day.wind>40?'Gusty':day.wind>20?'Breezy':'Calm'}</div></div>
+    <div class="metric"><div class="metric-icon">🔽</div><div class="metric-value" style="color:${day.pressure<1005?'var(--high)':day.pressure<1013?'var(--mod)':'var(--muted)'}">${day.pressure} hPa</div>
+      <div class="metric-label">Pressure</div>
+      <div class="metric-note" style="color:${day.pressure<1005?'var(--high)':day.pressure<1013?'var(--mod)':'var(--muted)'}">
+        ${day.pressureDrop>3?`↓ −${day.pressureDrop} hPa`:day.pressureRise>3?`↑ +${day.pressureRise} hPa`:pressureLabel(day.pressure)}
+      </div></div>
     <div class="score-bar-wrap" style="grid-column:1/-1">
       <div class="score-bar-labels"><span>Joint &amp; muscle pain risk</span><span style="color:var(--text);font-weight:500">${day.score}/100</span></div>
       <div class="score-bar-track"><div class="score-bar-fill" style="width:${day.score}%;background:${LEVEL_COLORS[day.level]}"></div></div>
